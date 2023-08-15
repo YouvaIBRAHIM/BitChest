@@ -1,71 +1,59 @@
 import axios from "axios";
 import { getFromSessionStorage } from "./Storage.service";
 
-const baseURL = import.meta.env.VITE_SERVER_URL;
+axios.defaults.withCredentials = true;
+const baseURL = import.meta.env.VITE_API_URL;
+
 // initialisation d'une instance axios
 const instance = axios.create({
   baseURL: baseURL,
   headers: {
+    Accept: 'Content-Type',
     "Content-Type": "application/json",
+    withCredentials: true
   },
 });
 
-instance.interceptors.request.use((config) => {
-  const token = getFromSessionStorage('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+// instance.interceptors.request.use((config) => {
+//   const token = getFromSessionStorage('token');
+//   if (token) {
+//     config.headers.Authorization = `Bearer ${token}`;
+//   }
+//   return config;
+// });
+
+export const getToken = async () => {
+  await axios.get(baseURL + "/sanctum/csrf-cookie");
+}
 
 /**
  * permet de s'authentifier via une requete API de type POST 
- * @param {Object} identifiers contient les clés "email" et "password" nécessaires pour s'authentifier
+ * @param {Object} credentials contient les clés "email" et "password" nécessaires pour s'authentifier
  * @returns Si les identifiants sont correctes, la fonction retourne les informations de l'utilisateur et un token valide, sinon elle retourne une erreur
  */
-export async function onLogin(identifiers) {
-  const loginApi = import.meta.env.VITE_LOGIN_API;  
-  
-  try {
-    const response = await instance.post(loginApi, identifiers)
+export const onLogin = async (credentials) => {
+  await getToken();
 
+  try {
+    const response = await instance.post('/login', credentials);
     return response;
   } catch (error) {
-    return error.response;
+    return Promise.reject(error.response?.data?.message ?? error.message);
   }
 }
 
-/**
- * récupère un collaborateur au hasard via une requete API
- * @returns la réponse de la requete API axios 
- */
-export async function getRandomCollaboraterFromApi() {
-  const randomCollaboraterApi = import.meta.env.VITE_RANDOM_COLLABORATER_API;  
-  
+
+export const getUser = async () => {
+  await getToken();
+
   try {
-    const response = await instance.get(randomCollaboraterApi)
-    return response;
+    const response = await instance.get("/api/user");
+    return response.data;
   } catch (error) {
-    return error.response;
+      console.log("🚀 ~ file: Api.service.js:54 ~ getUser ~ error:", error)
+      return false;
   }
 }
-
-/**
- * récupère la liste de tous les collaborateurs via une requete API
- * @returns un tableau d'objets de tous les collaborateurs 
- */
- export async function getCollaboratersListFromApi() {
-  const collaboraterListApi = import.meta.env.VITE_COLLABORATERS_LIST_API;  
-  
-  try {
-    const response = await instance.get(collaboraterListApi)
-
-    return response;
-  } catch (error) {
-    return error.response;
-  }
-}
-
 /**
  * ajoute un collaborateur via une requete API
  * @param {Object} data informations du nouveau collaborateur

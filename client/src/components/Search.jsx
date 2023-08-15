@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import styles from "../styles/Search.module.css";
 import {useSelector, useDispatch} from "react-redux";
-import { filterCollaboratersToDisplay, displayTenFirstCollaboraters } from "../features/CollaboratersReducer";
+import { filterCollaboratersToDisplay, displayTenFirstCollaboraters } from "../reducers/CollaboratersReducer";
 
 /**
  * @param {Object} enableNextResult Permet de désactiver les prochains résultats une fois en bas de la page

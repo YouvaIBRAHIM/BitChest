@@ -14,6 +14,7 @@
     "@emotion/styled": "^11.11.0",
     "@mui/joy": "^5.0.0-beta.2",
     "@mui/material": "^5.14.5",
+    "@phosphor-icons/react": "^2.0.10",
     "@reduxjs/toolkit": "^1.9.5",
     "axios": "^1.4.0",
     "react": "^18.2.0",

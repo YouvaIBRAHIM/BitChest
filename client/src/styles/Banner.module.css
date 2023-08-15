@@ -2,10 +2,7 @@
 body {
     margin: 0;
 }
-body *{
-    font-family: 'Ubuntu', sans-serif;
 
-}
 ::-webkit-scrollbar {
     width: 10px;
     height: 10px;

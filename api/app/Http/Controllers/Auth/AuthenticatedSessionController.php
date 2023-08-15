@@ -13,13 +13,14 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): Response
+    public function store(LoginRequest $request)
     {
         try {
             $request->authenticate();
             $request->session()->regenerate();
             return response()->json([
-                "message" => "success"
+                "message" => "success",
+                "user" => Auth::getUser()
             ], 202);
         } catch (\Throwable $th) {
             return response()->json([

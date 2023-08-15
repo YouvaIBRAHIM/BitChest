@@ -1,33 +1,35 @@
-import {useState} from 'react';
+import { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from 'react-redux';
-import { setUserInfo } from "../features/UserReducer";
+import { setUser } from "../reducers/UserReducer";
 import { onLogin } from "../services/Api.service";
-import { TextField, styled } from '@mui/material';
+import { TextField, Typography, styled } from '@mui/material';
+import IconButton from '@mui/material/IconButton';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import InputAdornment from '@mui/material/InputAdornment';
 import Button from '@mui/joy/Button';
-/**
- * @param {Function} setIsConnected permet de mettre à jour le state indiquant si l'utilisateur est connecté ou non
- * @returns une page de connexion
- */
-const LoginPage = ({ setIsConnected }) => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+import { CursorClick, Eye, EyeClosed } from '@phosphor-icons/react';
 
-    const [errorMessage, setErrorMessage] = useState('');
+
+const LoginPage = () => {
+    const [showPassword, setShowPassword] = useState(false);
+    const [ credentials, setCredentials ] = useState({ email: '', password: ''})
+    const [ error, setError ] = useState('')
 
     const dispatch = useDispatch();
-    // dispatch(setUserInfo({ user : user }));
+    const navigate = useNavigate();    
 
-    const navigate = useNavigate();
-    // navigate("/home");
-
-    const onHandleChange = (event, setState) =>{
-        const value = event.target.value;
-        setState(value);
-    }
-    
-    function onHandleSubmit(){
-
+    const onHandleSubmit = async (event) => {
+        event.preventDefault();
+        try {
+            const response = await onLogin(credentials)
+            dispatch(setUser({ user : response.data.user }));
+            navigate("/home");
+        } catch (error) {
+            setError(error);
+        }
     }
 
     return (
@@ -38,10 +40,49 @@ const LoginPage = ({ setIsConnected }) => {
                     alt="BitChest Logo"
                     loading="lazy"
                 />
-                <form className='flex flex-col gap-5' action="" method="post">
-                    <TextField id="outlined-basic" label="Email" variant="outlined" />
-                    <TextField id="outlined-basic" label="Mot de passe" variant="outlined" type='password'/>
-                    <Button variant="soft" endDecorator="{<KeyboardArrowRight />}" color="success">
+                {
+                    error !== "" &&
+                    <span className='font-poppins text-center text-white bg-red-400 rounded w-full p-2 '>
+                        {error}
+                    </span>
+                }
+                <form className='flex flex-col gap-5 w-full' method="post" onSubmit={onHandleSubmit}>
+                    <TextField 
+                        id="email" 
+                        name="email" 
+                        label="Email" 
+                        variant="outlined" 
+                        className='rounded' 
+                        onChange={e => setCredentials({...credentials, email: e.target.value})}
+                    />
+                    <FormControl variant="outlined">
+                        <InputLabel htmlFor="password">Mot de passe</InputLabel>
+                        <OutlinedInput className='rounded bg-red'
+                            id="password"
+                            name="password"
+                            type={showPassword ? 'text' : 'password'}
+                            endAdornment={
+                            <InputAdornment position="end">
+                                <IconButton
+                                aria-label="toggle password visibility"
+                                onClick={() => setShowPassword(!showPassword)}
+                                edge="end"
+                                >
+                                {showPassword ? <Eye size={24} /> : <EyeClosed size={24} />}
+                                </IconButton>
+                            </InputAdornment>
+                            }
+                            label="Mot de passe"
+                            onChange={e => setCredentials({...credentials, password: e.target.value})}
+                        />
+                    </FormControl>
+                    <Button 
+                        type='submit'
+                        variant="soft" 
+                        endDecorator={<CursorClick size={18} />} 
+                        color="success" 
+                        className='rounded font-medium'
+                    >
                         Connexion
                     </Button>
                 </form>

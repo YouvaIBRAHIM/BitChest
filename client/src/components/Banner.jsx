@@ -15,8 +15,8 @@ function Banner({ setIsConnected }) {
 
 
   const onDisconnect = () => {
-    setIsConnected(false)
-    disconnect(navigate)
+
+    
   }
   return (
     <header>
