@@ -50,7 +50,6 @@ export const getUser = async () => {
     const response = await instance.get("/api/user");
     return response.data;
   } catch (error) {
-      console.log("🚀 ~ file: Api.service.js:54 ~ getUser ~ error:", error)
       return false;
   }
 }

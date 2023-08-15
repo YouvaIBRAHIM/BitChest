@@ -19,14 +19,14 @@ const LoginPage = () => {
     const [ error, setError ] = useState('')
 
     const dispatch = useDispatch();
-    const navigate = useNavigate();    
+    // const navigate = useNavigate();    
 
     const onHandleSubmit = async (event) => {
         event.preventDefault();
         try {
             const response = await onLogin(credentials)
             dispatch(setUser({ user : response.data.user }));
-            navigate("/home");
+
         } catch (error) {
             setError(error);
         }
