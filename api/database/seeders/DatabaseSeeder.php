@@ -14,12 +14,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // \App\Models\User::factory(10)->create();
-
-        \App\Models\User::factory()->create([
-            'name' => 'admin',
-            "email" => "a@a.a",
-            'password' => Hash::make('a'),
+        $this->call([
+            UserSeeder::class,
+            WalletSeeder::class,
+            CryptoSeeder::class,
+            CryptosWalletSeeder::class
         ]);
     }
 }
