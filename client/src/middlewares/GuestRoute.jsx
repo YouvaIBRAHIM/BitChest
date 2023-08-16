@@ -1,11 +1,9 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getUser } from "../services/Api.service";
 
-// middleware qui vérifie si le token que l'utilisateur est valide ou non
-// si le token est valide le middleware retourne le composant souhaité
-// renvoie vers la page de login si ce n'est pas le cas
-const PrivateRoute = ({ children }) => {
+// middleware qui interdit d'acceder à la page de login si on est déjà connecté
+const GuestRoute = ({children}) => {
     const navigate = useNavigate();
     const [isTokenValid, setIsTokenValid] = useState(true);
 
@@ -14,17 +12,18 @@ const PrivateRoute = ({ children }) => {
         .then(user => {
             if (!user) {
                 setIsTokenValid(false)
+            }else{
+                navigate("/home");
             }
+
         })
         .catch(() => {
             setIsTokenValid(false)
         })
     }, [])
 
-    if (isTokenValid) {
+    if (!isTokenValid) {
         return children;
-    }else{
-        navigate("/login");
     }
 }
-export default PrivateRoute;
+export default GuestRoute;

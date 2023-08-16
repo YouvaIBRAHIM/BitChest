@@ -3,17 +3,13 @@ import LoginPage from './views/LoginPage';
 import PageNotFound from './views/PageNotFound';
 import CustomDrawer from './components/CustomDrawer';
 import { initServiceWorker } from "./services/ServiceWorker.service";
-import { useState } from 'react';
-import Home from './views/Home';
+import { useMemo, useState } from 'react';
+import HomePage from './views/HomePage';
 import { useSelector } from 'react-redux';
-
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import IconButton from '@mui/material/IconButton';
-
-import { List as ListIcon } from '@phosphor-icons/react';
-import Toolbar from '@mui/material/Toolbar';
 import PrivateRoute from './middlewares/PrivateRoute';
+import { Box, CssBaseline, ThemeProvider, createTheme } from '@mui/material';
+import GuestRoute from './middlewares/GuestRoute';
+import IndexPage from './middlewares/IndexPage';
 
 
 const drawerWidth = 240;
@@ -24,69 +20,62 @@ function App() {
   
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user } = useSelector(state => state.user)
-  if (!user) {
-    return <LoginPage />
-  }
-
-
+  const { mode } = useSelector(state => state.theme)
+  
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
+  const muiTheme = useMemo(() => {
+    return createTheme({
+      palette: {
+        mode: mode,
+      }
+    });
+  }, [mode]);
 
   return (
     <BrowserRouter>
-      <div>
-          <Box sx={{ display: 'flex' }}>
-            <AppBar
-              position="fixed"
-              sx={{
-                width: { sm: `calc(100% - ${drawerWidth}px)` },
-                ml: { sm: `${drawerWidth}px` },
-                display: {xs: "block", sm: "none"}
-              }}
-            >
-              <Toolbar>
-                <IconButton
-                  color="inherit"
-                  aria-label="open drawer"
-                  edge="start"
-                  onClick={handleDrawerToggle}
-                  sx={{ mr: 2, display: { sm: 'none' } }}
-                >
-                  <ListIcon />
-                </IconButton>
-                <img src='/assets/bitchest_logo.png' alt='BitChest Logo' className='h-10'/>
-              </Toolbar>
-            </AppBar>
-            <Box
-              component="nav"
-              sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-              aria-label="mailbox folders"
-            >
-              <CustomDrawer 
-                mobileOpen={mobileOpen} 
-                handleDrawerToggle={handleDrawerToggle} 
-                drawerWidth={drawerWidth} 
-              />
-            </Box>
+      <ThemeProvider theme={muiTheme}>
+        <CssBaseline />
+        <div>
+          {
+            user &&
+            <CustomDrawer 
+              mobileOpen={mobileOpen} 
+              handleDrawerToggle={handleDrawerToggle} 
+              drawerWidth={drawerWidth} 
+            />
+          }
             <Box
               component="main"
-              sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
+              sx={{ 
+                flexGrow: 1, 
+                p: 0, 
+                width: { sm: user ? `calc(100% - ${drawerWidth}px)` : "100%" }, 
+                marginLeft: { sm: user ? `${drawerWidth}px` : "0" } 
+              }}
             >
               <Routes>
-                <Route path="/" element={
+                <Route path="/" element={<IndexPage />} />
+
+                <Route path="/home" element={
                                           <PrivateRoute>
-                                            <Home />
+                                            <HomePage />
                                           </PrivateRoute>
                                         } 
                 />
-                           
+                <Route path="/login" element={
+                                              <GuestRoute>
+                                                <LoginPage />
+                                              </GuestRoute>
+                                            } 
+                />
                 <Route path="/*" element={<PageNotFound />} />                                                                                                     
               </Routes>
             </Box>
-          </Box>
-      </div>
+        </div>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }

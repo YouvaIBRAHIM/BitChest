@@ -1,32 +1,31 @@
 import { useState } from 'react';
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setUser } from "../reducers/UserReducer";
 import { onLogin } from "../services/Api.service";
-import { TextField, Typography, styled } from '@mui/material';
+import { Button, TextField, styled } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputAdornment from '@mui/material/InputAdornment';
-import Button from '@mui/joy/Button';
 import { CursorClick, Eye, EyeClosed } from '@phosphor-icons/react';
 
-
 const LoginPage = () => {
-    const [showPassword, setShowPassword] = useState(false);
-    const [ credentials, setCredentials ] = useState({ email: '', password: ''})
-    const [ error, setError ] = useState('')
+    const [ showPassword, setShowPassword ] = useState(false);
+    const [ credentials, setCredentials ] = useState({ email: '', password: ''});
+    const [ error, setError ] = useState('');
+    const { mode } = useSelector(state => state.theme);
 
     const dispatch = useDispatch();
-    // const navigate = useNavigate();    
+    const navigate = useNavigate();    
 
     const onHandleSubmit = async (event) => {
         event.preventDefault();
         try {
             const response = await onLogin(credentials)
             dispatch(setUser({ user : response.data.user }));
-
+            navigate('/home');
         } catch (error) {
             setError(error);
         }
@@ -36,7 +35,7 @@ const LoginPage = () => {
         <Container className="flex items-center justify-center w-full h-screen">
             <div className='flex flex-col items-center justify-center gap-5'>
                 <img
-                    src="/assets/bitchest_logo.png"
+                    src={`/assets/bitchest_logo_${mode}.svg`}
                     alt="BitChest Logo"
                     loading="lazy"
                 />
@@ -78,8 +77,8 @@ const LoginPage = () => {
                     </FormControl>
                     <Button 
                         type='submit'
-                        variant="soft" 
-                        endDecorator={<CursorClick size={18} />} 
+                        variant="contained" 
+                        endIcon={<CursorClick size={18} />} 
                         color="success" 
                         className='rounded font-medium'
                     >
