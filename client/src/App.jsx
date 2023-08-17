@@ -10,6 +10,7 @@ import PrivateRoute from './middlewares/PrivateRoute';
 import { Box, CssBaseline, ThemeProvider, createTheme } from '@mui/material';
 import GuestRoute from './middlewares/GuestRoute';
 import IndexPage from './middlewares/IndexPage';
+import UsersPage from './views/UsersPage';
 
 
 const drawerWidth = 240;
@@ -59,17 +60,25 @@ function App() {
               <Routes>
                 <Route path="/" element={<IndexPage />} />
 
+                <Route path="/login" element={
+                                              <GuestRoute>
+                                                <LoginPage />
+                                              </GuestRoute>
+                                            }
+                />
+
                 <Route path="/home" element={
                                           <PrivateRoute>
                                             <HomePage />
                                           </PrivateRoute>
                                         } 
                 />
-                <Route path="/login" element={
-                                              <GuestRoute>
-                                                <LoginPage />
-                                              </GuestRoute>
-                                            } 
+
+                <Route path="/users" element={
+                                          <PrivateRoute>
+                                            <UsersPage />
+                                          </PrivateRoute>
+                                        } 
                 />
                 <Route path="/*" element={<PageNotFound />} />                                                                                                     
               </Routes>

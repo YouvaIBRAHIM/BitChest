@@ -7,7 +7,7 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import { House, User, Wallet, List as ListIcon } from '@phosphor-icons/react';
+import { House, User, Users, Wallet, List as ListIcon } from '@phosphor-icons/react';
 import { AppBar, Box, Toolbar } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import ThemeSwitchButton from './ThemeSwitchButton';
@@ -27,6 +27,11 @@ const links = [
     label: "Mon compte",
     endpoint: "/profile",
     icon: <User />
+  },
+  {
+    label: "Utilisateurs",
+    endpoint: "/users",
+    icon: <Users />
   }
 ]
 

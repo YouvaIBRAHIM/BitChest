@@ -7,24 +7,24 @@ import { getUser } from "../services/Api.service";
 // renvoie vers la page de login si ce n'est pas le cas
 const PrivateRoute = ({ children }) => {
     const navigate = useNavigate();
-    const [isTokenValid, setIsTokenValid] = useState(true);
+    const [isTokenValid, setIsTokenValid] = useState(false);
 
     useEffect(()=>{
         getUser()
         .then(user => {
             if (!user) {
-                setIsTokenValid(false)
+                navigate("/login");
+            }else{
+                setIsTokenValid(true)
             }
         })
         .catch(() => {
-            setIsTokenValid(false)
+            navigate("/login");
         })
     }, [])
 
     if (isTokenValid) {
         return children;
-    }else{
-        navigate("/login");
     }
 }
 export default PrivateRoute;

@@ -74,7 +74,7 @@ class CryptoSeeder extends Seeder
             for ($i = 29; $i >= 0; $i--) {
                 $date = date('Y-m-d H:i:s', strtotime("-$i days", $currentDate));
                 $currency_rate[] = [
-                    "rate" => CryptoController::getCotationFor($crypto['name']),
+                    "rate" => abs(CryptoController::getCotationFor($crypto['name'])),
                     "date" => $date
                 ];
             }

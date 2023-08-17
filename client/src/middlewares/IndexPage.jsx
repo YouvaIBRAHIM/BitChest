@@ -5,25 +5,21 @@ import { getUser } from "../services/Api.service";
 // middleware redirige de la racine vers la view Login ou Home selon si on est connecté ou non
 const IndexPage = () => {
     const navigate = useNavigate();
-    const [isTokenValid, setIsTokenValid] = useState(true);
 
     useEffect(()=>{
         getUser()
         .then(user => {
             if (!user) {
-                setIsTokenValid(false)
+                navigate("/login");
+            }else{
+                navigate("/home");
             }
         })
         .catch(() => {
-            setIsTokenValid(false)
+            navigate("/login");
         })
     }, [])
 
-    if (isTokenValid) {
-        navigate("/home");
-    }else{
-        navigate("/login");
-    }
 }
 
 export default IndexPage;

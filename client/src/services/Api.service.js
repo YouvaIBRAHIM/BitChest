@@ -1,5 +1,4 @@
 import axios from "axios";
-import { getFromSessionStorage } from "./Storage.service";
 
 axios.defaults.withCredentials = true;
 const baseURL = import.meta.env.VITE_API_URL;
@@ -50,9 +49,20 @@ export const getUser = async () => {
     const response = await instance.get("/api/user");
     return response.data;
   } catch (error) {
-      return false;
+    return null;
   }
 }
+
+export const getUsers = async (page, perPage, role) => {
+
+  try {
+    const response = await instance.get(`/api/users?page=${page}&perPage=${perPage}&role=${role}`);
+    return response.data;
+  } catch (error) {
+    return Promise.reject(error.response?.data?.message ?? error.message);
+  }
+}
+
 /**
  * ajoute un collaborateur via une requete API
  * @param {Object} data informations du nouveau collaborateur
