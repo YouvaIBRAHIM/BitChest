@@ -15,6 +15,16 @@ import { Pagination, Stack } from '@mui/material';
 import { useSearchParams } from 'react-router-dom';
 import TableSkeleton from '../components/TableSkeleton';
 
+const filterOptions = [
+  {
+    label: "Nom",
+    value: "name"
+  },
+  {
+    label: "Email",
+    value: "email"
+  },
+]
 
 const UsersPage = () => {
   const [order, setOrder] = useState('asc');
@@ -24,14 +34,14 @@ const UsersPage = () => {
   const [page, setPage] = useState(searchParams.get("page") ?? 1);
   const [perPage, setPerPage] = useState(10);
   const [role, setRole] = useState("client");
+  const [search, setSearch] = useState({text: "", filter: "name"});
   const [users, setUsers] = useState([]);
-  console.log("🚀 ~ file: UsersPage.jsx:26 ~ UsersPage ~ users:", users)
   const [status, setStatus] = useState({isLoading: false, error: null});
 
   
   useEffect(() => {
-    useUsers(setUsers, setStatus, page, perPage, role)
-  }, [page, perPage, role])
+    useUsers(setUsers, setStatus, search, page, perPage, role)
+  }, [page, perPage, role, search])
 
 
   const handleRequestSort = (event, property) => {
@@ -134,11 +144,21 @@ const UsersPage = () => {
       </TableBody>
       )
     }
-  }, [status])
+  }, [status, selected]);
+
   return (
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
-        <EnhancedTableToolbar numSelected={selected.length} perPage={perPage} setPerPage={setPerPage} role={role} setRole={setRole} />
+        <EnhancedTableToolbar 
+          filterOptions={filterOptions} 
+          numSelected={selected.length} 
+          perPage={perPage} 
+          setPerPage={setPerPage} 
+          role={role} 
+          setRole={setRole} 
+          search={search} 
+          setSearch={setSearch}
+        />
         <TableContainer>
           <Table
             sx={{ minWidth: 750 }}
@@ -157,7 +177,7 @@ const UsersPage = () => {
           </Table>
         </TableContainer>
       </Paper>
-        <Stack spacing={2} className='absolute bottom-5 right-5'>
+        <Stack spacing={2} className='fixed bottom-5 right-5'>
           <Pagination count={users.total ? Math.ceil(users.total / perPage) : 0} page={Number(page)} siblingCount={5} onChange={handleChangePage}/>
         </Stack>
     </Box>

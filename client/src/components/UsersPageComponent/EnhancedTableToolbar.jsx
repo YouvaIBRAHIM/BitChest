@@ -1,9 +1,19 @@
 import { FormControl, IconButton, InputLabel, MenuItem, Select, Toolbar, Tooltip, Typography } from "@mui/material";
 import { Trash  } from "@phosphor-icons/react";
 import { alpha } from '@mui/material/styles';
+import SearchField from "../SearchField";
 
-const EnhancedTableToolbar = (props) => {
-    const { numSelected, perPage, setPerPage, role, setRole } = props;
+
+const EnhancedTableToolbar = ({ 
+  numSelected, 
+  perPage, 
+  setPerPage, 
+  role, 
+  setRole, 
+  filterOptions,
+  search,
+  setSearch 
+}) => {
   
     const handleChangePerPage = (e) => {
       setPerPage(e.target.value)
@@ -15,7 +25,7 @@ const EnhancedTableToolbar = (props) => {
     return (
       <Toolbar
         sx={{
-          height: 75,
+          minHeight: 75,
           pl: { sm: 2 },
           pr: { xs: 1, sm: 1 },
           ...(numSelected > 0 && {
@@ -23,10 +33,11 @@ const EnhancedTableToolbar = (props) => {
               alpha(theme.palette.primary.main, theme.palette.action.activatedOpacity),
           }),
         }}
+        className="flex flex-wrap justify-between"
       >
         {numSelected > 0 ? (
           <Typography
-            sx={{ flex: '1 1 100%' }}
+            sx={{ margin:1 }}
             color="inherit"
             variant="subtitle1"
             component="div"
@@ -35,7 +46,7 @@ const EnhancedTableToolbar = (props) => {
           </Typography>
         ) : (
           <Typography
-            sx={{ flex: '1 1 100%' }}
+            sx={{ margin:1 }}
             variant="h6"
             id="tableTitle"
             component="div"
@@ -45,14 +56,22 @@ const EnhancedTableToolbar = (props) => {
         )}
   
         {numSelected > 0 ? (
-          <Tooltip title="Supprimer">
+          <Tooltip 
+            title="Supprimer" 
+            sx={{ margin:1 }}
+          >
             <IconButton>
               <Trash />
             </IconButton>
           </Tooltip>
         ) : (
-          <div className="flex items-center gap-5">
-            <FormControl sx={{ m: 1, minWidth: 100 }} size="small">
+          <div className="flex items-center flex-wrap gap-4  m-1">
+            <SearchField 
+              filterOptions={filterOptions}
+              search={search} 
+              setSearch={setSearch}
+            />
+            <FormControl sx={{ minWidth: 100 }} size="small">
               <InputLabel id="perPageId">Par page</InputLabel>
               <Select
                 labelId="perPageId"
@@ -67,7 +86,7 @@ const EnhancedTableToolbar = (props) => {
                 <MenuItem value={50}>50</MenuItem>
               </Select>
             </FormControl>
-            <FormControl sx={{ m: 1, minWidth: 150 }} size="small">
+            <FormControl sx={{ minWidth: 150 }} size="small">
               <InputLabel id="RoleId">Rôle</InputLabel>
               <Select
                 labelId="RoleId"

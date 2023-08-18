@@ -15,6 +15,7 @@ class UserController extends Controller
     {
         try {
             $users = User::where("role", $request->input('role') ?: "client")
+            ->where($request->input('searchFilter') ?: "name", "like", "%".$request->input('searchText')."%")
             ->join('wallets', 'users.id', '=', 'wallets.user_id')
             ->select('users.*', 'wallets.balance')
             ->orderBy('created_at', 'desc')

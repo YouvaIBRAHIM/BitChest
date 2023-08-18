@@ -53,10 +53,11 @@ export const getUser = async () => {
   }
 }
 
-export const getUsers = async (page, perPage, role) => {
+export const getUsers = async (page, perPage, role, search) => {
+console.log("🚀 ~ file: Api.service.js:57 ~ getUsers ~ role:", role)
 
   try {
-    const response = await instance.get(`/api/users?page=${page}&perPage=${perPage}&role=${role}`);
+    const response = await instance.get(`/api/users?page=${page}&perPage=${perPage}&role=${role}&searchFilter=${search.filter}&searchText=${search.text}`);
     return response.data;
   } catch (error) {
     return Promise.reject(error.response?.data?.message ?? error.message);
