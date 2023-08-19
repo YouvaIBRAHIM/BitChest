@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::resource('/users', "App\Http\Controllers\UserController");
+    Route::put('/users/password/{user}', ["App\Http\Controllers\UserController", "updatePassword"]);
     
     // Récupére l'utilisateur connecté
     Route::get('/auth-user', function (Request $request) {

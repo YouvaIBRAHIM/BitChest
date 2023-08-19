@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UserPasswordRequest;
 use App\Http\Requests\UserRequest;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -98,6 +102,33 @@ class UserController extends Controller
             return response()->json([
                 "message" => "Oups ! Nous n'avons pas pu mettre à jour les données.",
                 "error" => $th->getMessage()
+            ], $th->getCode());
+        }
+    }
+
+    public function updatePassword(UserPasswordRequest $request, User $user)
+    {
+        try {
+            $validatedData = $request->validated();
+
+            if (Hash::check($validatedData['oldPassword'], $user->password)) {
+                if ($validatedData['newPassword'] === $validatedData['confirmationPassword']) {
+                    $user->update([
+                        'password' => Hash::make($validatedData['newPassword']),
+                        'remember_token' => Str::random(60),
+                    ]);
+                }else {
+                    throw new Exception("Le nouveau mot de passe et la confirmation ne sont pas identiques.", 401);
+                }
+            }else {
+                throw new Exception("L'ancien mot de passe est incorrect.", 401);
+            }
+            
+            return response()->json($user, 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                "message" => $th->getMessage(),
+                "data" => $user
             ], $th->getCode());
         }
     }

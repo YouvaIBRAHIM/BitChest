@@ -95,10 +95,10 @@ const UserView = () => {
                                 <UserCard user={user} />
                             </div>
                             <div className='sm:basis-full lg:basis-2/3 grow p-2'>
-                                <UserForm user={{...user}} setUser={setUser} setStatus={setStatus}/>
+                                <UserForm user={user} setUser={setUser} setStatus={setStatus}/>
                             </div>
                             <div className='lg:basis-2/3 basis-full p-2'>
-                                <UserPasswordForm user={user} />
+                                <UserPasswordForm user={user} setStatus={setStatus} />
                             </div>
                         </div>
                     </CustomTabPanel>

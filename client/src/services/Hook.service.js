@@ -1,4 +1,4 @@
-import { getAuthUser, getUser, getUsers, updateUser } from "./Api.service";
+import { getAuthUser, getUser, getUsers, updateUser, updateUserPassword } from "./Api.service";
 import { useEffect, useRef, useState } from "react";
 
 export const useDebounce = (value, delay = 500) => {
@@ -72,6 +72,33 @@ export const useUpdateUser = async (setUser, setStatus, id, userData) => {
             snackBar: true,
             type: "success", 
             message: "Les données ont été mises à jour."
+        }});
+      } catch (err) {
+          setStatus(oldValue => {return {
+              ...oldValue, 
+              snackBar: true,
+              type: "error", 
+              message: err?.response?.data ? err?.response?.data?.message : err
+          }});
+      } finally {
+          setStatus(oldValue => {return {...oldValue, isLoading: false}});
+      }
+  }
+
+  await fetchData();
+}
+
+export const useUpdateUserPassword = async (setStatus, id, userData) => {
+  const fetchData = async () => {
+      setStatus(oldValue => {return {...oldValue, isLoading: true}});
+      try {
+          await updateUserPassword(id, userData);
+
+          setStatus(oldValue => {return {
+            ...oldValue, 
+            snackBar: true,
+            type: "success", 
+            message: "Le mot de passe a été mis à jour."
         }});
       } catch (err) {
           setStatus(oldValue => {return {

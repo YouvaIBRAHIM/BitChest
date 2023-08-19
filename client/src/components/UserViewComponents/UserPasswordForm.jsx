@@ -12,24 +12,29 @@ import {
     IconButton,
 } from '@mui/material';
 import { Eye, EyeClosed } from '@phosphor-icons/react';
+import { useUpdateUserPassword } from '../../services/Hook.service';
 
-const UserPasswordForm = ({ user }) => {
+const UserPasswordForm = ({ user, setStatus }) => {
     const [ showPassword, setShowPassword ] = useState({
         old: false,
         new: false,
         confirmation: false,
     });
+    const [ updatedUserPassword, setUpdatedUserPassword ] = useState({
+        oldPassword: "",
+        newPassword: "",
+        confirmationPassword: "",
+    });
 
-    const [updatedUser, setUpdatedUser] = useState(user);
 
     const handleChange = (event) => {
         const { name, value } = event.target;
-        setUpdatedUser((prevUser) => ({ ...prevUser, [name]: value }));
+        setUpdatedUserPassword((prevUser) => ({ ...prevUser, [name]: value }));
     };
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        // onUpdate(updatedUser);
+        useUpdateUserPassword(setStatus, user.id, updatedUserPassword)
     };
 
     return (

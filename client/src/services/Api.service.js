@@ -104,6 +104,17 @@ export async function updateUser(id, data) {
   }
 }
 
+export async function updateUserPassword(id, data) {
+  
+  try {
+    const response = await instance.put(`/api/users/password/${id}`, data)
+    return response.data;
+  } catch (error) {
+    return Promise.reject(error.response?.data?.message ?? error.message);
+  }
+}
+
+
 /**
  * supprime un collaborateur via une requete API
  * @param {Number} id id du collaborateur à supprimer
