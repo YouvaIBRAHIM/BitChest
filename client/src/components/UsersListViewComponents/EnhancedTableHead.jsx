@@ -24,6 +24,13 @@ const headCells = [
       disablePadding: false,
       disableSort: false,
       label: 'Solde',
+    },
+    {
+      id: 'actions',
+      numeric: false,
+      disablePadding: false,
+      disableSort: true,
+      label: 'Actions',
     }
 ];
 

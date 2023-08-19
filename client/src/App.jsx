@@ -10,8 +10,9 @@ import PrivateRoute from './middlewares/PrivateRoute';
 import { Box, CssBaseline, ThemeProvider, createTheme } from '@mui/material';
 import GuestRoute from './middlewares/GuestRoute';
 import IndexPage from './middlewares/IndexPage';
-import UsersPage from './views/UsersPage';
-
+import UsersListView from './views/UsersListView';
+import UserView from './views/UserView';
+import colors from "./services/Tailwind.service";
 
 const drawerWidth = 240;
 
@@ -28,9 +29,13 @@ function App() {
   };
 
   const muiTheme = useMemo(() => {
+
     return createTheme({
       palette: {
         mode: mode,
+        primary: {
+          main: colors.green[500]
+        }
       }
     });
   }, [mode]);
@@ -76,10 +81,18 @@ function App() {
 
                 <Route path="/users" element={
                                           <PrivateRoute>
-                                            <UsersPage />
+                                            <UsersListView />
                                           </PrivateRoute>
                                         } 
                 />
+
+                <Route path="/users/:id" element={
+                                          <PrivateRoute>
+                                            <UserView />
+                                          </PrivateRoute>
+                                        } 
+                />
+
                 <Route path="/*" element={<PageNotFound />} />                                                                                                     
               </Routes>
             </Box>

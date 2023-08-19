@@ -41,12 +41,11 @@ export const onLogin = async (credentials) => {
   }
 }
 
-
-export const getUser = async () => {
+export const getAuthUser = async () => {
   await getToken();
 
   try {
-    const response = await instance.get("/api/user");
+    const response = await instance.get(`/api/auth-user/`);
     return response.data;
   } catch (error) {
     return null;
@@ -54,8 +53,6 @@ export const getUser = async () => {
 }
 
 export const getUsers = async (page, perPage, role, search) => {
-console.log("🚀 ~ file: Api.service.js:57 ~ getUsers ~ role:", role)
-
   try {
     const response = await instance.get(`/api/users?page=${page}&perPage=${perPage}&role=${role}&searchFilter=${search.filter}&searchText=${search.text}`);
     return response.data;
@@ -63,6 +60,17 @@ console.log("🚀 ~ file: Api.service.js:57 ~ getUsers ~ role:", role)
     return Promise.reject(error.response?.data?.message ?? error.message);
   }
 }
+
+export const getUser = async (id) => {
+
+  try {
+    const response = await instance.get(`/api/users/${id}`);
+    return response.data;
+  } catch (error) {
+    return Promise.reject(error.response?.data?.message ?? error.message);
+  }
+}
+
 
 /**
  * ajoute un collaborateur via une requete API
@@ -74,10 +82,8 @@ export async function addeUser(data) {
   
   try {
     const response = await instance.post(handleUserApi, data);
-
     return response;
   } catch (error) {
-
     return error.message;
   }
 }
@@ -88,11 +94,10 @@ export async function addeUser(data) {
  * @param {Number} id id du collaborateur à modifier
  * @returns la réponse de la requete API axios 
  */
-export async function updateUser(data, id) {
-  const handleUserApi = import.meta.env.VITE_HANDLE_USER_API;  
+export async function updateUser(id, data) {
   
   try {
-    const response = await instance.put(`${handleUserApi}/${id}`, data)
+    const response = await instance.put(`users/${id}`, data)
 
     return response;
   } catch (error) {

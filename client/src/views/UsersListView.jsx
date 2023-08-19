@@ -7,13 +7,15 @@ import TableContainer from '@mui/material/TableContainer';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import Checkbox from '@mui/material/Checkbox';
-import EnhancedTableHead from "../components/UsersPageComponent/EnhancedTableHead"
-import EnhancedTableToolbar from "../components/UsersPageComponent/EnhancedTableToolbar"
+import EnhancedTableHead from "../components/UsersListViewComponents/EnhancedTableHead"
+import EnhancedTableToolbar from "../components/UsersListViewComponents/EnhancedTableToolbar"
 import { getComparator, stableSort } from '../services/Utils.service';
-import { useUsers } from '../services/Hook.service';
-import { Pagination, Stack } from '@mui/material';
-import { useSearchParams } from 'react-router-dom';
+import { useDebounce, useUsers } from '../services/Hook.service';
+import { IconButton, Pagination, Stack, Tooltip } from '@mui/material';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import TableSkeleton from '../components/TableSkeleton';
+import { PencilSimpleLine, Trash } from '@phosphor-icons/react';
+import CustomSnackbar from '../components/CustomSnackbar';
 
 const filterOptions = [
   {
@@ -26,23 +28,26 @@ const filterOptions = [
   },
 ]
 
-const UsersPage = () => {
+const UsersListView = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('calories');
   const [selected, setSelected] = useState([]);
-  const [searchParams, setSearchParams] = useSearchParams();
   const [page, setPage] = useState(searchParams.get("page") ?? 1);
   const [perPage, setPerPage] = useState(10);
   const [role, setRole] = useState("client");
   const [search, setSearch] = useState({text: "", filter: "name"});
   const [users, setUsers] = useState([]);
-  const [status, setStatus] = useState({isLoading: false, error: null});
+  const [status, setStatus] = useState({isLoading: false, type: "", message: "", snackBar: false});
+  const navigate = useNavigate();
 
-  
+  const debouncedSearch = useDebounce(search, 500);
+
   useEffect(() => {
-    useUsers(setUsers, setStatus, search, page, perPage, role)
-  }, [page, perPage, role, search])
-
+    if (debouncedSearch) {
+      useUsers(setUsers, setStatus, debouncedSearch, page, perPage, role)
+    }
+  }, [page, perPage, role, debouncedSearch])
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -64,6 +69,9 @@ const UsersPage = () => {
   };
 
   const handleClick = (event, name) => {
+    if (event.target.closest('.actionButtons')) {
+      return;
+    }
     const selectedIndex = selected.indexOf(name);
     let newSelected = [];
 
@@ -98,9 +106,17 @@ const UsersPage = () => {
     setSearchParams({page: value})
   }, [])
 
+  const handleCloseSnackBar = useCallback((e, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setStatus(oldValue => { return {...oldValue, snackBar: false}});
+  }, [])
+  
   const renderTableBody = useCallback(() => {
     if (status.isLoading) {
-      return <TableSkeleton rows={10} cells={4}/>
+      return <TableSkeleton rows={10} cells={5}/>
     }else if (visibleRows) {
       return (
       <TableBody>
@@ -137,6 +153,20 @@ const UsersPage = () => {
               </TableCell>
               <TableCell align="left">{row.email}</TableCell>
               <TableCell align="left">{row.balance}€</TableCell>
+              <TableCell align="left">
+                  <div className='actionButtons'>
+                    <Tooltip title='Éditer' onClick={()=> navigate(`/users/${row.id}`)}>
+                      <IconButton aria-label="action" size="small">
+                        <PencilSimpleLine fontSize="inherit" />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title='Supprimer'>
+                      <IconButton aria-label="action" size="small">
+                        <Trash fontSize="inherit" />
+                      </IconButton>
+                    </Tooltip>
+                  </div>
+                </TableCell>
             </TableRow>
           );
         })}
@@ -148,7 +178,7 @@ const UsersPage = () => {
 
   return (
     <Box sx={{ width: '100%' }}>
-      <Paper sx={{ width: '100%', mb: 2 }}>
+      <Paper sx={{ width: '100%', mb: 10 }}>
         <EnhancedTableToolbar 
           filterOptions={filterOptions} 
           numSelected={selected.length} 
@@ -180,8 +210,9 @@ const UsersPage = () => {
         <Stack spacing={2} className='fixed bottom-5 right-5'>
           <Pagination count={users.total ? Math.ceil(users.total / perPage) : 0} page={Number(page)} siblingCount={5} onChange={handleChangePage}/>
         </Stack>
+        <CustomSnackbar open={status.snackBar} handleClose={handleCloseSnackBar} type={status.type} message={status.message}/>
     </Box>
   );
 }
 
-export default UsersPage;
+export default UsersListView;

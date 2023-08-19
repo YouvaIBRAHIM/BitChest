@@ -1,4 +1,5 @@
-const defaultTheme = require('tailwindcss/defaultTheme')
+import defaultTheme from 'tailwindcss/defaultTheme'
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -12,6 +13,9 @@ export default {
         'inter': ['Inter', ...defaultTheme.fontFamily.sans],
       },
     },
+    minWidth: {
+      '1/3': '33%',
+    }
   },
   plugins: [],
 }

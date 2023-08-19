@@ -1,8 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { getUser } from '../services/Api.service';
+import { getAuthUser } from '../services/Api.service';
 
 let initialState;
-const user = await getUser();
+const user = await getAuthUser();
 if (user) {
   initialState = {
     user: user,
