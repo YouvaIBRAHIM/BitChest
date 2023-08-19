@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UserRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -14,8 +16,17 @@ class UserController extends Controller
     public function index(Request $request)
     {
         try {
+            $searchFilter = $request->input('searchFilter') ?: "email";
+            $searchText = $request->input('searchText');
+
             $users = User::where("role", $request->input('role') ?: "client")
-            ->where($request->input('searchFilter') ?: "name", "like", "%".$request->input('searchText')."%")
+            ->where((function ($query) use ($searchFilter, $searchText) {
+                if ($searchFilter !== "name") {
+                    $query->where($searchFilter, 'LIKE', "%{$searchText}%");
+                }else {
+                    $query->where(DB::raw("concat(firstname, ' ', lastname)"), 'LIKE', "%".$searchText."%");
+                }
+            }))
             ->join('wallets', 'users.id', '=', 'wallets.user_id')
             ->select('users.*', 'wallets.balance')
             ->orderBy('created_at', 'desc')
@@ -51,7 +62,15 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        //
+        try {
+            $user = User::find($id);
+            return response()->json($user, 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                "message" => "Oups ! Nous n'avons pas pu récupérer les données.",
+                "error" => $th->getMessage()
+            ], $th->getCode());
+        }
     }
 
     /**
@@ -65,9 +84,22 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UserRequest $request, User $user)
     {
-        //
+        try {
+            $validatedData = $request->validated();
+
+            $user->update($validatedData);
+
+            $user = $user->fresh();
+
+            return response()->json($user, 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                "message" => "Oups ! Nous n'avons pas pu mettre à jour les données.",
+                "error" => $th->getMessage()
+            ], $th->getCode());
+        }
     }
 
     /**

@@ -10,6 +10,7 @@ import {
     Select,
     MenuItem,
 } from '@mui/material';
+import { useUpdateUser } from '../../services/Hook.service';
 
 const roles = [
     {
@@ -22,13 +23,13 @@ const roles = [
     },
   ]
 
-const UserForm = ({ user }) => {
+const UserForm = ({ user, setUser, setStatus }) => {
 
     const [updatedUser, setUpdatedUser] = useState(user);
 
     useEffect(() => {
         setUpdatedUser(user)
-    }, [user])
+    }, [])
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -37,7 +38,7 @@ const UserForm = ({ user }) => {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        // onUpdate(updatedUser);
+        useUpdateUser(setUser, setStatus, updatedUser.id, updatedUser)
     };
 
     return (

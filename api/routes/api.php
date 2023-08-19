@@ -19,7 +19,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::resource('/users', "App\Http\Controllers\UserController");
     
     // Récupére l'utilisateur connecté
-    Route::get('/user', function (Request $request) {
+    Route::get('/auth-user', function (Request $request) {
         return $request->user();
     });
 });

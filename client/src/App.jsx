@@ -93,6 +93,13 @@ function App() {
                                         } 
                 />
 
+                <Route path="/profile" element={
+                                          <PrivateRoute>
+                                            <UserView />
+                                          </PrivateRoute>
+                                        } 
+                />
+
                 <Route path="/*" element={<PageNotFound />} />                                                                                                     
               </Routes>
             </Box>

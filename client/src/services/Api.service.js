@@ -97,11 +97,10 @@ export async function addeUser(data) {
 export async function updateUser(id, data) {
   
   try {
-    const response = await instance.put(`users/${id}`, data)
-
-    return response;
+    const response = await instance.put(`/api/users/${id}`, data)
+    return response.data;
   } catch (error) {
-    return error.message;
+    return Promise.reject(error.response?.data?.message ?? error.message);
   }
 }
 

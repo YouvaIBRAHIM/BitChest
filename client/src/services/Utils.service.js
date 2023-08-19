@@ -1,12 +1,15 @@
 export const descendingComparator = (a, b, orderBy) => {
-    if (b[orderBy] < a[orderBy]) {
-      return -1;
-    }
-    if (b[orderBy] > a[orderBy]) {
-      return 1;
-    }
-    return 0;
+  const from = orderBy !== "name" ? a[orderBy] : `${a["firstname"]} ${a["lastname"]}` 
+  const to = orderBy !== "name" ? b[orderBy] : `${b["firstname"]} ${b["lastname"]}` 
+
+  if (to < from) {
+    return -1;
   }
+  if (to > from) {
+    return 1;
+  }
+  return 0;
+}
   
 export const getComparator = (order, orderBy) => {
     return order === 'desc'

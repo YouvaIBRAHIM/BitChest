@@ -39,13 +39,40 @@ export const useUsers = async (setUsers, setStatus, search, page = 1, perPage = 
   await fetchData();
 }
 
-export const useGetUser = async (id, setUser, setStatus) => {
-
+export const useGetUser = async (setUser, setStatus, id) => {
+  const userFetchFunction = id ? getUser : getAuthUser
   const fetchData = async () => {
       setStatus(oldValue => {return {...oldValue, isLoading: true}});
       try {
-          const response = await getUser(id);
+          const response = await userFetchFunction(id);
           setUser(response);
+      } catch (err) {
+          setStatus(oldValue => {return {
+              ...oldValue, 
+              snackBar: true,
+              type: "error", 
+              message: err?.response?.data ? err?.response?.data?.message : err
+          }});
+      } finally {
+          setStatus(oldValue => {return {...oldValue, isLoading: false}});
+      }
+  }
+
+  await fetchData();
+}
+
+export const useUpdateUser = async (setUser, setStatus, id, userData) => {
+  const fetchData = async () => {
+      setStatus(oldValue => {return {...oldValue, isLoading: true}});
+      try {
+          const response = await updateUser(id, userData);
+          setUser(response);
+          setStatus(oldValue => {return {
+            ...oldValue, 
+            snackBar: true,
+            type: "success", 
+            message: "Les données ont été mises à jour."
+        }});
       } catch (err) {
           setStatus(oldValue => {return {
               ...oldValue, 

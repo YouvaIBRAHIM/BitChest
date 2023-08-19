@@ -93,13 +93,6 @@ const UsersListView = () => {
 
   const isSelected = (name) => selected.indexOf(name) !== -1;
 
-  const visibleRows = useMemo(() =>{
-    if (users?.data) {
-      return stableSort(users?.data, getComparator(order, orderBy))
-    }else{
-      return []
-    }
-  },[users, order, orderBy]);
 
   const handleChangePage = useCallback((e, value) => {
     setPage(value);
@@ -115,6 +108,8 @@ const UsersListView = () => {
   }, [])
   
   const renderTableBody = useCallback(() => {
+    const visibleRows = (users?.data) ? stableSort(users?.data, getComparator(order, orderBy)): []
+
     if (status.isLoading) {
       return <TableSkeleton rows={10} cells={5}/>
     }else if (visibleRows) {
@@ -149,7 +144,7 @@ const UsersListView = () => {
                 scope="row"
                 padding="none"
               >
-                {row.name}
+                {row.firstname} {row.lastname?.toUpperCase()}
               </TableCell>
               <TableCell align="left">{row.email}</TableCell>
               <TableCell align="left">{row.balance}€</TableCell>
@@ -174,7 +169,7 @@ const UsersListView = () => {
       </TableBody>
       )
     }
-  }, [status, selected]);
+  }, [status, selected, users, order, orderBy]);
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -201,7 +196,7 @@ const UsersListView = () => {
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={visibleRows.length}
+              rowCount={users.data?.length}
             />
           {renderTableBody()}
           </Table>
