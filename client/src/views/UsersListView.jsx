@@ -10,12 +10,13 @@ import Checkbox from '@mui/material/Checkbox';
 import EnhancedTableHead from "../components/UsersListViewComponents/EnhancedTableHead"
 import EnhancedTableToolbar from "../components/UsersListViewComponents/EnhancedTableToolbar"
 import { getComparator, stableSort } from '../services/Utils.service';
-import { useDebounce, useUsers } from '../services/Hook.service';
+import { useDebounce, useDeleteUsers, useUsers } from '../services/Hook.service';
 import { IconButton, Pagination, Stack, Tooltip } from '@mui/material';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import TableSkeleton from '../components/TableSkeleton';
 import { PencilSimpleLine, Trash } from '@phosphor-icons/react';
 import CustomSnackbar from '../components/CustomSnackbar';
+import CustomDialog from '../components/CustomDialog';
 
 const filterOptions = [
   {
@@ -39,6 +40,8 @@ const UsersListView = () => {
   const [search, setSearch] = useState({text: "", filter: "name"});
   const [users, setUsers] = useState([]);
   const [status, setStatus] = useState({isLoading: false, type: "", message: "", snackBar: false});
+  const [dialog, setDialog] = useState(false);
+
   const navigate = useNavigate();
 
   const debouncedSearch = useDebounce(search, 500);
@@ -48,6 +51,10 @@ const UsersListView = () => {
       useUsers(setUsers, setStatus, debouncedSearch, page, perPage, role)
     }
   }, [page, perPage, role, debouncedSearch])
+
+  const handleClickOpenDialog = (item) => {
+    setDialog(item);
+  };
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -156,7 +163,11 @@ const UsersListView = () => {
                       </IconButton>
                     </Tooltip>
                     <Tooltip title='Supprimer'>
-                      <IconButton aria-label="action" size="small">
+                      <IconButton 
+                        aria-label="action" 
+                        size="small"
+                        onClick={() => handleClickOpenDialog([row.id])}
+                      >
                         <Trash fontSize="inherit" />
                       </IconButton>
                     </Tooltip>
@@ -171,18 +182,25 @@ const UsersListView = () => {
     }
   }, [status, selected, users, order, orderBy]);
 
+  const handleConfimDelete = useCallback(() => {
+    useDeleteUsers(setUsers, setStatus, dialog)
+    setDialog(false);
+    setSelected([]);
+  }, [dialog]);
+
   return (
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 10 }}>
         <EnhancedTableToolbar 
           filterOptions={filterOptions} 
-          numSelected={selected.length} 
+          selected={selected} 
           perPage={perPage} 
           setPerPage={setPerPage} 
           role={role} 
           setRole={setRole} 
           search={search} 
           setSearch={setSearch}
+          handleClickOpenDialog={handleClickOpenDialog}
         />
         <TableContainer>
           <Table
@@ -203,9 +221,17 @@ const UsersListView = () => {
         </TableContainer>
       </Paper>
         <Stack spacing={2} className='fixed bottom-5 right-5'>
-          <Pagination count={users.total ? Math.ceil(users.total / perPage) : 0} page={Number(page)} siblingCount={5} onChange={handleChangePage}/>
+          <Pagination color='primary' count={users.total ? Math.ceil(users.total / perPage) : 0} page={Number(page)} siblingCount={5} onChange={handleChangePage}/>
         </Stack>
         <CustomSnackbar open={status.snackBar} handleClose={handleCloseSnackBar} type={status.type} message={status.message}/>
+        <CustomDialog 
+          dialog={dialog} 
+          setDialog={setDialog} 
+          items={users.data} 
+          itemKey={"email"} 
+          message={`${dialog.length > 1 ? "Voulez-vous vraiment supprimer ces utilisateurs ?" : "Voulez-vous vraiment supprimer cet utilisateur ?"}`}
+          onConfirm={handleConfimDelete}
+        />
     </Box>
   );
 }

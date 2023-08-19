@@ -1,4 +1,4 @@
-import { getAuthUser, getUser, getUsers, updateUser, updateUserPassword } from "./Api.service";
+import { deleteUser, deleteUsers, getAuthUser, getUser, getUsers, updateUser, updateUserPassword } from "./Api.service";
 import { useEffect, useRef, useState } from "react";
 
 export const useDebounce = (value, delay = 500) => {
@@ -92,9 +92,9 @@ export const useUpdateUserPassword = async (setStatus, id, userData) => {
   const fetchData = async () => {
       setStatus(oldValue => {return {...oldValue, isLoading: true}});
       try {
-          await updateUserPassword(id, userData);
+        await updateUserPassword(id, userData);
 
-          setStatus(oldValue => {return {
+        setStatus(oldValue => {return {
             ...oldValue, 
             snackBar: true,
             type: "success", 
@@ -114,3 +114,39 @@ export const useUpdateUserPassword = async (setStatus, id, userData) => {
 
   await fetchData();
 }
+
+export const useDeleteUsers = async (setUser, setStatus, users) => {
+    const userFetchFunction = users.length > 1 ? () => deleteUsers(users) : () => deleteUser(users[0])
+    const fetchData = async () => {
+        setStatus(oldValue => {return {...oldValue, isLoading: true}});
+        try {
+            const response = await userFetchFunction();
+            if (response.data) {
+                setUser((oldValue) => { return {
+                    ...oldValue, 
+                    total: oldValue.total - users.length,
+                    data: oldValue.data?.filter(user => users.length > 1 ? !response.data?.includes(user.id) : user.id !== response.data?.id)
+                }});
+                setStatus(oldValue => {return {
+                    ...oldValue, 
+                    snackBar: true,
+                    type: "success", 
+                    message: users.length > 1 ? "Les utilisateurs ont été supprimés." :"L'utilisateur a été supprimé."
+                }});
+            }
+
+        } catch (err) {
+            setStatus(oldValue => {return {
+                ...oldValue, 
+                snackBar: true,
+                type: "error", 
+                message: err?.response?.data ? err?.response?.data?.message : err
+            }});
+        } finally {
+            setStatus(oldValue => {return {...oldValue, isLoading: false}});
+        }
+    }
+  
+    await fetchData();
+  }
+  

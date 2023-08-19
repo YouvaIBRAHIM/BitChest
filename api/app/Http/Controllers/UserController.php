@@ -136,8 +136,34 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(User $user)
     {
-        //
+        try {
+            $user->delete();
+            return response()->json($user, 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                "message" => "Oups ! Nous n'avons pas pu supprimer les données.",
+                "error" => $th->getMessage()
+            ], $th->getCode());
+        }
+    }
+
+        /**
+     * Remove the specified resource from storage.
+     */
+    public function destroyMultiple(Request $request)
+    {
+        try {
+            $userArray = $request->input('users');
+            User::whereIn('id', $userArray)->delete();
+            return response()->json($userArray, 200);
+            
+        } catch (\Throwable $th) {
+            return response()->json([
+                "message" => "Oups ! Nous n'avons pas pu supprimer les données.",
+                "error" => $th->getMessage()
+            ], $th->getCode());
+        }
     }
 }

@@ -5,14 +5,15 @@ import SearchField from "../SearchField";
 
 
 const EnhancedTableToolbar = ({ 
-  numSelected, 
+  selected, 
   perPage, 
   setPerPage, 
   role, 
   setRole, 
   filterOptions,
   search,
-  setSearch 
+  setSearch,
+  handleClickOpenDialog 
 }) => {
   
     const handleChangePerPage = (e) => {
@@ -28,21 +29,21 @@ const EnhancedTableToolbar = ({
           minHeight: 75,
           pl: { sm: 2 },
           pr: { xs: 1, sm: 1 },
-          ...(numSelected > 0 && {
+          ...(selected.length > 0 && {
             bgcolor: (theme) =>
               alpha(theme.palette.primary.main, theme.palette.action.activatedOpacity),
           }),
         }}
         className="flex flex-wrap justify-between"
       >
-        {numSelected > 0 ? (
+        {selected.length > 0 ? (
           <Typography
             sx={{ margin:1 }}
             color="inherit"
             variant="subtitle1"
             component="div"
           >
-            {`${numSelected} sélectionné${numSelected > 1 ? "s" : ""}`} 
+            {`${selected.length} sélectionné${selected.length > 1 ? "s" : ""}`} 
           </Typography>
         ) : (
           <Typography
@@ -55,12 +56,14 @@ const EnhancedTableToolbar = ({
           </Typography>
         )}
   
-        {numSelected > 0 ? (
+        {selected.length > 0 ? (
           <Tooltip 
             title="Supprimer" 
             sx={{ margin:1 }}
           >
-            <IconButton>
+            <IconButton
+              onClick={() => handleClickOpenDialog(selected)}
+            >
               <Trash />
             </IconButton>
           </Tooltip>

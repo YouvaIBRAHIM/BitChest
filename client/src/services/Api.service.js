@@ -116,19 +116,25 @@ export async function updateUserPassword(id, data) {
 
 
 /**
- * supprime un collaborateur via une requete API
- * @param {Number} id id du collaborateur à supprimer
+ * supprime un utilisateur via une requete API
+ * @param {Number} id id du utilisateur à supprimer
  * @returns la réponse de la requete API axios 
  */
 export async function deleteUser(id) {
-  const handleUserApi = import.meta.env.VITE_HANDLE_USER_API;  
-  
   try {
-    const response = await instance.delete(`${handleUserApi}/${id}`)
+    const response = await instance.delete(`/api/users/${id}`)
 
     return response;
   } catch (error) {
+    return Promise.reject(error.response?.data?.message ?? error.message);
+  }
+}
 
-    return error.response.data.error;
+export async function deleteUsers(users) {
+  try {
+    const response = await instance.post(`/api/users/delete/multiple`, {users})
+    return response;
+  } catch (error) {
+    return Promise.reject(error.response?.data?.message ?? error.message);
   }
 }
