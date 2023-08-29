@@ -140,7 +140,7 @@ class UserController extends Controller
     {
         try {
             $user->delete();
-            return response()->json($user, 200);
+            return response()->json([$user->id], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 "message" => "Oups ! Nous n'avons pas pu supprimer les données.",
