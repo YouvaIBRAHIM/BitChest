@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -7,16 +7,19 @@ import TableContainer from '@mui/material/TableContainer';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import Checkbox from '@mui/material/Checkbox';
-import EnhancedTableHead from "../components/UsersListViewComponents/EnhancedTableHead"
-import EnhancedTableToolbar from "../components/UsersListViewComponents/EnhancedTableToolbar"
+import EnhancedTableHead from "../components/UserComponents/UsersListViewComponents/EnhancedTableHead"
+import EnhancedTableToolbar from "../components/UserComponents/UsersListViewComponents/EnhancedTableToolbar"
 import { getComparator, stableSort } from '../services/Utils.service';
-import { useDebounce, useDeleteUsers, useUsers } from '../services/Hook.service';
+import { useDebounce } from '../services/Hook.service';
 import { IconButton, Pagination, Stack, Tooltip } from '@mui/material';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import TableSkeleton from '../components/TableSkeleton';
+import TableSkeleton from '../components/Skeletons/TableSkeleton';
 import { PencilSimpleLine, Trash } from '@phosphor-icons/react';
 import CustomSnackbar from '../components/CustomSnackbar';
-import CustomDialog from '../components/CustomDialog';
+import CustomConfirmationDialog from '../components/CustomConfirmationDialog';
+import CustomSpeedDial from '../components/CustomSpeedDial';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { deleteUser, deleteUsers, getUsers } from '../services/Api.service';
 
 const filterOptions = [
   {
@@ -30,27 +33,57 @@ const filterOptions = [
 ]
 
 const UsersListView = () => {
+  const queryClient = useQueryClient()
   const [searchParams, setSearchParams] = useSearchParams();
   const [order, setOrder] = useState('asc');
-  const [orderBy, setOrderBy] = useState('calories');
+  const [orderBy, setOrderBy] = useState('name');
   const [selected, setSelected] = useState([]);
   const [page, setPage] = useState(searchParams.get("page") ?? 1);
   const [perPage, setPerPage] = useState(10);
   const [role, setRole] = useState("client");
   const [search, setSearch] = useState({text: "", filter: "name"});
-  const [users, setUsers] = useState([]);
-  const [status, setStatus] = useState({isLoading: false, type: "", message: "", snackBar: false});
+  const [snackBar, setSnackBar] = useState({message: "", showSnackBar: false, type: "info"});
   const [dialog, setDialog] = useState(false);
+  const debouncedSearch = useDebounce(search, 500);
+
+  const { data: users, isFetching, refetch } = useQuery({ 
+    queryKey: ['userList'], 
+    queryFn: () =>  getUsers(page, perPage, role, search),
+    retry: 3,
+    refetchInterval: false,
+    enabled: false,
+    onError: (error) => setSnackBar({message: error, showSnackBar: true, type: "error"})
+  });
+
+  const deleteUserMutation = useMutation({
+    mutationFn: (deleteFetch) => deleteFetch(),
+    onSuccess: (data) => {
+        users.data = users?.data?.filter(user => !data?.data?.includes(user.id))
+        if (users.data.length === 0) {
+          refetch()
+        }else{
+          users.total = users.total - data?.data?.length
+          queryClient.setQueryData(['userList'], users)
+        }
+        setSnackBar({
+          message: data?.data?.length > 1 ? "Les utilisateurs ont été supprimés." :"L'utilisateur a été supprimé.", 
+          showSnackBar: true, 
+          type: "success"
+        });
+    },
+    onError: error => {
+        setSnackBar({message: error, showSnackBar: true, type: "error"});
+    }
+  })
+  
 
   const navigate = useNavigate();
 
-  const debouncedSearch = useDebounce(search, 500);
-
   useEffect(() => {
     if (debouncedSearch) {
-      useUsers(setUsers, setStatus, debouncedSearch, page, perPage, role)
+      refetch(page, perPage, role, debouncedSearch)
     }
-  }, [page, perPage, role, debouncedSearch])
+  }, [page, perPage, role, debouncedSearch.text])
 
   const handleClickOpenDialog = (item) => {
     setDialog(item);
@@ -100,7 +133,6 @@ const UsersListView = () => {
 
   const isSelected = (name) => selected.indexOf(name) !== -1;
 
-
   const handleChangePage = useCallback((e, value) => {
     setPage(value);
     setSearchParams({page: value})
@@ -111,13 +143,13 @@ const UsersListView = () => {
       return;
     }
 
-    setStatus(oldValue => { return {...oldValue, snackBar: false}});
+    setSnackBar({message: "", snackBar: false, type: "info"});
   }, [])
   
   const renderTableBody = useCallback(() => {
     const visibleRows = (users?.data) ? stableSort(users?.data, getComparator(order, orderBy)): []
 
-    if (status.isLoading) {
+    if (isFetching) {
       return <TableSkeleton rows={10} cells={5}/>
     }else if (visibleRows) {
       return (
@@ -135,6 +167,7 @@ const UsersListView = () => {
               key={row.id}
               selected={isItemSelected}
               sx={{ cursor: 'pointer' }}
+              className={`${row?.isNewRow && "bg-yellow-500"}`}
             >
               <TableCell padding="checkbox">
                 <Checkbox
@@ -159,7 +192,7 @@ const UsersListView = () => {
                   <div className='actionButtons'>
                     <Tooltip title='Éditer' onClick={()=> navigate(`/users/${row.id}`)}>
                       <IconButton aria-label="action" size="small">
-                        <PencilSimpleLine fontSize="inherit" />
+                        <PencilSimpleLine fontSize="inherit" weight="duotone" />
                       </IconButton>
                     </Tooltip>
                     <Tooltip title='Supprimer'>
@@ -168,7 +201,7 @@ const UsersListView = () => {
                         size="small"
                         onClick={() => handleClickOpenDialog([row.id])}
                       >
-                        <Trash fontSize="inherit" />
+                        <Trash fontSize="inherit" weight="duotone" />
                       </IconButton>
                     </Tooltip>
                   </div>
@@ -180,13 +213,15 @@ const UsersListView = () => {
       </TableBody>
       )
     }
-  }, [status, selected, users, order, orderBy]);
+  }, [isFetching, selected, users, order, orderBy]);
 
-  const handleConfimDelete = useCallback(() => {
-    useDeleteUsers(setUsers, setStatus, dialog)
+  const handleConfimDelete = useCallback((selected) => {
+    const userFetchFunction = selected.length > 1 ? () => deleteUsers(selected) : () => deleteUser(selected[0])
+    deleteUserMutation.mutate(() => userFetchFunction())  
+
     setDialog(false);
     setSelected([]);
-  }, [dialog]);
+  }, [dialog, selected]);
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -214,24 +249,25 @@ const UsersListView = () => {
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={users.data?.length}
+              rowCount={users?.data?.length}
             />
           {renderTableBody()}
           </Table>
         </TableContainer>
       </Paper>
-        <Stack spacing={2} className='fixed bottom-5 right-5'>
-          <Pagination color='primary' count={users.total ? Math.ceil(users.total / perPage) : 0} page={Number(page)} siblingCount={5} onChange={handleChangePage}/>
+        <Stack spacing={2} className='fixed bottom-5 right-24'>
+          <Pagination color='primary' count={users?.total ? Math.ceil(users.total / perPage) : 0} page={Number(page)} siblingCount={5} onChange={handleChangePage}/>
         </Stack>
-        <CustomSnackbar open={status.snackBar} handleClose={handleCloseSnackBar} type={status.type} message={status.message}/>
-        <CustomDialog 
+        <CustomSnackbar open={snackBar.showSnackBar} handleClose={handleCloseSnackBar} type={snackBar.type} message={snackBar.message}/>
+        <CustomConfirmationDialog 
           dialog={dialog} 
           setDialog={setDialog} 
-          items={users.data} 
+          items={users?.data} 
           itemKey={"email"} 
-          message={`${dialog.length > 1 ? "Voulez-vous vraiment supprimer ces utilisateurs ?" : "Voulez-vous vraiment supprimer cet utilisateur ?"}`}
+          message={`Voulez-vous vraiment supprimer ${dialog.length > 1 ? "ces utilisateurs" : "cet utilisateur"} ?`}
           onConfirm={handleConfimDelete}
         />
+        <CustomSpeedDial />
     </Box>
   );
 }

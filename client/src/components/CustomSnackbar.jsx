@@ -1,4 +1,4 @@
-import { forwardRef, useState } from 'react';
+import { forwardRef } from 'react';
 import Stack from '@mui/material/Stack';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
@@ -19,7 +19,7 @@ export default function CustomSnackbar({ open, handleClose, message, type }) {
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
         TransitionComponent={(props) => <Slide {...props} direction="down" />}
       >
-        <Alert onClose={handleClose} severity={type ?? "warning"} sx={{ width: '100%' }}>
+        <Alert onClose={handleClose} severity={type ?? "info"} sx={{ width: '100%' }}>
           {message}
         </Alert>
       </Snackbar>

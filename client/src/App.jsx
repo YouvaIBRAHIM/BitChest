@@ -35,6 +35,9 @@ function App() {
         mode: mode,
         primary: {
           main: colors.green[500]
+        },
+        secondary: {
+          main: colors.yellow[500]
         }
       }
     });

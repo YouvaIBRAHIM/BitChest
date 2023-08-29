@@ -1,7 +1,7 @@
 import { FormControl, IconButton, InputLabel, MenuItem, Select, Toolbar, Tooltip, Typography } from "@mui/material";
 import { Trash  } from "@phosphor-icons/react";
 import { alpha } from '@mui/material/styles';
-import SearchField from "../SearchField";
+import SearchField from "../../SearchField";
 
 
 const EnhancedTableToolbar = ({ 

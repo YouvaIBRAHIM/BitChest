@@ -2,13 +2,12 @@ import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import { useEffect, useState } from 'react';
 
-const CustomDialog = ({dialog, setDialog, items, itemKey, message, onConfirm}) => {
+const CustomConfirmationDialog = ({dialog, setDialog, items, itemKey, message, onConfirm}) => {
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
     const [ itemsToDelete, setItemsToDelete ] = useState([])
@@ -48,7 +47,7 @@ const CustomDialog = ({dialog, setDialog, items, itemKey, message, onConfirm}) =
                 <Button autoFocus onClick={handleClose}>
                     Annuler
                 </Button>
-                <Button onClick={onConfirm} autoFocus>
+                <Button onClick={() => onConfirm(dialog)} autoFocus>
                     Confirmer
                 </Button>
                 </DialogActions>
@@ -57,4 +56,4 @@ const CustomDialog = ({dialog, setDialog, items, itemKey, message, onConfirm}) =
     );
 }
 
-export default CustomDialog;
+export default CustomConfirmationDialog;

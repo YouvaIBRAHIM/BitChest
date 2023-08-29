@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
     Card,
     CardHeader,
@@ -10,7 +10,8 @@ import {
     Select,
     MenuItem,
 } from '@mui/material';
-import { useUpdateUser } from '../../services/Hook.service';
+import { updateUser } from '../../../services/Api.service';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 const roles = [
     {
@@ -23,22 +24,30 @@ const roles = [
     },
   ]
 
-const UserForm = ({ user, setUser, setStatus }) => {
+const UserForm = ({ user, setSnackBar }) => {
+    const queryClient = useQueryClient()
 
-    const [updatedUser, setUpdatedUser] = useState(user);
+    const userMutation = useMutation({
+        mutationFn: updateUser,
+        onSuccess: data => {
+            queryClient.setQueryData(['user'], data)  
+            setSnackBar({message: "Les données ont été mises à jour.", showSnackBar: true, type: "success"});
+        },
+        onError: error => {
+            setSnackBar({message: error, showSnackBar: true, type: "error"});
+        }
+    })
 
-    useEffect(() => {
-        setUpdatedUser(user)
-    }, [])
+    const [userInfos, setUserInfos] = useState(user);
 
     const handleChange = (event) => {
         const { name, value } = event.target;
-        setUpdatedUser((prevUser) => ({ ...prevUser, [name]: value }));
+        setUserInfos((prevUser) => ({ ...prevUser, [name]: value }));
     };
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        useUpdateUser(setUser, setStatus, updatedUser.id, updatedUser)
+        userMutation.mutate(userInfos)
     };
 
     return (
@@ -53,7 +62,7 @@ const UserForm = ({ user, setUser, setStatus }) => {
                             label="Prénom"
                             fullWidth
                             variant="outlined"
-                            value={updatedUser.firstname}
+                            value={userInfos.firstname}
                             onChange={handleChange}
                         />
                         <TextField
@@ -61,7 +70,7 @@ const UserForm = ({ user, setUser, setStatus }) => {
                             label="Nom"
                             fullWidth
                             variant="outlined"
-                            value={updatedUser.lastname}
+                            value={userInfos.lastname}
                             onChange={handleChange}
                         />
                     </div>
@@ -70,7 +79,7 @@ const UserForm = ({ user, setUser, setStatus }) => {
                         label="Email"
                         fullWidth
                         variant="outlined"
-                        value={updatedUser.email}
+                        value={userInfos.email}
                         onChange={handleChange}
                     />
                     <FormControl>
@@ -79,7 +88,7 @@ const UserForm = ({ user, setUser, setStatus }) => {
                             labelId="RoleId"
                             id="RoleId"
                             name='role'
-                            value={updatedUser.role}
+                            value={userInfos.role}
                             label="Rôle"
                             onChange={handleChange}
                         >

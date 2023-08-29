@@ -77,7 +77,7 @@ export const getUser = async (id) => {
  * @param {Object} data informations du nouveau collaborateur
  * @returns la réponse de la requete API axios 
  */
-export async function addeUser(data) {
+export async function addUser(data) {
   const handleUserApi = import.meta.env.VITE_HANDLE_USER_API;  
   
   try {
@@ -94,20 +94,20 @@ export async function addeUser(data) {
  * @param {Number} id id du collaborateur à modifier
  * @returns la réponse de la requete API axios 
  */
-export async function updateUser(id, data) {
+export async function updateUser(user) {
   
   try {
-    const response = await instance.put(`/api/users/${id}`, data)
+    const response = await instance.put(`/api/users/${user.id}`, user)
     return response.data;
   } catch (error) {
     return Promise.reject(error.response?.data?.message ?? error.message);
   }
 }
 
-export async function updateUserPassword(id, data) {
+export async function updateUserPassword(user) {
   
   try {
-    const response = await instance.put(`/api/users/password/${id}`, data)
+    const response = await instance.put(`/api/users/password/${user.id}`, user.data)
     return response.data;
   } catch (error) {
     return Promise.reject(error.response?.data?.message ?? error.message);
