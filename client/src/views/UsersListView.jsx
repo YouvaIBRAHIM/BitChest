@@ -267,7 +267,7 @@ const UsersListView = () => {
           message={`Voulez-vous vraiment supprimer ${dialog.length > 1 ? "ces utilisateurs" : "cet utilisateur"} ?`}
           onConfirm={handleConfimDelete}
         />
-        <CustomSpeedDial />
+        <CustomSpeedDial setSnackBar={setSnackBar}/>
     </Box>
   );
 }

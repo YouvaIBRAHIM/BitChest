@@ -7,7 +7,7 @@ import SpeedDialAction from '@mui/material/SpeedDialAction';
 import { UserPlus } from '@phosphor-icons/react';
 import NewUserDialog from './UserComponents/UsersListViewComponents/NewUserDialog';
 
-const CustomSpeedDial = ({}) => {
+const CustomSpeedDial = ({setSnackBar}) => {
     const [open, setOpen] = useState(false);
     const [newUserDialog, setNewUserDialog] = useState(false);
     const handleNewUserDialog = () => setNewUserDialog(true);
@@ -16,7 +16,7 @@ const CustomSpeedDial = ({}) => {
   
     return (
       <Box>
-        <NewUserDialog open={newUserDialog} setOpen={setNewUserDialog}/>
+        <NewUserDialog open={newUserDialog} setOpen={setNewUserDialog} setSnackBar={setSnackBar}/>
         <Backdrop open={open} />
         <SpeedDial
           ariaLabel="SpeedDial tooltip example"

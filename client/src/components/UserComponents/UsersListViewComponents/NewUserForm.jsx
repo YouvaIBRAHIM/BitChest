@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import {
     Card,
-    CardHeader,
     CardContent,
     TextField,
-    Button,
     FormControl,
     InputLabel,
     Select,
@@ -12,9 +10,13 @@ import {
     InputAdornment,
     IconButton,
     OutlinedInput,
+    Grid,
+    Typography,
+    List,
+    ListItem,
+    ListItemText,
 } from '@mui/material';
-import { addUser } from '../../../services/Api.service';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+
 import { Eye, EyeClosed } from '@phosphor-icons/react';
 
 const roles = [
@@ -28,64 +30,46 @@ const roles = [
     },
 ]
 
-const NewUserForm = ({ setSnackBar }) => {
-    const queryClient = useQueryClient()
 
-    const userMutation = useMutation({
-        mutationFn: addUser,
-        onSuccess: data => {
-            // queryClient.setQueryData(['user'], data)  
-            // setSnackBar({message: "Les données ont été mises à jour.", showSnackBar: true, type: "success"});
-        },
-        onError: error => {
-            setSnackBar({message: error, showSnackBar: true, type: "error"});
-        }
-    })
 
-    const [userInfos, setUserInfos] = useState([]);
+const NewUserForm = ({ userInfos, handleChange, register, errors }) => {
+console.log("🚀 ~ file: NewUserForm.jsx:31 ~ NewUserForm ~ errors:", errors)
+
     const [ showPassword, setShowPassword ] = useState({
         password: false,
         confirmation: false,
     });
-    const handleChange = (event) => {
-        const { name, value } = event.target;
-        setUserInfos((prevUser) => ({ ...prevUser, [name]: value }));
-    };
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        userMutation.mutate(userInfos)
-    };
+    const [ isPasswordFocus, setIsPasswordFocus ] = useState(false);
 
     return (
     <Card>
         <CardContent>
-            <form onSubmit={handleSubmit}>
                 <div className='flex flex-col gap-5'>
                     <div className='flex gap-5'>
                         <TextField
                             name="firstname"
+                            {...register("firstname")}
                             label="Prénom"
                             fullWidth
                             variant="outlined"
-                            value={userInfos.firstname}
                             onChange={handleChange}
                         />
                         <TextField
                             name="lastname"
+                            {...register("lastname")}
                             label="Nom"
                             fullWidth
                             variant="outlined"
-                            value={userInfos.lastname}
                             onChange={handleChange}
                         />
                     </div>
                     <TextField
                         name="email"
+                        {...register("email")}
                         label="Email"
                         fullWidth
                         variant="outlined"
-                        value={userInfos.email}
                         onChange={handleChange}
                     />
                     <FormControl>
@@ -94,7 +78,8 @@ const NewUserForm = ({ setSnackBar }) => {
                             labelId="RoleId"
                             id="RoleId"
                             name='role'
-                            value={userInfos.role}
+                            defaultValue={"client"}
+                            {...register("role")}
                             label="Rôle"
                             onChange={handleChange}
                         >
@@ -108,11 +93,12 @@ const NewUserForm = ({ setSnackBar }) => {
                         </Select>
                     </FormControl>
                     <FormControl variant="outlined">
-                        <InputLabel htmlFor="newPassword">Nouveau mot de passe</InputLabel>
+                        <InputLabel htmlFor="newPassword">Mot de passe</InputLabel>
                         <OutlinedInput className='rounded bg-red'
-                            id="newPassword"
-                            name="newPassword"
-                            type={showPassword.new ? 'text' : 'password'}
+                            id="password"
+                            name="password"
+                            {...register("password")}
+                            type={showPassword.password ? 'text' : 'password'}
                             endAdornment={
                             <InputAdornment position="end">
                                 <IconButton
@@ -120,19 +106,60 @@ const NewUserForm = ({ setSnackBar }) => {
                                 onClick={() => setShowPassword(oldValue => { return {...oldValue, password: !oldValue.password}})}
                                 edge="end"
                                 >
-                                {showPassword.new ? <Eye size={24} /> : <EyeClosed size={24} />}
+                                {showPassword.password ? <Eye size={24} /> : <EyeClosed size={24} />}
                                 </IconButton>
                             </InputAdornment>
                             }
-                            label="Nouveau mot de passe"
+                            label="Mot de passe"
                             onChange={handleChange}
+                            onFocus={() => setIsPasswordFocus(true)}
+                            onBlur={() => setIsPasswordFocus(false)}
                         />
+                        {
+                            isPasswordFocus &&
+                            <Grid item xs={12} md={6}>
+                                <Typography 
+                                    sx={{ m: 1 }} 
+                                    variant="p" component="div"
+                                    className='font-poppins text-sm'
+                                >
+                                    Le mot de passe doit contenir au moins :
+                                </Typography>
+                                <List 
+                                    dense={true}
+                                    sx={{ 
+                                        p: 0,
+                                        "& span" :{
+                                            fontSize: "12px!important",
+                                            fontFamily: "Poppins!important"
+                                        } 
+                                    }}
+                                >
+                                    <ListItem>
+                                        <ListItemText
+                                            primary="Une minuscule "       
+                                        />
+                                    </ListItem>
+                                    <ListItem>
+                                        <ListItemText
+                                            primary="Une majuscule"       
+                                        />
+                                    </ListItem>
+                                    <ListItem>
+                                        <ListItemText
+                                            primary="Un caractère spécial (!@,#$%^&*)"       
+                                        />
+                                    </ListItem>
+                                </List>
+                            </Grid>
+                        }
                     </FormControl>
                     <FormControl variant="outlined">
-                        <InputLabel htmlFor="confirmationPassword">Confirmation du nouveau mot de passe</InputLabel>
+                        <InputLabel htmlFor="confirmationPassword">Confirmation du mot de passe</InputLabel>
                         <OutlinedInput className='rounded bg-red'
                             id="confirmationPassword"
                             name="confirmationPassword"
+                            {...register("confirmationPassword")}
                             type={showPassword.confirmation ? 'text' : 'password'}
                             endAdornment={
                             <InputAdornment position="end">
@@ -150,7 +177,6 @@ const NewUserForm = ({ setSnackBar }) => {
                         />
                     </FormControl>
                 </div>
-            </form>
         </CardContent>
     </Card>
     );
