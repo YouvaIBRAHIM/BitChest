@@ -6,7 +6,7 @@ import Box from '@mui/material/Box';
 import UserCard from '../components/UserComponents/UserViewComponents/UserCard';
 import UserForm from '../components/UserComponents/UserViewComponents/UserForm';
 import UserPasswordForm from '../components/UserComponents/UserViewComponents/UserPasswordForm';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import CustomSnackbar from '../components/CustomSnackbar';
 import { useQuery } from '@tanstack/react-query';
 import { getAuthUser, getUser } from '../services/Api.service';
@@ -49,11 +49,13 @@ function tabProps(index) {
 
 const UserView = () => {
     const { id } = useParams();
+    const {pathname} = useLocation();
+    console.log("🚀 ~ file: UserView.jsx:53 ~ UserView ~ pathname:", pathname)
     const [tabIndex, setTabIndex] = useState(0);
     const [snackBar, setSnackBar] = useState({message: "", showSnackBar: false, type: "info"});
-    const [user, setUser] = useState(null);
+    // const [user, setUser] = useState(null);
 
-    const { data, isFetching} = useQuery({ 
+    const { data: user, isFetching, refetch} = useQuery({ 
       queryKey: ['user'], 
       queryFn: () => id ? getUser(id) : getAuthUser(),
       retry: 3,
@@ -62,10 +64,10 @@ const UserView = () => {
 
 
     useEffect(() => {
-      if (data) {
-        setUser(data)
+      if (user) {
+        refetch(id)
       }
-    }, [data])
+    }, [user, pathname])
 
     const handleChange = (event, newValue) => {
         setTabIndex(newValue);
@@ -112,7 +114,7 @@ const UserView = () => {
                               isFetching ?
                               <UserFormSkeleton />
                               :
-                              <UserForm user={user} setUser={setUser} setSnackBar={setSnackBar}/>
+                              <UserForm user={user} setSnackBar={setSnackBar}/>
                             }
                             </div>
                             <div className='lg:basis-2/3 basis-full p-2'>

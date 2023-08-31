@@ -167,7 +167,7 @@ const UsersListView = () => {
               key={row.id}
               selected={isItemSelected}
               sx={{ cursor: 'pointer' }}
-              className={`${row?.isNewRow && "bg-yellow-500"}`}
+              className={`${row?.isNewRow && "animate-signal"}`}
             >
               <TableCell padding="checkbox">
                 <Checkbox
@@ -240,7 +240,7 @@ const UsersListView = () => {
         <TableContainer>
           <Table
             sx={{ minWidth: 750 }}
-            aria-labelledby="tableTitle"
+            aria-labelledby="usersTable"
             size={'medium'}
           >
             <EnhancedTableHead

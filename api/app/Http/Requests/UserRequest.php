@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UserRequest extends FormRequest
@@ -14,12 +13,17 @@ class UserRequest extends FormRequest
 
     public function rules()
     {
-        return [
+        $rules = [
             'firstname' => 'required|string|min:1|max:255',
             'lastname' => 'required|string|min:1|max:255',
             'role' => 'string|in:client,admin',
             'email' => 'required|email',
         ];
+    
+        if ($this->isMethod('post')) {
+            $rules['password'] = 'required|min:8'; 
+        }
+        return $rules;
     }
 
     public function messages()

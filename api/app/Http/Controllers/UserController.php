@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UserPasswordRequest;
 use App\Http\Requests\UserRequest;
 use App\Models\User;
+use App\Models\Wallet;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -56,9 +58,44 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(UserRequest $request)
     {
-        //
+        try {
+            if (Auth::user()->role !== "admin") {
+                return response()->json([
+                    "message" => "Vous ne pouvez pas créer un nouvel utilisateur.",
+                    "error" => 401
+                ], 401);
+            }
+            $validatedData = $request->validated();
+
+            //Vérifie si l'email existe déjà
+            $user = User::firstOrCreate([
+                "email" => $validatedData["email"]
+            ], $validatedData);
+
+            if (!$user->wasRecentlyCreated) {
+                return response()->json([
+                    "message" => "Cet utilisateur existe déjà.",
+                    "error" => 401
+                ], 401);
+
+            }
+            $wallet = new Wallet([
+                "balance" => 0
+            ]);
+
+            $user->wallet()->save($wallet);
+
+            $user->balance = 0;
+            
+            return response()->json($user, 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                "message" => "Oups ! Nous n'avons pas pu mettre à jour les données.",
+                "error" => $th->getMessage()
+            ], $th->getCode());
+        }
     }
 
     /**

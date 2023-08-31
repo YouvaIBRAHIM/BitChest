@@ -15,6 +15,7 @@ import {
     List,
     ListItem,
     ListItemText,
+    FormHelperText,
 } from '@mui/material';
 
 import { Eye, EyeClosed } from '@phosphor-icons/react';
@@ -33,7 +34,6 @@ const roles = [
 
 
 const NewUserForm = ({ userInfos, handleChange, register, errors }) => {
-console.log("🚀 ~ file: NewUserForm.jsx:31 ~ NewUserForm ~ errors:", errors)
 
     const [ showPassword, setShowPassword ] = useState({
         password: false,
@@ -49,6 +49,8 @@ console.log("🚀 ~ file: NewUserForm.jsx:31 ~ NewUserForm ~ errors:", errors)
                     <div className='flex gap-5'>
                         <TextField
                             name="firstname"
+                            error={Boolean(errors["firstname"])}
+                            helpertext={errors["firstname"]?.message}
                             {...register("firstname")}
                             label="Prénom"
                             fullWidth
@@ -57,6 +59,8 @@ console.log("🚀 ~ file: NewUserForm.jsx:31 ~ NewUserForm ~ errors:", errors)
                         />
                         <TextField
                             name="lastname"
+                            error={Boolean(errors["lastname"])}
+                            helpertext={errors["lastname"]?.message}
                             {...register("lastname")}
                             label="Nom"
                             fullWidth
@@ -66,6 +70,8 @@ console.log("🚀 ~ file: NewUserForm.jsx:31 ~ NewUserForm ~ errors:", errors)
                     </div>
                     <TextField
                         name="email"
+                        error={Boolean(errors["email"])}
+                        helpertext={errors["email"]?.message}
                         {...register("email")}
                         label="Email"
                         fullWidth
@@ -78,6 +84,8 @@ console.log("🚀 ~ file: NewUserForm.jsx:31 ~ NewUserForm ~ errors:", errors)
                             labelId="RoleId"
                             id="RoleId"
                             name='role'
+                            error={Boolean(errors["role"])}
+                            helpertext={errors["role"]?.message}
                             defaultValue={"client"}
                             {...register("role")}
                             label="Rôle"
@@ -92,29 +100,38 @@ console.log("🚀 ~ file: NewUserForm.jsx:31 ~ NewUserForm ~ errors:", errors)
                         }
                         </Select>
                     </FormControl>
-                    <FormControl variant="outlined">
-                        <InputLabel htmlFor="newPassword">Mot de passe</InputLabel>
-                        <OutlinedInput className='rounded bg-red'
+                    <FormControl 
+                        variant="outlined"
+                    >
+                        <InputLabel htmlFor="password">Mot de passe</InputLabel>
+                        <OutlinedInput className='rounded'
                             id="password"
                             name="password"
+                            error={Boolean(errors["password"])}
+                            helpertext={errors["password"]?.message}
                             {...register("password")}
                             type={showPassword.password ? 'text' : 'password'}
                             endAdornment={
                             <InputAdornment position="end">
                                 <IconButton
-                                aria-label="toggle password visibility"
-                                onClick={() => setShowPassword(oldValue => { return {...oldValue, password: !oldValue.password}})}
-                                edge="end"
+                                    aria-label="toggle password visibility"
+                                    onClick={() => setShowPassword(oldValue => { return {...oldValue, password: !oldValue.password}})}
+                                    edge="end"
                                 >
-                                {showPassword.password ? <Eye size={24} /> : <EyeClosed size={24} />}
+                                    {showPassword.password ? <Eye size={24} /> : <EyeClosed size={24} />}
                                 </IconButton>
                             </InputAdornment>
                             }
                             label="Mot de passe"
                             onChange={handleChange}
-                            onFocus={() => setIsPasswordFocus(true)}
-                            onBlur={() => setIsPasswordFocus(false)}
+  
+                            inputProps={{
+                                onFocus: () => setIsPasswordFocus(true),
+                                onBlur: () => setIsPasswordFocus(false),
+                            }}
                         />
+                        <FormHelperText id="passwordHelperText" error={Boolean(errors["password"])}>{errors["password"]?.message}</FormHelperText>
+
                         {
                             isPasswordFocus &&
                             <Grid item xs={12} md={6}>
@@ -147,6 +164,11 @@ console.log("🚀 ~ file: NewUserForm.jsx:31 ~ NewUserForm ~ errors:", errors)
                                     </ListItem>
                                     <ListItem>
                                         <ListItemText
+                                            primary="Un chiffre"       
+                                        />
+                                    </ListItem>
+                                    <ListItem>
+                                        <ListItemText
                                             primary="Un caractère spécial (!@,#$%^&*)"       
                                         />
                                     </ListItem>
@@ -156,25 +178,28 @@ console.log("🚀 ~ file: NewUserForm.jsx:31 ~ NewUserForm ~ errors:", errors)
                     </FormControl>
                     <FormControl variant="outlined">
                         <InputLabel htmlFor="confirmationPassword">Confirmation du mot de passe</InputLabel>
-                        <OutlinedInput className='rounded bg-red'
+                        <OutlinedInput className='rounded'
                             id="confirmationPassword"
                             name="confirmationPassword"
+                            error={Boolean(errors["confirmationPassword"])}
                             {...register("confirmationPassword")}
                             type={showPassword.confirmation ? 'text' : 'password'}
                             endAdornment={
-                            <InputAdornment position="end">
-                                <IconButton
-                                    aria-label="toggle password visibility"
-                                    onClick={() => setShowPassword(oldValue => { return {...oldValue, confirmation: !oldValue.confirmation}})}
-                                    edge="end"
-                                >
-                                {showPassword.confirmation ? <Eye size={24} /> : <EyeClosed size={24} />}
-                                </IconButton>
-                            </InputAdornment>
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        aria-label="toggle password visibility"
+                                        onClick={() => setShowPassword(oldValue => { return {...oldValue, confirmation: !oldValue.confirmation}})}
+                                        edge="end"
+                                    >
+                                    {showPassword.confirmation ? <Eye size={24} /> : <EyeClosed size={24} />}
+                                    </IconButton>
+                                </InputAdornment>
                             }
                             label="Confirmation du nouveau mot de passe"
                             onChange={handleChange}
+
                         />
+                        <FormHelperText id="confirmationPasswordHelperText" error={Boolean(errors["confirmationPassword"])}>{errors["confirmationPassword"]?.message}</FormHelperText>
                     </FormControl>
                 </div>
         </CardContent>

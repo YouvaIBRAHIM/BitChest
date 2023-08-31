@@ -78,13 +78,12 @@ export const getUser = async (id) => {
  * @returns la réponse de la requete API axios 
  */
 export async function addUser(data) {
-  const handleUserApi = import.meta.env.VITE_HANDLE_USER_API;  
   
   try {
-    const response = await instance.post(handleUserApi, data);
+    const response = await instance.post("/api/users/", data);
     return response;
   } catch (error) {
-    return error.message;
+    return Promise.reject(error.response?.data?.message ?? error.message);
   }
 }
 

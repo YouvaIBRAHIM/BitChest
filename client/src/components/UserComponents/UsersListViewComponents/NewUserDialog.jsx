@@ -9,42 +9,32 @@ import { addUser } from '../../../services/Api.service';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
-import * as yup from 'yup';
+import { signUpSchema } from '../../../services/FormSchema.service';
 
-const signUpSchema = yup.object().shape({
-    firstname: yup.string()
-        .min(1, 'Trop court.')
-        .max(50, 'Trop long.')
-        .required('Champ obligatoire.'),
-    lastname: yup.string()
-        .min(1, 'Trop long.')
-        .max(50, 'Trop long.')
-        .required('Champ obligatoire.'),
-    role: yup.string()
-        .required('Champ obligatoire.'),
-    email: yup.string()
-        .email('Email invalide.')
-        .required('Champ obligatoire.'),
-    password: yup.string()
-        .min(8, 'Trop court.')
-        .max(50, 'Trop long.')
-        .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@,#\$%\^&\*])(?=.{8,})/,),
-    confirmationPassword: yup.string()
-        .oneOf([yup.ref('password'), null], 'Les mots de passe doivent être similaires.')
-        .required('Champ obligatoire.'),
-});
 
 const NewUserDialog = ({ open, setOpen, setSnackBar }) => {
 
   const queryClient = useQueryClient()
 
+
   const userMutation = useMutation({
       mutationFn: addUser,
       onSuccess: data => {
-          // queryClient.setQueryData(['user'], data)  
-          // setSnackBar({message: "Les données ont été mises à jour.", showSnackBar: true, type: "success"});
+          const newUser = data.data
+          newUser.isNewRow = true
+          
+          queryClient.setQueryData(['userList'], (oldValue) => {
+            return {
+              ...oldValue,
+              total: oldValue.total + 1,
+              data : [newUser, ...oldValue.data]
+            }
+          })  
+          setOpen(false)
+          setSnackBar({message: `L'utilisateur ${newUser.firstname} ${newUser.lastname} a bien été ajouté.`, showSnackBar: true, type: "success"});
       },
       onError: error => {
+          console.log("🚀 ~ file: NewUserDialog.jsx:27 ~ NewUserDialog ~ error:", error)
           setSnackBar({message: error, showSnackBar: true, type: "error"});
       }
   })
@@ -76,10 +66,8 @@ const NewUserDialog = ({ open, setOpen, setSnackBar }) => {
     // setUserInfos((prevUser) => ({ ...prevUser, [name]: value }));
 };
 
-  const onSubmit = (event) => {
-      event.preventDefault();
-      // userMutation.mutate(userInfos)
-      console.log("🚀 ~ file: NewUserDialog.jsx:40 ~ handleSubmit ~ userInfos:", userInfos)
+  const onSubmit = (data) => {
+      userMutation.mutate(data)
   };
 
   return (
