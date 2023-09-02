@@ -72,7 +72,7 @@ const UsersListView = () => {
         });
     },
     onError: error => {
-        setSnackBar({message: error, showSnackBar: true, type: "error"});
+      setSnackBar({message: error, showSnackBar: true, type: "error"});
     }
   })
   

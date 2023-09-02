@@ -44,9 +44,9 @@ function CustomDrawer({ mobileOpen, handleDrawerToggle, drawerWidth }) {
         position="sticky"
         sx={{
           width: { sm: `calc(100% - ${drawerWidth}px)` },
-          ml: { sm: `${drawerWidth}px` },
-          display: {xs: "block", sm: "none"}
+          left: { sm: `${drawerWidth}px` },
         }}
+        color='secondary'
       >
         <Toolbar>
           <IconButton
@@ -58,7 +58,13 @@ function CustomDrawer({ mobileOpen, handleDrawerToggle, drawerWidth }) {
           >
             <ListIcon />
           </IconButton>
-          <img src='/assets/bitchest_logo.png' alt='BitChest Logo' className='h-10'/>
+          <Box
+            sx={{
+              display: {xs: "block", sm: "none"}
+            }}
+          >
+            <img src='/assets/bitchest_logo_dark.svg' alt='BitChest Logo' className='h-10'/>
+          </Box>
         </Toolbar>
       </AppBar>
       <Box

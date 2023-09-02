@@ -13,6 +13,7 @@ import IndexPage from './middlewares/IndexPage';
 import UsersListView from './views/UsersListView';
 import UserView from './views/UserView';
 import colors from "./services/Tailwind.service";
+import WalletView from './views/WalletView';
 
 const drawerWidth = 240;
 
@@ -34,10 +35,10 @@ function App() {
       palette: {
         mode: mode,
         primary: {
-          main: colors.green[500]
+          main: colors.green[400]
         },
         secondary: {
-          main: colors.yellow[500]
+          main: colors.neutral[900]
         }
       }
     });
@@ -102,6 +103,15 @@ function App() {
                                           </PrivateRoute>
                                         } 
                 />
+
+                
+                <Route path="/wallet" element={
+                                          <PrivateRoute>
+                                            <WalletView />
+                                          </PrivateRoute>
+                                        } 
+                />
+
 
                 <Route path="/*" element={<PageNotFound />} />                                                                                                     
               </Routes>

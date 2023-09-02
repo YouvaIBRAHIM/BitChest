@@ -50,10 +50,8 @@ function tabProps(index) {
 const UserView = () => {
     const { id } = useParams();
     const {pathname} = useLocation();
-    console.log("🚀 ~ file: UserView.jsx:53 ~ UserView ~ pathname:", pathname)
     const [tabIndex, setTabIndex] = useState(0);
     const [snackBar, setSnackBar] = useState({message: "", showSnackBar: false, type: "info"});
-    // const [user, setUser] = useState(null);
 
     const { data: user, isFetching, refetch} = useQuery({ 
       queryKey: ['user'], 
@@ -64,10 +62,8 @@ const UserView = () => {
 
 
     useEffect(() => {
-      if (user) {
-        refetch(id)
-      }
-    }, [user, pathname])
+      refetch(id)
+    }, [pathname])
 
     const handleChange = (event, newValue) => {
         setTabIndex(newValue);
