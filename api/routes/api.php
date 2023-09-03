@@ -23,6 +23,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::resource('/wallets', "App\Http\Controllers\WalletController");
     Route::get('/auth-user/wallet', ["App\Http\Controllers\WalletController", "showAuthenticatedUserWallet"]);
 
+    Route::get('/auth-user/resources', ["App\Http\Controllers\TransactionController", "getAuthUserResources"]);
+
+    
+
     // Récupére l'utilisateur connecté
     Route::get('/auth-user', function (Request $request) {
         return $request->user();

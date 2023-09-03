@@ -8,6 +8,7 @@ import BalanceCard from '../components/WalletComponents/BalanceCard';
 import CryptoList from '../components/WalletComponents/CryptoList';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAuthUserWallet } from '../services/Api.service';
+import TransactionCard from '../components/TransactionCard';
 
 
 const WalletView = () => {
@@ -51,39 +52,8 @@ const WalletView = () => {
     return (
     <Box sx={{ width: '100%'}}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <ButtonGroup
-            disableElevation
-            variant="text"
-            aria-label="Action buttons"
-            sx={{
-              display: "flex",
-              justifyContent: {xs: "center", sm: "flex-start"}
-            }}
-          >
-            <Button
-              startIcon={<DownloadSimple size={24} weight="duotone" />}
-              sx={{
-                px: 4,
-                py: 1,
-                width: {xs: "100%", sm: "auto"}
-              }}
-            >
-              Acheter
-            </Button>
-            <Button
-              startIcon={<UploadSimple size={24} weight="duotone" />}
-              sx={{
-                px: 4,
-                py: 1,
-                width: {xs: "100%", sm: "auto"}
-              }}
-            >
-              Vendre
-            </Button>
-          </ButtonGroup>
+          <TransactionCard />
         </Box>
-
-
         <Box>
           <div className='flex flex-wrap lg:flex-nowrap justify-end w-full'>
             <div className='w-full sm:basis-full lg:basis-2/3 p-2 sm:relative sm:top-0 lg:self-start lg:top-3 lg:sticky'>

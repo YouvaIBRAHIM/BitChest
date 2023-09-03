@@ -152,3 +152,12 @@ export const getAuthUserWallet = async () => {
   }
 }
 
+export const getAuthUserResources = async () => {
+  try {
+    const response = await instance.get(`/api/auth-user/resources`);
+    return response.data;
+  } catch (error) {
+    return Promise.reject(error.response?.data?.message ?? error.message);
+  }
+}
+
