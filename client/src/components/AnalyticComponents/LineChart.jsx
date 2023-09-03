@@ -4,7 +4,7 @@ import ReactApexChart from "react-apexcharts";
 import colors from "../../services/Tailwind.service";
 import { Card } from '@mui/material';
 
-const LineChart = ({ data }) => {  
+const LineChart = ({ data, title }) => {  
   const theme = useTheme();
 
   const chart = useMemo(() => {
@@ -32,6 +32,14 @@ const LineChart = ({ data }) => {
             enabled: false
           }
   
+        },
+        title: {
+          text: title,
+          style: {
+            fontSize: 32,
+            fontWeight: 600,
+            color: colors.green[400]
+          }
         },
         annotations: {
           yaxis: [
@@ -66,8 +74,17 @@ const LineChart = ({ data }) => {
         },
         tooltip: {
           x: {
-            format: 'dd MMM yyyy'
-          }
+            format: 'dd MMM yyyy',
+          },
+          y: {
+            formatter: (val) => {
+              return val.toFixed(2)
+            },
+            title: {
+                formatter: () => "",
+            },
+
+        },
         },
         fill: {
           type: 'gradient',
@@ -94,7 +111,7 @@ const LineChart = ({ data }) => {
       series: [],
       options: {}
     }
-  }, [data])
+  }, [data, theme])
 
   return (
     <Card id="chart" className='w-full'>

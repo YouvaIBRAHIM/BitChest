@@ -1,7 +1,24 @@
-import { Card, CardHeader, CardContent, Avatar, Typography, ButtonGroup, Button } from '@mui/material';
+import { Card, CardHeader, CardContent, Avatar, Typography, ButtonGroup, Button, CardActions } from '@mui/material';
 import { Bank, CreditCard } from '@phosphor-icons/react';
+import PieChart from '../AnalyticComponents/PieChart';
+import { useMemo } from 'react';
 
-const BalanceCard = ({ balance }) => {
+const BalanceCard = ({ balance, cryptos }) => {
+    const pieChartData = useMemo(() => {
+        const labels = [];
+        const data = [];
+
+        if (cryptos) {
+            cryptos.map(crypto => {
+                labels.push(crypto.name)
+                data.push(crypto.pivot.amount * crypto.current_rate)
+            })
+        }
+        return {
+            labels,
+            data
+        }
+    }, [cryptos])
     return (
         <Card>
             <CardHeader
@@ -26,37 +43,47 @@ const BalanceCard = ({ balance }) => {
                 
 
             <CardContent>
-            <ButtonGroup
-                disableElevation
-                variant="text"
-                aria-label="Action buttons"
-                sx={{
-                display: "flex",
-                justifyContent: "center"
-                }}
-            >
-                <Button
-                    startIcon={<CreditCard size={24} weight="duotone" />}
-                    sx={{
-                        px: 4,
-                        py: 1,
-                        width: "100%"
-                    }}
-                >
-                    Ajouter
-                </Button>
-                <Button
-                    startIcon={<Bank size={24} weight="duotone" />}
-                    sx={{
-                        px: 4,
-                        py: 1,
-                        width: "100%"
-                    }}
-                >
-                    Transférer
-                </Button>
-            </ButtonGroup>
+                {
+                    cryptos?.length > 0 &&
+                    <PieChart {...pieChartData}/>
+                }
             </CardContent>
+            <CardActions
+                className='justify-center'
+            >
+                <ButtonGroup
+                    disableElevation
+                    variant="text"
+                    aria-label="Action buttons"
+                    sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        width: "100%"
+
+                    }}
+                >
+                    <Button
+                        startIcon={<CreditCard size={24} weight="duotone" />}
+                        sx={{
+                            px: 4,
+                            py: 1,
+                            width: "100%"
+                        }}
+                    >
+                        Ajouter
+                    </Button>
+                    <Button
+                        startIcon={<Bank size={24} weight="duotone" />}
+                        sx={{
+                            px: 4,
+                            py: 1,
+                            width: "100%"
+                        }}
+                    >
+                        Transférer
+                    </Button>
+                </ButtonGroup>
+            </CardActions>
         </Card>
     );
 };

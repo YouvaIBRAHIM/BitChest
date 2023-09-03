@@ -12,7 +12,10 @@ import { getAuthUserWallet } from '../services/Api.service';
 
 const WalletView = () => {
     const [snackBar, setSnackBar] = useState({message: "", showSnackBar: false, type: "info"});
-    const [selectedCrypto, setSelectedCrypto] = useState("all");
+    const [selectedCrypto, setSelectedCrypto] = useState({
+      name: "Total",
+      code: "all"
+    });
   
     const { data: userWallet, isFetching, refetch } = useQuery({ 
       queryKey: ['userWallet'], 
@@ -26,7 +29,7 @@ const WalletView = () => {
 
     useEffect(() => {
       if (userWallet) {
-        const crypto = userWallet?.cryptos?.find(crypto => crypto.code === selectedCrypto)
+        const crypto = userWallet?.cryptos?.find(crypto => crypto.code === selectedCrypto.code)
 
         if (crypto) {
           const cryptoRate = crypto.crypto_rate.map(rate => [rate[0], rate[1] * crypto.pivot.amount ])
@@ -86,12 +89,19 @@ const WalletView = () => {
             <div className='w-full sm:basis-full lg:basis-2/3 p-2 sm:relative sm:top-0 lg:self-start lg:top-3 lg:sticky'>
               {
                 userWallet?.balanceRate &&
-                <LineChart data={chartData}/>
+                <LineChart data={chartData} title={selectedCrypto.name}/>
               }
             </div>
             <div className='flex flex-col gap-5 sm:basis-full lg:basis-1/3 p-2'>
-              <BalanceCard balance={userWallet?.balance}/>
-              <CryptoList cryptos={userWallet?.cryptos} setSelectedCrypto={setSelectedCrypto}/>
+              <BalanceCard 
+                balance={userWallet?.balance} 
+                cryptos={userWallet?.cryptos}
+              />
+              <CryptoList 
+                cryptos={userWallet?.cryptos} 
+                setSelectedCrypto={setSelectedCrypto} 
+                selectedCrypto={selectedCrypto}
+              />
             </div>
           </div>
         </Box>

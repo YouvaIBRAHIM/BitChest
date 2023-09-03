@@ -38,7 +38,7 @@ function App() {
           main: colors.green[400]
         },
         secondary: {
-          main: colors.neutral[900]
+          main: colors.neutral[800]
         }
       }
     });

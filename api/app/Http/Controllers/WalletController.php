@@ -91,7 +91,7 @@ class WalletController extends Controller
             $cryptoRates = json_decode($crypto["crypto_rate"]);
             $wallet["cryptos"][$key]["crypto_rate"] = $cryptoRates;
             $wallet["cryptos"][$key]["current_rate"] = $cryptoRates[count($cryptoRates) - 1][1];
-            $wallet["cryptos"][$key]["last_day_rate"] = $cryptoRates[count($cryptoRates) - 24][1];
+            $wallet["cryptos"][$key]["last_day_rate"] = $cryptoRates[count($cryptoRates) - 2][1];
 
             foreach ($cryptoRates as $rateKey => $rate) {
                 $amount = $rate[1] * $crypto["pivot"]["amount"];

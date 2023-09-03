@@ -16,22 +16,22 @@ const links = [
   {
     label: "Accueil",
     endpoint: "/home",
-    icon: <House />
+    icon: <House size={20} weight='duotone'/>
   },
   {
     label: "Portefeuille",
     endpoint: "/wallet",
-    icon: <Wallet />
+    icon: <Wallet size={20} weight='duotone'/>
   },
   {
     label: "Mon compte",
     endpoint: "/profile",
-    icon: <User />
+    icon: <User size={20} weight='duotone'/>
   },
   {
     label: "Utilisateurs",
     endpoint: "/users",
-    icon: <Users />
+    icon: <Users size={20} weight='duotone'/>
   }
 ]
 
@@ -39,12 +39,13 @@ function CustomDrawer({ mobileOpen, handleDrawerToggle, drawerWidth }) {
   const { mode } = useSelector(state => state.theme)
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', }}>
       <AppBar
         position="sticky"
         sx={{
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           left: { sm: `${drawerWidth}px` },
+          height: 56
         }}
         color='secondary'
       >
