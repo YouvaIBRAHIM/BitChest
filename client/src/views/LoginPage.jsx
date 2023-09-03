@@ -33,7 +33,7 @@ const LoginPage = () => {
 
     return (
         <Container className="flex items-center justify-center w-full h-screen">
-            <div className='flex flex-col items-center justify-center gap-5'>
+            <div className='flex flex-col items-center justify-center gap-5 basis-11/12 sm:basis-6/12 lg:basis-3/12'>
                 <img
                     src={`/assets/bitchest_logo_${mode}.svg`}
                     alt="BitChest Logo"
@@ -41,7 +41,7 @@ const LoginPage = () => {
                 />
                 {
                     error !== "" &&
-                    <span className='font-poppins text-center text-white bg-red-400 rounded w-full p-2 '>
+                    <span className='font-poppins text-center text-white bg-red-400 rounded  p-2 '>
                         {error}
                     </span>
                 }

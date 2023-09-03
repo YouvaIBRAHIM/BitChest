@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name')->unique();
             $table->string('code', 5)->unique();
             $table->string('logo');
-            $table->json('currency_rate');
+            $table->json('crypto_rate');
             $table->timestamps();
         });
     }

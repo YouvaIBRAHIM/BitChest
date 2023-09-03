@@ -20,6 +20,9 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::put('/users/password/{user}', ["App\Http\Controllers\UserController", "updatePassword"]);
     Route::post('/users/delete/multiple', ["App\Http\Controllers\UserController", "destroyMultiple"]);
     
+    Route::resource('/wallets', "App\Http\Controllers\WalletController");
+    Route::get('/auth-user/wallet', ["App\Http\Controllers\WalletController", "showAuthenticatedUserWallet"]);
+
     // Récupére l'utilisateur connecté
     Route::get('/auth-user', function (Request $request) {
         return $request->user();

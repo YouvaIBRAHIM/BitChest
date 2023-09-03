@@ -52,6 +52,7 @@ export const getAuthUser = async () => {
   }
 }
 
+
 export const getUsers = async (page, perPage, role, search) => {
   try {
     const response = await instance.get(`/api/users?page=${page}&perPage=${perPage}&role=${role}&searchFilter=${search.filter}&searchText=${search.text}`);
@@ -137,3 +138,17 @@ export async function deleteUsers(users) {
     return Promise.reject(error.response?.data?.message ?? error.message);
   }
 }
+
+
+// wallets
+
+
+export const getAuthUserWallet = async () => {
+  try {
+    const response = await instance.get(`/api/auth-user/wallet`);
+    return response.data;
+  } catch (error) {
+    return Promise.reject(error.response?.data?.message ?? error.message);
+  }
+}
+

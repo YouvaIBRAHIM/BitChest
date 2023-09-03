@@ -3,7 +3,7 @@ import { Card, CardHeader, CardContent, Avatar, Typography } from '@mui/material
 const UserCard = ({ user }) => {
     return (
         <Card>
-            <CardHeader className='bg-green-500' sx={{height: 150, backgroundColor: user.color}}/>
+            <CardHeader className='bg-green-400' sx={{height: 150, backgroundColor: user.color}}/>
             <Avatar
                 alt={`${user.firstname} ${user.lastname}`}
                 src={user.avatarUrl}

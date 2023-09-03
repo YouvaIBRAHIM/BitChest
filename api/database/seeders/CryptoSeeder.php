@@ -18,71 +18,83 @@ class CryptoSeeder extends Seeder
             [
                 "name" => "Bitcoin",
                 "code" => "BTC",
-                "logo" => "/img/cryptos/bitcoin.png",
+                "logo" => "/storage/img/cryptos/bitcoin.png",
             ],
             [
                 "name" => "Ethereum",
                 "code" => "ETH",
-                "logo" => "/img/cryptos/ethereum.png",
+                "logo" => "/storage/img/cryptos/ethereum.png",
             ],
             [
                 "name" => "Ripple",
                 "code" => "XRP",
-                "logo" => "/img/cryptos/ripple.png",
+                "logo" => "/storage/img/cryptos/ripple.png",
             ],
             [
                 "name" => "Bitcoin Cash",
                 "code" => "BCC",
-                "logo" => "/img/cryptos/bitcoin-cash.png",
+                "logo" => "/storage/img/cryptos/bitcoin-cash.png",
             ],
             [
                 "name" => "Cardano",
                 "code" => "ADA",
-                "logo" => "/img/cryptos/cardano.png",
+                "logo" => "/storage/img/cryptos/cardano.png",
             ],
             [
                 "name" => "Litecoin",
                 "code" => "LTC",
-                "logo" => "/img/cryptos/litecoin.png",
+                "logo" => "/storage/img/cryptos/litecoin.png",
             ],
             [
                 "name" => "NEM",
                 "code" => "XEM",
-                "logo" => "/img/cryptos/nem.png",
+                "logo" => "/storage/img/cryptos/nem.png",
             ],
             [
                 "name" => "Stellar",
                 "code" => "XLM",
-                "logo" => "/img/cryptos/stellar.png",
+                "logo" => "/storage/img/cryptos/stellar.png",
             ],
             [
                 "name" => "IOTA",
                 "code" => "MIOTA",
-                "logo" => "/img/cryptos/iota.png",
+                "logo" => "/storage/img/cryptos/iota.png",
             ],
             [
                 "name" => "Dash",
                 "code" => "Dash",
-                "logo" => "/img/cryptos/dash.png",
+                "logo" => "/storage/img/cryptos/dash.png",
             ],
         ];
 
         $currentDate = strtotime(date('Y-m-d'));
 
         foreach ($cryptos as $crypto) {
-            $currency_rate = [];
+            $crypto_rate = [];
             for ($i = 29; $i >= 0; $i--) {
-                $date = date('Y-m-d H:i:s', strtotime("-$i days", $currentDate));
-                $currency_rate[] = [
-                    "rate" => abs(CryptoController::getCotationFor($crypto['name'])),
-                    "date" => $date
+            //     $date = date('Y-m-d', strtotime("-$i days", $currentDate));
+            //     for ($hour = 0; $hour < 24; $hour++) {
+
+            //         $formattedHour = str_pad($hour, 2, '0', STR_PAD_LEFT);
+            //         $timestamp = strtotime("$date $formattedHour:00:00") * 1000;
+                
+            //         $crypto_rate[] = [
+            //             $timestamp,
+            //             abs(CryptoController::getCotationFor($crypto['name']))
+            //         ];
+            //     }
+                $timestamp = strtotime("-$i days", $currentDate) * 1000;
+            
+                $crypto_rate[] = [
+                    $timestamp,
+                    abs(CryptoController::getCotationFor($crypto['name']))
                 ];
             }
             Crypto::create([
                 "name"          => $crypto['name'],
                 "code"          => $crypto['code'],
                 "logo"          => $crypto['logo'],
-                "currency_rate" => json_encode($currency_rate),
+                "crypto_rate" => json_encode($crypto_rate),
             ]);
         }
     }
