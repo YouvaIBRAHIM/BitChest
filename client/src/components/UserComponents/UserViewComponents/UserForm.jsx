@@ -25,8 +25,9 @@ const roles = [
   ]
 
 const UserForm = ({ user, setSnackBar }) => {
+    const [userInfos, setUserInfos] = useState(user);
+    
     const queryClient = useQueryClient()
-
     const userMutation = useMutation({
         mutationFn: updateUser,
         onSuccess: data => {
@@ -38,17 +39,17 @@ const UserForm = ({ user, setSnackBar }) => {
         }
     })
 
-    const [userInfos, setUserInfos] = useState(user);
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        userMutation.mutate(userInfos)
+    };
 
     const handleChange = (event) => {
         const { name, value } = event.target;
         setUserInfos((prevUser) => ({ ...prevUser, [name]: value }));
     };
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        userMutation.mutate(userInfos)
-    };
+
 
     return (
     <Card>

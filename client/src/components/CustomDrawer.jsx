@@ -8,9 +8,10 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import { House, User, Users, Wallet, List as ListIcon } from '@phosphor-icons/react';
-import { AppBar, Box, Toolbar } from '@mui/material';
+import { AppBar, Box, Toolbar, Typography } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import ThemeSwitchButton from './ThemeSwitchButton';
+import { roundToTwoDecimals } from '../services/Utils.service';
 
 const links = [
   {
@@ -37,6 +38,7 @@ const links = [
 
 function CustomDrawer({ mobileOpen, handleDrawerToggle, drawerWidth }) {
   const { mode } = useSelector(state => state.theme)
+  const { user } = useSelector(state => state.user)
 
   return (
     <Box sx={{ display: 'flex', }}>
@@ -45,11 +47,17 @@ function CustomDrawer({ mobileOpen, handleDrawerToggle, drawerWidth }) {
         sx={{
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           left: { sm: `${drawerWidth}px` },
-          height: 56
         }}
         color='secondary'
       >
-        <Toolbar>
+        <Toolbar
+          className='flex justify-between'
+        >
+          <Box
+            sx={{
+              display: {xs: "flex", sm: "none"}
+            }}
+          >
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -59,12 +67,10 @@ function CustomDrawer({ mobileOpen, handleDrawerToggle, drawerWidth }) {
           >
             <ListIcon />
           </IconButton>
-          <Box
-            sx={{
-              display: {xs: "block", sm: "none"}
-            }}
-          >
             <img src='/assets/bitchest_logo_dark.svg' alt='BitChest Logo' className='h-10'/>
+          </Box>
+          <Box>
+            <Typography variant="p">Solde {roundToTwoDecimals(user?.wallet?.balance)}€</Typography>
           </Box>
         </Toolbar>
       </AppBar>

@@ -2,8 +2,9 @@ import { Card, CardHeader, CardContent, Avatar, Typography, ButtonGroup, Button,
 import { Bank, CreditCard } from '@phosphor-icons/react';
 import PieChart from '../AnalyticComponents/PieChart';
 import { useMemo } from 'react';
+import FeedBalance from '../FeedBalance';
 
-const BalanceCard = ({ balance, cryptos }) => {
+const BalanceCard = ({ balance, cryptos, setSnackBar }) => {
     const pieChartData = useMemo(() => {
         const labels = [];
         const data = [];
@@ -51,38 +52,7 @@ const BalanceCard = ({ balance, cryptos }) => {
             <CardActions
                 className='justify-center'
             >
-                <ButtonGroup
-                    disableElevation
-                    variant="text"
-                    aria-label="Action buttons"
-                    sx={{
-                        display: "flex",
-                        justifyContent: "center",
-                        width: "100%"
-
-                    }}
-                >
-                    <Button
-                        startIcon={<CreditCard size={24} weight="duotone" />}
-                        sx={{
-                            px: 4,
-                            py: 1,
-                            width: "100%"
-                        }}
-                    >
-                        Ajouter
-                    </Button>
-                    <Button
-                        startIcon={<Bank size={24} weight="duotone" />}
-                        sx={{
-                            px: 4,
-                            py: 1,
-                            width: "100%"
-                        }}
-                    >
-                        Transférer
-                    </Button>
-                </ButtonGroup>
+                <FeedBalance setSnackBar={setSnackBar} />
             </CardActions>
         </Card>
     );

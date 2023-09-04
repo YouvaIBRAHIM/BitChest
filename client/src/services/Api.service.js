@@ -161,3 +161,29 @@ export const getAuthUserResources = async () => {
   }
 }
 
+export const getAuthUserBalance = async () => {
+  try {
+    const response = await instance.get(`/api/auth-user/balance`);
+    return response.data;
+  } catch (error) {
+    return Promise.reject(error.response?.data?.message ?? error.message);
+  }
+}
+
+export const addBalance = async (amount) => {
+  try {
+    const response = await instance.post(`/api/auth-user/add/balance`, {amount});
+    return response.data;
+  } catch (error) {
+    return Promise.reject(error.response?.data?.message ?? error.message);
+  }
+}
+
+export const transferBalance = async (amount) => {
+  try {
+    const response = await instance.post(`/api/auth-user/transfer/balance`, {amount});
+    return response.data;
+  } catch (error) {
+    return Promise.reject(error.response?.data?.message ?? error.message);
+  }
+}

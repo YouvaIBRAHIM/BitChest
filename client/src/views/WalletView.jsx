@@ -40,6 +40,8 @@ const WalletView = () => {
         }
       }
     }, [selectedCrypto, userWallet])
+
+    
     const handleCloseSnackBar = useCallback((e, reason) => {
         if (reason === 'clickaway') {
           return;
@@ -52,7 +54,7 @@ const WalletView = () => {
     return (
     <Box sx={{ width: '100%'}}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <TransactionCard />
+          <TransactionCard setSnackBar={setSnackBar}/>
         </Box>
         <Box>
           <div className='flex flex-wrap lg:flex-nowrap justify-end w-full'>
@@ -66,6 +68,7 @@ const WalletView = () => {
               <BalanceCard 
                 balance={userWallet?.balance} 
                 cryptos={userWallet?.cryptos}
+                setSnackBar={setSnackBar}
               />
               <CryptoList 
                 cryptos={userWallet?.cryptos} 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -20,7 +21,7 @@ class AuthenticatedSessionController extends Controller
             $request->session()->regenerate();
             return response()->json([
                 "message" => "success",
-                "user" => Auth::getUser()
+                "user" => User::with('wallet')->find(Auth::id())
             ], 202);
         } catch (\Throwable $th) {
             return response()->json([

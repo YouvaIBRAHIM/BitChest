@@ -15,9 +15,10 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { useQuery } from '@tanstack/react-query';
 import { getAuthUserResources } from '../services/Api.service';
+import { roundToTwoDecimals } from '../services/Utils.service';
 
 
-const TransactionCard = ({  }) => {
+const TransactionCard = ({ setSnackBar }) => {
 
   const { data: resources, isFetching, refetch } = useQuery({ 
     queryKey: ['resources'], 
@@ -208,9 +209,11 @@ const TransactionCard = ({  }) => {
             setAmount={setAmount}
           />
           <CostsTable 
+            from={from} 
             target={target} 
             serviceFees={resources?.serviceFees}
             amount={amount}
+            setAmount={setAmount}
             total={total} 
             setTotal={setTotal}
             conversion={conversion}
@@ -236,23 +239,28 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-const CostsTable = ({target, serviceFees, amount, total, setTotal, conversion, setConversion}) => {
+const CostsTable = ({from, target, serviceFees, amount, setAmount, total, setTotal, conversion, setConversion}) => {
   const [ fees, setFees ] = useState(0)
 
   useEffect(() => {
     if (target && amount && serviceFees) {
-      console.log("🚀 ~ file: TransactionCard.jsx:244 ~ useEffect ~ amount:", amount)
-      const currentRate = target.current_rate.toFixed(2);
-      const convertedAmount = amount / currentRate
-      setConversion(convertedAmount.toFixed(2))
-  
-      const amountFees = ((serviceFees / 100) * amount).toFixed(2)
+      const currentRate = roundToTwoDecimals(target.current_rate);
+      let convertedAmount = amount / currentRate
+      
+      let amountFees = roundToTwoDecimals((serviceFees / 100) * amount)
+      let totalAmount = parseFloat(amount) + parseFloat(amountFees) + parseFloat(target.current_gas)
+
+      if (roundToTwoDecimals(totalAmount) >= roundToTwoDecimals(from.balance)) {
+        convertedAmount = from.balance / currentRate
+        
+        amountFees = roundToTwoDecimals((serviceFees / 100) * from.balance)
+        totalAmount = from.balance
+        // setAmount(roundToTwoDecimals(from.balance - (roundToTwoDecimals(amountFees) + roundToTwoDecimals(target.current_gas))))
+      }
+      setConversion(roundToTwoDecimals(convertedAmount))
       setFees(amountFees)
-      const totalAmount = amount + parseFloat(amountFees) + parseFloat(target.current_gas)
-  
-      setTotal(parseFloat(totalAmount).toFixed(2))
+      setTotal(totalAmount)
     }
-    
   }, [target, amount, serviceFees])
 
   if (!target) {
@@ -318,7 +326,7 @@ const CustomField = ({min, max, setAmount, amount}) => {
 
   return (
     <FormControl 
-      variant="outlined"
+      variant="filled"
       className='w-full'
       size='small'
     >

@@ -28,4 +28,7 @@ export const stableSort = (array, comparator) => {
     });
     return stabilizedThis.map((el) => el[0]);
 }
-  
+ 
+export const roundToTwoDecimals = (number) => {
+  return Math.round(number * 100) / 100
+}

@@ -6,6 +6,7 @@ use App\Models\Configuration;
 use App\Models\Crypto;
 use App\Models\Wallet;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class TransactionController extends Controller
 {
@@ -72,7 +73,97 @@ class TransactionController extends Controller
         }
     }
 
+    public function getAuthUserBalance(Request $request)
+    {
+        try {
+            $user = $request->user();
+            $wallet = Wallet::where("user_id", $user->id)->first()->toArray();
 
+            $transactionConfig = Configuration::where("key", "transaction")
+                            ->first();
+            
+            $serviceFees = json_decode($transactionConfig->value)->service_fees;
+
+            return response()->json([
+                "wallet" => $wallet,
+                "serviceFees" => $serviceFees
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                "message" => "Oups ! Nous n'avons créditer votre compter.",
+                "error" => $th->getMessage()
+            ], $th->getCode());
+        }
+    }
+
+    public function addAuthUserBalance(Request $request)
+    {
+        try {
+            $validator = Validator::make(
+                $request->all(),
+                [
+                    'amount' => 'required|numeric',
+                ],
+                [
+                    'amount.required' => 'Le champ "Montant" est obligatoire.',
+                    'amount.numeric' => 'Le champ "Montant" doit avoir une valeur numerique.',
+                ]
+            );
+            
+            if ($validator->fails()) {
+                $errors = array_values($validator->errors()->toArray())[0];
+                return response()->json($errors, 405);
+            }
+
+            $user = $request->user();
+            $wallet = Wallet::where("user_id", $user->id)->first();
+            $wallet->update([
+                "balance" => floatval($wallet->balance) + floatval($request->amount)
+            ]);
+
+            return response()->json($wallet, 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                "message" => "Oups ! Nous n'avons pas pu supprimer les données.",
+                "error" => $th->getMessage()
+            ], $th->getCode());
+        }
+    }
+
+    public function transferAuthUserBalance(Request $request)
+    {
+        try {
+            $validator = Validator::make(
+                $request->all(),
+                [
+                    'amount' => 'required|numeric',
+                ],
+                [
+                    'amount.required' => 'Le champ "Montant" est obligatoire.',
+                    'amount.numeric' => 'Le champ "Montant" doit avoir une valeur numerique.',
+                ]
+            );
+            
+            if ($validator->fails()) {
+                $errors = array_values($validator->errors()->toArray())[0];
+                return response()->json($errors, 405);
+            }
+
+            $user = $request->user();
+            $wallet = Wallet::where("user_id", $user->id)->first();
+            $newBalance = floatval($wallet->balance) - floatval($request->amount);
+            $wallet->update([
+                "balance" => $newBalance > 0 ? $newBalance : 0
+            ]);
+
+            return response()->json($wallet, 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                "message" => "Oups ! Nous n'avons pas pu transférer votre solde.",
+                "error" => $th->getMessage()
+            ], $th->getCode());
+        }
+    }
     /**
      * Show the form for editing the specified resource.
      */
