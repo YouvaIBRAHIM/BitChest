@@ -112,7 +112,7 @@ const FeedBalance = ({ setSnackBar }) => {
         aria-label="Action buttons"
         sx={{
           display: "flex",
-          justifyContent: {xs: "center", sm: "flex-start"}
+          width: "100%"
         }}
       >
         <Button
@@ -120,22 +120,25 @@ const FeedBalance = ({ setSnackBar }) => {
           sx={{
             px: 4,
             py: 1,
-            width: {xs: "100%", sm: "auto"}
+            width: "100%"
           }}
+          className='w-full'
           onClick={() => handleClickOpen("add")}
         >
-          Acheter
+          Ajouter
         </Button>
         <Button
           startIcon={<Bank size={24} weight="duotone" />}
           sx={{
             px: 4,
             py: 1,
-            width: {xs: "100%", sm: "auto"}
+            width: "100%"
           }}
+          className='w-full'
+
           onClick={() => handleClickOpen("transfer")}
         >
-          Vendre
+          Transférer
         </Button>
       </ButtonGroup>
       <Dialog 

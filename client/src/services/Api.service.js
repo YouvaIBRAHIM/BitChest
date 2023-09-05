@@ -13,13 +13,6 @@ const instance = axios.create({
   },
 });
 
-// instance.interceptors.request.use((config) => {
-//   const token = getFromSessionStorage('token');
-//   if (token) {
-//     config.headers.Authorization = `Bearer ${token}`;
-//   }
-//   return config;
-// });
 
 export const getToken = async () => {
   await axios.get(baseURL + "/sanctum/csrf-cookie");
@@ -142,7 +135,6 @@ export async function deleteUsers(users) {
 
 // wallets
 
-
 export const getAuthUserWallet = async () => {
   try {
     const response = await instance.get(`/api/auth-user/wallet`);
@@ -170,6 +162,7 @@ export const getAuthUserBalance = async () => {
   }
 }
 
+// Transaction
 export const addBalance = async (amount) => {
   try {
     const response = await instance.post(`/api/auth-user/add/balance`, {amount});
@@ -182,6 +175,35 @@ export const addBalance = async (amount) => {
 export const transferBalance = async (amount) => {
   try {
     const response = await instance.post(`/api/auth-user/transfer/balance`, {amount});
+    return response.data;
+  } catch (error) {
+    return Promise.reject(error.response?.data?.message ?? error.message);
+  }
+}
+export const buyCrypto = async (data) => {
+  try {
+    const response = await instance.post(`/api/transaction/buy`, data);
+    return response.data;
+  } catch (error) {
+    return Promise.reject(error.response?.data?.message ?? error.message);
+  }
+}
+
+export const sellCrypto = async (data) => {
+  try {
+    const response = await instance.post(`/api/transaction/sell`, data);
+    return response.data;
+  } catch (error) {
+    return Promise.reject(error.response?.data?.message ?? error.message);
+  }
+}
+
+
+// Cryptos
+
+export const getCryptos = async (offset, search) => {
+  try {
+    const response = await instance.get(`/api/cryptos?offset=${offset}&searchFilter=${search.filter}&searchText=${search.text}`);
     return response.data;
   } catch (error) {
     return Promise.reject(error.response?.data?.message ?? error.message);

@@ -4,7 +4,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import { Box, ButtonGroup, FilledInput, FormControl, Icon, IconButton, InputAdornment, InputLabel, MenuItem, Select, Typography } from '@mui/material';
+import { Box, ButtonGroup, FilledInput, FormControl, Icon, IconButton, InputAdornment, InputLabel, MenuItem, Select, Skeleton, Typography } from '@mui/material';
 import { ArrowFatLinesUp, CaretDoubleRight, DownloadSimple, UploadSimple } from '@phosphor-icons/react';
 import styled from '@emotion/styled';
 import Table from '@mui/material/Table';
@@ -13,22 +13,15 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import { useQuery } from '@tanstack/react-query';
-import { getAuthUserResources } from '../services/Api.service';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { buyCrypto, sellCrypto, getAuthUserResources } from '../services/Api.service';
 import { roundToTwoDecimals } from '../services/Utils.service';
+import { setUser } from '../reducers/UserReducer';
+import { useDispatch } from 'react-redux';
 
 
-const TransactionCard = ({ setSnackBar }) => {
-
-  const { data: resources, isFetching, refetch } = useQuery({ 
-    queryKey: ['resources'], 
-    queryFn: getAuthUserResources,
-    retry: 3,
-    refetchInterval: false,
-    enabled: false,
-    onError: (error) => setSnackBar({message: error, showSnackBar: true, type: "error"})
-  });
-
+const TransactionCard = ({ setSnackBar, refetchUserData }) => {
+  const dispatch = useDispatch()
 
   const [type, setType] = useState("buy");
   const [open, setOpen] = useState(false);
@@ -42,35 +35,112 @@ const TransactionCard = ({ setSnackBar }) => {
   const [total, setTotal] = useState(0);
   const [ conversion, setConversion ] = useState(0)
 
-  
+  const { data: resources, isFetching, refetch } = useQuery({ 
+    queryKey: ['resources'], 
+    queryFn: getAuthUserResources,
+    retry: 3,
+    refetchInterval: false,
+    enabled: false,
+    onError: (error) => setSnackBar({message: error, showSnackBar: true, type: "error"})
+  });
+
+  const userMutation = useMutation({
+      mutationFn: type === "buy" ? buyCrypto : sellCrypto,
+      onSuccess: data => {
+        refetchUserData()
+        dispatch(setUser(data));
+        handleClose()
+        setSnackBar({message: "Transaction réussie.", showSnackBar: true, type: "success"});
+      },
+      onError: error => {
+          setSnackBar({message: error, showSnackBar: true, type: "error"});
+      }
+  })
+
+  const handleSubmit = (event) => {
+      event.preventDefault();
+      if (amount <= 0) {
+        setSnackBar({message: "Le montant doit être supérieur à 0.", showSnackBar: true, type: "warning"})
+        return
+      }
+
+      userMutation.mutate({
+        from: from.code,
+        target: target.code,
+        amount,
+        total
+      })
+  };
+
+
+
 
   useEffect(() => {
     if (resources?.wallet?.userCurrencies) {
       setFromList(resources?.wallet?.userCurrencies)
-      setFrom(resources?.wallet?.userCurrencies[0])
-      setMaxAmount(getMaxAmount(resources?.wallet?.userCurrencies[0].balance, resources?.serviceFees, resources?.cryptos[0]))
-    }
-    if (resources?.cryptos) {
-      setTargetList(resources?.cryptos)
-      setTarget(resources?.cryptos[0])
-    }
-  }, [resources])
+      if (resources?.cryptos && type === "buy") {
 
+        setFrom(resources?.wallet?.userCurrencies[0])
+        setMaxAmount(resources?.wallet?.userCurrencies[0].balance)
+        setTargetList(() => {
+          setTarget(resources?.cryptos[0])
+          return resources?.cryptos;
+        })
+
+      }else if (resources?.cryptos && type === "sell") {
+
+        setFromList(() => {
+          const filteredCryptos = []
+          resources?.cryptos.forEach(crypto => {
+            resources?.wallet?.userCurrencies.forEach(userCrypto => {
+              if (userCrypto.code !== "EUR" && crypto.code === userCrypto.code && userCrypto?.balance) {
+                crypto.balance = userCrypto.balance
+                filteredCryptos.push(crypto)
+              }
+            });
+          });
+
+          setMaxAmount(filteredCryptos[0].balance)
+          return filteredCryptos;
+        })
+  
+        setTargetList(() => {
+          const filteredCryptos = resources?.wallet?.userCurrencies?.find(crypto => crypto.code ===  "EUR");
+          setTarget(filteredCryptos)
+          return [filteredCryptos];
+        })
+      }
+    }
+
+  }, [resources, type])
+
+  useEffect(() => {
+    if (from) {
+      if (type === "buy") {
+        setTargetList(() => {
+          const filteredCryptos = resources?.cryptos.filter(crypto => crypto.code !== from.code);
+          setTarget(filteredCryptos[0])
+          return filteredCryptos;
+        })
+      }
+    }
+  }, [from])
+
+  useEffect(() => {
+    if (fromList && !from) {
+      setFrom(fromList[0])
+    }
+
+    if (targetList && !target) {
+      setFrom(targetList[0])
+    }
+  }, [fromList, targetList])
 
   const handleClickOpen = (type) => {
     refetch();
     setType(type)
     setOpen(true);
   };
-
-  const getMaxAmount = (balance, serviceFees, target) => {
-    const amountFees = ((serviceFees / 100) * balance)
-    const totalFees = parseFloat(amountFees) + parseFloat(target.current_gas)
-    console.log("🚀 ~ file: TransactionCard.jsx:68 ~ getMaxAmount ~ totalFees:", balance)
-    
-    const totalAmount = balance - totalFees
-    return totalAmount
-  }
 
   const handleSelectChange = (setter, array, value) => {
     const findedElement = array.find(el => el.code === value)
@@ -88,7 +158,7 @@ const TransactionCard = ({ setSnackBar }) => {
     switch (type) {
       case "buy":
         return {
-          headerTitle: "Acheter ou échanger vos cryptomonnaies.",
+          headerTitle: "Acheter ou échanger des cryptomonnaies.",
           confirmButton: "Acheter/Échanger",
         }
       case "sell":
@@ -100,6 +170,52 @@ const TransactionCard = ({ setSnackBar }) => {
         break;
     }
   }, [type])
+
+  const renderFromList = useMemo(() => {
+
+    return (
+        (fromList?.length  > 0 && from?.code) && 
+        <Select
+              id="fromList"
+              value={from.code}
+              onChange={(e) => handleSelectChange(setFrom, fromList, e.target.value, true)}
+          >
+          {
+            fromList.map((currency, index) => {
+                return (
+                    <MenuItem 
+                      key={index} 
+                      value={currency.code}
+                    >
+                      {currency.name}
+                    </MenuItem>
+                )
+            })
+          }
+        </Select>
+    )
+  }, [from, fromList])
+
+  const renderTargetList = useMemo(() => {
+
+    return (
+      (targetList.length > 0 && target?.code) &&
+      <Select
+            id="targetList"
+            value={target.code}
+            onChange={(e) => handleSelectChange(setTarget, targetList, e.target.value)}
+
+        >
+        {
+            targetList.map((option, index) => {
+                return (
+                    <MenuItem key={index} value={option.code}>{option.name}</MenuItem>
+                )
+            })
+        }
+      </Select>
+    )
+  }, [target, targetList])
 
   return (
     <div>
@@ -142,88 +258,60 @@ const TransactionCard = ({ setSnackBar }) => {
         fullWidth={false}
       >
         <DialogTitle>{render.headerTitle}</DialogTitle>
-        <DialogContent
-          className="flex flex-col gap-5 items-end"
-        >
-          <Box
-            className="flex gap-5 items-end justify-between w-full"
-          >
-            <Box className='w-full'>
-              <Typography variant="body1" sx={{mb: 2}}>De</Typography>
-              <FormControl sx={{xs: {minWidth: 100}, sm: {minWidth: 120}}} className='w-full' size="small">
-                {
-                  fromList?.length > 0 && 
-                  <Select
-                        id="fromList"
-                        value={from.code}
-                        onChange={(e) => handleSelectChange(setFrom, fromList, e.target.value, true)}
-                    >
-                    {
-                      fromList.map((currency, index) => {
-                          return (
-                              <MenuItem 
-                                key={index} 
-                                value={currency.code}
-                              >
-                                {currency.name}
-                              </MenuItem>
-                          )
-                      })
-                    }
-                  </Select>
-                }
-              </FormControl>
-            </Box>
-            <Icon
-              className='mb-2'
+        {
+          isFetching ?
+          <CardSkeleton />
+          :
+          <form onSubmit={handleSubmit}>
+            <DialogContent
+              className="flex flex-col gap-5 items-end"
             >
-              <CaretDoubleRight size={24} weight="duotone" />
-            </Icon>
-            <Box className='w-full'>
-              <Typography variant="body1" sx={{mb: 2}}>À</Typography>
-              <FormControl sx={{xs: {minWidth: 100}, sm: {minWidth: 120}}} className='w-full' size="small">
-                {
-                  targetList.length > 0 &&
-                  <Select
-                        id="targetList"
-                        value={target.code}
-                        onChange={(e) => handleSelectChange(setTarget, targetList, e.target.value)}
-
-                    >
-                    {
-                        targetList.map((option, index) => {
-                            return (
-                                <MenuItem key={index} value={option.code}>{option.name}</MenuItem>
-                            )
-                        })
-                    }
-                  </Select>
-                }
-              </FormControl>
-            </Box>
-          </Box>
-          <CustomField 
-            min={minAmount} 
-            max={maxAmount}
-            amount={amount}
-            setAmount={setAmount}
-          />
-          <CostsTable 
-            from={from} 
-            target={target} 
-            serviceFees={resources?.serviceFees}
-            amount={amount}
-            setAmount={setAmount}
-            total={total} 
-            setTotal={setTotal}
-            conversion={conversion}
-            setConversion={setConversion}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>Annuler</Button>
-          <Button onClick={handleClose}>{render.confirmButton}</Button>
-        </DialogActions>
+              <Box
+                className="flex gap-5 items-end justify-between w-full"
+              >
+                <Box className='w-full'>
+                  <Typography variant="body1" sx={{mb: 2}}>De</Typography>
+                  <FormControl sx={{xs: {minWidth: 100}, sm: {minWidth: 120}}} className='w-full' size="small">
+                    {renderFromList}
+                  </FormControl>
+                </Box>
+                <Icon
+                  className='mb-2'
+                >
+                  <CaretDoubleRight size={24} weight="duotone" />
+                </Icon>
+                <Box className='w-full'>
+                  <Typography variant="body1" sx={{mb: 2}}>À</Typography>
+                  <FormControl sx={{xs: {minWidth: 100}, sm: {minWidth: 120}}} className='w-full' size="small">
+                    {renderTargetList}
+                  </FormControl>
+                </Box>
+              </Box>
+              <CustomField 
+                min={minAmount} 
+                max={maxAmount}
+                amount={amount}
+                setAmount={setAmount}
+              />
+              <CostsTable 
+                from={from} 
+                target={target} 
+                serviceFees={resources?.serviceFees}
+                amount={amount}
+                setAmount={setAmount}
+                total={total} 
+                setTotal={setTotal}
+                conversion={conversion}
+                setConversion={setConversion}
+                type={type}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleClose}>Annuler</Button>
+              <Button type="submit">{render.confirmButton}</Button>
+            </DialogActions>
+          </form>
+        }
       </Dialog>
     </div>
   );
@@ -239,29 +327,75 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-const CostsTable = ({from, target, serviceFees, amount, setAmount, total, setTotal, conversion, setConversion}) => {
+const CostsTable = ({from, target, serviceFees, amount, setAmount, total, setTotal, conversion, setConversion, type}) => {
   const [ fees, setFees ] = useState(0)
+  const [ rate, setRate ] = useState(0)
+  const [ isAmountSetted, setIsAmountSetted ] = useState(false)
 
   useEffect(() => {
-    if (target && amount && serviceFees) {
-      const currentRate = roundToTwoDecimals(target.current_rate);
-      let convertedAmount = amount / currentRate
-      
-      let amountFees = roundToTwoDecimals((serviceFees / 100) * amount)
-      let totalAmount = parseFloat(amount) + parseFloat(amountFees) + parseFloat(target.current_gas)
-
-      if (roundToTwoDecimals(totalAmount) >= roundToTwoDecimals(from.balance)) {
-        convertedAmount = from.balance / currentRate
+    if (target && serviceFees && from && target) {
+      if (type === "buy") {
+        const currentRate = roundToTwoDecimals(target.current_rate);
+        setRate(currentRate)
+        let convertedAmount = amount / currentRate
         
-        amountFees = roundToTwoDecimals((serviceFees / 100) * from.balance)
-        totalAmount = from.balance
-        // setAmount(roundToTwoDecimals(from.balance - (roundToTwoDecimals(amountFees) + roundToTwoDecimals(target.current_gas))))
+        let amountFees = roundToTwoDecimals((serviceFees / 100) * amount)
+        let totalAmount = parseFloat(amount) + parseFloat(amountFees) + parseFloat(target.current_gas)
+  
+        if (roundToTwoDecimals(totalAmount) >= roundToTwoDecimals(from.balance)) {
+          convertedAmount = from.balance / currentRate
+          
+          amountFees = roundToTwoDecimals((serviceFees / 100) * from.balance)
+          totalAmount = from.balance
+        
+          setAmount(roundToTwoDecimals(from.balance - (roundToTwoDecimals(amountFees) + roundToTwoDecimals(target.current_gas))))
+          setConversion(roundToTwoDecimals(convertedAmount))
+          setFees(amountFees)
+          setTotal(totalAmount)
+          setIsAmountSetted(true)
+          return
+        }
+        if (!isAmountSetted) {
+          setConversion(roundToTwoDecimals(convertedAmount))
+          setFees(amountFees)
+          setTotal(totalAmount)
+        }
+      }else{
+        const currentRate = roundToTwoDecimals(from.current_rate);
+        
+        setRate(currentRate)
+        if (amount) {
+          setConversion(roundToTwoDecimals(amount));
+
+          let amountFees = roundToTwoDecimals((serviceFees / 100) * amount)
+          let totalAmount = parseFloat(amount) + parseFloat(amountFees)
+
+          if (roundToTwoDecimals(totalAmount) >= roundToTwoDecimals(from.balance)) {
+            
+            amountFees = roundToTwoDecimals((serviceFees / 100) * from.balance)
+          
+            setAmount(roundToTwoDecimals(from.balance - amountFees))
+            setConversion(roundToTwoDecimals(amount))
+            setFees(amountFees)
+            setTotal(from.balance)
+            setIsAmountSetted(true)
+            return
+          }
+
+          if (!isAmountSetted) {
+            setConversion(roundToTwoDecimals(amount))
+            setFees(amountFees)
+            setTotal(totalAmount)
+          }
+        }
+
       }
-      setConversion(roundToTwoDecimals(convertedAmount))
-      setFees(amountFees)
-      setTotal(totalAmount)
     }
-  }, [target, amount, serviceFees])
+  }, [from, target, amount, serviceFees, type])
+
+  useEffect(() => {
+    setIsAmountSetted(false)
+  }, [target, from])
 
   if (!target) {
     return null
@@ -271,18 +405,23 @@ const CostsTable = ({from, target, serviceFees, amount, setAmount, total, setTot
     <TableContainer component={Paper}>
       <Table aria-label="costs table">
         <TableBody>
-            <StyledTableRow >
-              <TableCell component="th" scope="row">
-                Conversion
-              </TableCell>
-              <TableCell align="right">({target.current_rate.toFixed(2)}€) {conversion} {target.code}</TableCell>
-            </StyledTableRow>
-            <StyledTableRow >
-              <TableCell component="th" scope="row">
-                Frais de gas
-              </TableCell>
-              <TableCell align="right">{target.current_gas.toFixed(2)}€</TableCell>
-            </StyledTableRow>
+              <StyledTableRow >
+                <TableCell component="th" scope="row">
+                  {type === "buy" ? "Conversion" : "Montant à créditer"}
+                </TableCell>
+                <TableCell align="right">
+                  {type === "buy" && `(${rate.toFixed(2)}€/${target?.code})`} {conversion} {target?.code}
+                </TableCell>
+              </StyledTableRow>
+          {
+            type === "buy" &&
+              <StyledTableRow >
+                <TableCell component="th" scope="row">
+                  Frais de gas
+                </TableCell>
+                <TableCell align="right">{target?.current_gas?.toFixed(2)}€</TableCell>
+              </StyledTableRow>
+          }
             <StyledTableRow >
               <TableCell component="th" scope="row">
                 Frais de service
@@ -307,8 +446,8 @@ const CustomField = ({min, max, setAmount, amount}) => {
     if (amount > max) {
       setAmount(max)
     }
-    if (amount < min) {
-      setAmount(min)
+    if (amount < 0) {
+      setAmount(0)
     }
   }, [min, max]);
 
@@ -316,8 +455,8 @@ const CustomField = ({min, max, setAmount, amount}) => {
   const handleChange = (e) => {
     if (e.target.value > max) {
       setAmount(max)
-    }else if (e.target.value < min) {
-      setAmount(min)
+    }else if (e.target.value < 0) {
+      setAmount(0)
     }else{
       setAmount(e.target.value)
     }
@@ -357,6 +496,29 @@ const CustomField = ({min, max, setAmount, amount}) => {
     </FormControl>
   )
 }
+
+
+const CardSkeleton = () => {
+
+  return (
+    <div className="flex flex-col items-center gap-2 m-5">
+      <div className="flex justify-center gap-2 w-full">
+          <Skeleton variant="text" sx={{ fontSize: '1rem' }} className="w-4/12"/>
+          <Skeleton variant="text" sx={{ fontSize: '1rem' }} className="w-4/12"/>
+      </div>
+      <Skeleton variant="text" sx={{ fontSize: '1rem', mb: 2 }} className='w-10/12'/>
+
+      <Skeleton variant="text" sx={{ fontSize: '1rem' }} className='w-10/12'/>
+      <Skeleton variant="text" sx={{ fontSize: '1rem' }} className='w-10/12'/>
+      <Skeleton variant="text" sx={{ fontSize: '1rem' }} className='w-10/12'/>
+
+      <div className="flex gap-2 w-6/12 self-end mt-5">
+          <Skeleton variant="text" sx={{ fontSize: '1rem' }} className='w-9/12'/>
+          <Skeleton variant="text" sx={{ fontSize: '1rem' }} className='w-9/12'/>
+      </div>
+    </div>
+  )
+};
 
 
 export default TransactionCard;

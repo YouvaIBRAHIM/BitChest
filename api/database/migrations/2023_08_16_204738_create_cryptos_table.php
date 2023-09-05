@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name')->unique();
             $table->string('code', 5)->unique();
             $table->string('logo');
+            $table->float('current_gas');
             $table->json('crypto_rate');
             $table->timestamps();
         });

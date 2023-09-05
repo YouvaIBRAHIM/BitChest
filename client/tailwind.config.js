@@ -28,6 +28,13 @@ export default {
     },
     minWidth: {
       '1/3': '33%',
+    },
+    maxWidth: {
+      '1/3': '33%',
+    },
+    minHeight: {
+      '200': '200px',
+      '500': '500px',
     }
   },
   plugins: [],

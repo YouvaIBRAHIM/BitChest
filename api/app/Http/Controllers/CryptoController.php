@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Crypto;
 use Illuminate\Http\Request;
 
 class CryptoController extends Controller
@@ -9,9 +10,30 @@ class CryptoController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        try {
+            $searchFilter = $request->input('searchFilter');
+            $searchText = $request->input('searchText');
+
+            $cryptos = Crypto::where("role", $request->input('role') ?: "client")
+            ->where((function ($query) use ($searchFilter, $searchText) {
+                if ($searchFilter !== "name") {
+                    $query->where($searchFilter, 'LIKE', "%{$searchText}%");
+                }
+            }))
+            ->join('wallets', 'users.id', '=', 'wallets.user_id')
+            ->select('users.*', 'wallets.balance')
+            ->orderBy('created_at', 'desc')
+            ->paginate($request->input('perPage') ?: 10);
+
+            return response()->json($cryptos, 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                "message" => "Oups ! Nous n'avons pas pu récupérer les données.",
+                "error" => $th->getMessage()
+            ], $th->getCode());
+        }
     }
 
     /**

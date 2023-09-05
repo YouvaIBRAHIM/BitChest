@@ -4,7 +4,7 @@ import { Coins } from '@phosphor-icons/react';
 import { useTheme } from '@emotion/react';
 import { useMemo, useRef } from 'react';
 
-const CryptoList = ({ cryptos, setSelectedCrypto, selectedCrypto }) => {
+const UserCryptoList = ({ cryptos, setSelectedCrypto, selectedCrypto }) => {
     if (!cryptos || cryptos.length === 0) {
         return null
     }
@@ -28,7 +28,7 @@ const CryptoList = ({ cryptos, setSelectedCrypto, selectedCrypto }) => {
                             backgroundColor: selectedCrypto.code === crypto.code && "#00000030",
                             borderRadius: 1
                         }}
-                        onClick={() => setSelectedCrypto({name: crypto.name, code: crypto.code})}
+                        onClick={() => setSelectedCrypto({name: `Solde ${crypto.name}`, code: crypto.code})}
                     >   
                         <Box
                             className="flex items-center"
@@ -102,7 +102,7 @@ const CryptoList = ({ cryptos, setSelectedCrypto, selectedCrypto }) => {
                             backgroundColor: selectedCrypto.code === "all" && "#00000030",
                             borderRadius: 1
                         }}
-                        onClick={() => setSelectedCrypto({name: "Total", code: "all"})}
+                        onClick={() => setSelectedCrypto({name: "Votre solde de cryptomonnaies", code: "all"})}
                     >   
                         <Box
                             className="flex items-center"
@@ -138,4 +138,4 @@ const CryptoList = ({ cryptos, setSelectedCrypto, selectedCrypto }) => {
     );
 };
 
-export default CryptoList;
+export default UserCryptoList;

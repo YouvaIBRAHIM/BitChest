@@ -1,10 +1,10 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import LoginPage from './views/LoginPage';
+import LoginView from './views/LoginView';
 import PageNotFound from './views/PageNotFound';
 import CustomDrawer from './components/CustomDrawer';
 import { initServiceWorker } from "./services/ServiceWorker.service";
 import { useMemo, useState } from 'react';
-import HomePage from './views/HomePage';
+import HomeView from './views/HomeView';
 import { useSelector } from 'react-redux';
 import PrivateRoute from './middlewares/PrivateRoute';
 import { Box, CssBaseline, ThemeProvider, createTheme } from '@mui/material';
@@ -71,14 +71,14 @@ function App() {
 
                 <Route path="/login" element={
                                               <GuestRoute>
-                                                <LoginPage />
+                                                <LoginView />
                                               </GuestRoute>
                                             }
                 />
 
                 <Route path="/home" element={
                                           <PrivateRoute>
-                                            <HomePage />
+                                            <HomeView />
                                           </PrivateRoute>
                                         } 
                 />

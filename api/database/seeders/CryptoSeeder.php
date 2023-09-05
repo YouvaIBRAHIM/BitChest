@@ -94,6 +94,7 @@ class CryptoSeeder extends Seeder
                 "name"          => $crypto['name'],
                 "code"          => $crypto['code'],
                 "logo"          => $crypto['logo'],
+                "current_gas"   => rand(10, 100) / 10,
                 "crypto_rate" => json_encode($crypto_rate),
             ]);
         }

@@ -17,18 +17,25 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
+    //user
     Route::resource('/users', "App\Http\Controllers\UserController");
     Route::put('/users/password/{user}', ["App\Http\Controllers\UserController", "updatePassword"]);
     Route::post('/users/delete/multiple', ["App\Http\Controllers\UserController", "destroyMultiple"]);
     
+    //wallet
     Route::resource('/wallets', "App\Http\Controllers\WalletController");
     Route::get('/auth-user/wallet', ["App\Http\Controllers\WalletController", "showAuthenticatedUserWallet"]);
 
+    //transaction
     Route::get('/auth-user/resources', ["App\Http\Controllers\TransactionController", "getAuthUserResources"]);
     Route::get('/auth-user/balance', ["App\Http\Controllers\TransactionController", "getAuthUserBalance"]);
     Route::post('/auth-user/add/balance', ["App\Http\Controllers\TransactionController", "addAuthUserBalance"]);
     Route::post('/auth-user/transfer/balance', ["App\Http\Controllers\TransactionController", "transferAuthUserBalance"]);
+    Route::post('/transaction/buy', ["App\Http\Controllers\TransactionController", "buy"]);
+    Route::post('/transaction/sell', ["App\Http\Controllers\TransactionController", "sell"]);
 
+    //crypto
+    Route::resource('/cryptos', "App\Http\Controllers\CryptoController");
     
 
     // Récupére l'utilisateur connecté
