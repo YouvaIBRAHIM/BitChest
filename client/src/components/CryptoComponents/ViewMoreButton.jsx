@@ -42,7 +42,7 @@ const ViewMoreButton = ({search, filter, count, setSnackBar}) => {
 
   useEffect(() => {
     queryClient.setQueryData(['viewMoreCryptos'], null)
-  }, [filter])
+  }, [filter, search])
 
 
   return (
