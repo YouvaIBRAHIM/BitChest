@@ -63,16 +63,16 @@ const WalletView = () => {
           <TransactionCard setSnackBar={setSnackBar} refetchUserData={refetch}/>
         </Box>
         <Box>
-          <div className='flex flex-wrap lg:flex-nowrap justify-end w-full'>
-            <div className='w-full sm:basis-full lg:basis-2/3 p-2 sm:relative sm:top-0 lg:self-start lg:top-3 lg:sticky'>
+          <Box className='flex flex-wrap lg:flex-nowrap justify-end w-full'>
+            <Box className='w-full sm:basis-full lg:basis-2/3 p-2 sm:relative sm:top-0 lg:self-start lg:top-3 lg:sticky'>
               {
                 isFetching && !userWallet?.balanceRate ?
                 <LineChartSkeleton/>
                 :
                 <LineChart data={chartData} title={selectedCrypto.name}/>
               }
-            </div>
-            <div className='flex flex-col gap-5 basis-full lg:basis-1/3 p-2'>
+            </Box>
+            <Box className='flex flex-col gap-5 basis-full lg:basis-1/3 p-2'>
 
               {
                 isFetching ?
@@ -97,8 +97,8 @@ const WalletView = () => {
                 </>
               }
 
-            </div>
-          </div>
+            </Box>
+          </Box>
         </Box>
         <Box>
           

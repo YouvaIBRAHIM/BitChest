@@ -26,7 +26,7 @@ class CryptosWalletSeeder extends Seeder
                 CryptosWallet::create([
                     "wallet_id" => $wallet["id"],
                     "crypto_id" => $cryptoId,
-                    "amount"    => rand(100, 100000) / 100
+                    "amount"    => rand(100, 10000) / 100
                 ]);
             }
         }

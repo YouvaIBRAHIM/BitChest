@@ -2,48 +2,58 @@ import { useCallback, useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import CustomSnackbar from '../components/CustomSnackbar';
 import LineChart from '../components/AnalyticComponents/LineChart';
-import BalanceCard from '../components/WalletComponents/BalanceCard';
-import UserCryptoList from '../components/WalletComponents/UserCryptoList';
 import { useQuery } from '@tanstack/react-query';
-import { getAuthUserWallet } from '../services/Api.service';
+import { getCryptos } from '../services/Api.service';
 import TransactionCard from '../components/TransactionCard';
 import { LineChartSkeleton } from '../components/Skeletons/LineChart';
-import { BalanceCardSkeleton } from '../components/Skeletons/BalanceCard';
-import { UserCryptoListSkeleton } from '../components/Skeletons/UserCryptoList';
+import { CryptoListCardSkeleton } from '../components/Skeletons/CryptoListCard';
 import CryptoList from '../components/CryptoComponents/CryptoList';
+import ErrorView from './ErrorView';
+import { useDebounce } from '../services/Hook.service';
 
 
 const HomeView = () => {
     const [snackBar, setSnackBar] = useState({message: "", showSnackBar: false, type: "info"});
     const [selectedCrypto, setSelectedCrypto] = useState({
-      name: "Total",
-      code: "all"
+      name: "",
+      code: ""
     });
-  
-    const { data: userWallet, isFetching, refetch } = useQuery({ 
-      queryKey: ['userWallet'], 
-      queryFn: getAuthUserWallet,
+    const [search, setSearch] = useState("");
+    const [filter, setFilter] = useState("trends");
+    const debouncedSearch = useDebounce(search, 500);
+
+    const { data: cryptos, isFetching, refetch, isError, error } = useQuery({ 
+      queryKey: ['cryptos'], 
+      queryFn: () => getCryptos(search, filter),
       retry: 3,
       refetchInterval: false,
       refetchOnWindowFocus: false,
       onError: (error) => setSnackBar({message: error, showSnackBar: true, type: "error"})
     });
   
-    const [chartData, setChartData] = useState(userWallet?.total_cryptos_rate);
+    const [chartData, setChartData] = useState(null);
 
     useEffect(() => {
-      if (userWallet) {
-        const cryptoWallet = userWallet?.cryptos_wallet?.find(crypto_wallet => crypto_wallet.crypto.code === selectedCrypto.code)
+      if (cryptos) {
+        const crypto = cryptos?.find(crypto => crypto.code === selectedCrypto.code)
 
-        if (cryptoWallet) {
-          const cryptoRate = cryptoWallet?.crypto?.crypto_rates.map(rate => [rate[0], rate[1] * cryptoWallet.amount ])
+        if (crypto) {
+          const cryptoRate = crypto?.crypto_rates
           setChartData(cryptoRate)
-        }else{
-          setChartData(userWallet?.total_cryptos_rate)
         }
       }
-    }, [selectedCrypto, userWallet])
+    }, [selectedCrypto])
 
+    useEffect(() => {
+      if (cryptos && selectedCrypto.name === "") {
+          const crypto = cryptos[0];
+          setSelectedCrypto({
+            name: crypto?.name,
+            code: crypto?.code,
+          })
+          setChartData(cryptos[0]?.crypto_rates)
+        }
+    }, [cryptos])
 
 
     const handleCloseSnackBar = useCallback((e, reason) => {
@@ -55,6 +65,10 @@ const HomeView = () => {
     }, [])
 
 
+    if (isError) {
+      return <ErrorView message={error} refetch={refetch}/>
+    }
+
     return (
     <Box sx={{ width: '100%'}}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
@@ -62,72 +76,31 @@ const HomeView = () => {
         </Box>
         <Box>
           <Box className='flex flex-wrap lg:flex-nowrap justify-end w-full'>
-            <Box className='w-full sm:basis-full sm:basis-2/3 p-2 sm:relative sm:top-0 lg:self-start lg:top-3 lg:sticky'>
+            <Box className='w-full sm:basis-full lg:basis-2/3 p-2 sm:relative sm:top-0 lg:self-start lg:top-3 lg:sticky'>
               {
-                isFetching && !userWallet?.balanceRate ?
-                <Box
-                  className="flex-col w-full gap-5 mt-5"
-                >
-                  <LineChartSkeleton/>
-                  <Box
-                    className="flex flex-wrap md:flex-nowrap w-full gap-5"
-                  >
-                    <Box
-                      className="w-full lg:basis-2/4"
-                    >
-                      <BalanceCardSkeleton/>
-                    </Box>
-                    <Box
-                      className="w-full lg:basis-2/4"
-                    >
-                      <UserCryptoListSkeleton />
-                    </Box>
-                  </Box>
-                </Box>
+                isFetching && !cryptos?.balanceRate ?
+                <LineChartSkeleton/>
                 :
-                <Box
-                  className="flex-col w-full gap-5"
-                >
-                  <LineChart data={chartData} title={selectedCrypto.name}/>
-                  <Box
-                    className="flex flex-wrap w-full gap-5 mt-5"
-                  >
-                    <Box
-                      className="w-full lg:basis-2/5"
-                    >
-                      <BalanceCard 
-                        balance={userWallet?.balance} 
-                        cryptos={userWallet?.cryptos_wallet}
-                        setSnackBar={setSnackBar}
-                      />
-                    </Box>
-                    <Box
-                      className="w-full lg:basis-2/5"
-                    >
-                      <UserCryptoList 
-                        cryptos={userWallet?.cryptos_wallet} 
-                        setSelectedCrypto={setSelectedCrypto} 
-                        selectedCrypto={selectedCrypto}
-                      />
-                    </Box>
-                  </Box>
-                </Box>
+                <LineChart data={chartData} title={selectedCrypto.name}/>
               }
-
             </Box>
-            <Box className='flex flex-col gap-5 basis-full lg:basis-1/3 lg:max-w-1/3 p-2'>
-
+            <Box className='flex flex-col gap-5 basis-full lg:basis-1/3 p-2'>
               {
                 isFetching ?
-                <UserCryptoListSkeleton />
+                <CryptoListCardSkeleton />
                 :
                 <CryptoList 
-                  cryptos={userWallet?.cryptos} 
+                  cryptos={cryptos} 
                   setSelectedCrypto={setSelectedCrypto} 
                   selectedCrypto={selectedCrypto}
+                  setSnackBar={setSnackBar}
+                  setSearch={setSearch}
+                  search={search}
+                  debouncedSearch={debouncedSearch}
+                  filter={filter}
+                  setFilter={setFilter}
                 />
               }
-
             </Box>
           </Box>
         </Box>
@@ -139,6 +112,7 @@ const HomeView = () => {
     </Box>
     );
 }
+
 
 
 export default HomeView;

@@ -201,9 +201,9 @@ export const sellCrypto = async (data) => {
 
 // Cryptos
 
-export const getCryptos = async (offset, search) => {
+export const getCryptos = async (search = "", filter = "trends", offset = 0) => {
   try {
-    const response = await instance.get(`/api/cryptos?offset=${offset}&searchFilter=${search.filter}&searchText=${search.text}`);
+    const response = await instance.get(`/api/cryptos?search=${search}&filter=${filter}&offset=${offset}`);
     return response.data;
   } catch (error) {
     return Promise.reject(error.response?.data?.message ?? error.message);

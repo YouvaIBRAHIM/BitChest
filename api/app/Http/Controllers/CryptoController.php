@@ -13,19 +13,19 @@ class CryptoController extends Controller
     public function index(Request $request)
     {
         try {
-            $searchFilter = $request->input('searchFilter');
-            $searchText = $request->input('searchText');
+            $search = $request->input('search') ?: "";
+            $filter = $request->input('filter') ?: "trends";
+            $offset = $request->input('offset') ?: "0";
 
-            $cryptos = Crypto::where("role", $request->input('role') ?: "client")
-            ->where((function ($query) use ($searchFilter, $searchText) {
-                if ($searchFilter !== "name") {
-                    $query->where($searchFilter, 'LIKE', "%{$searchText}%");
-                }
-            }))
-            ->join('wallets', 'users.id', '=', 'wallets.user_id')
-            ->select('users.*', 'wallets.balance')
-            ->orderBy('created_at', 'desc')
-            ->paginate($request->input('perPage') ?: 10);
+            $cryptos = Crypto::with(["cryptoRates", "latestCryptoRate"])
+                                ->where("name", "LIKE", "%{$search}%")
+                                ->orWhere("code", "LIKE", "%$search%")
+                                ->filteredSort($filter, $offset)
+                                ->get()
+                                ->toArray();
+
+
+            $cryptos = $this->formatCryptoRate($cryptos);
 
             return response()->json($cryptos, 200);
         } catch (\Throwable $th) {
@@ -98,5 +98,18 @@ class CryptoController extends Controller
      */
     static public function getCotationFor($cryptoname){	
         return ((rand(0, 99)>40) ? 1 : -1) * ((rand(0, 99)>49) ? ord(substr($cryptoname,0,1)) : ord(substr($cryptoname,-1))) * (rand(1,10) * .01);
+    }
+
+    
+    private function formatCryptoRate($cryptos){
+
+        foreach ($cryptos as $key => $crypto) {
+            foreach ($crypto["crypto_rates"] as $rateKey => $rate) {
+                $crypto["crypto_rates"][$rateKey] = [$rate["timestamp"], $rate["rate"]];
+            }
+            $cryptos[$key] = $crypto;
+        }
+
+        return $cryptos;
     }
 }

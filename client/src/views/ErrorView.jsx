@@ -1,5 +1,5 @@
 import { Alert, Box, Button } from '@mui/material';
-import { Robot } from '@phosphor-icons/react';
+import { ArrowClockwise, Robot } from '@phosphor-icons/react';
 
 
 
@@ -12,6 +12,7 @@ const ErrorView = ({ message, refetch }) => {
       <Robot size={96} weight="duotone" />
       <Alert severity="error">{message}</Alert>
       <Button
+        startIcon={<ArrowClockwise size={24} weight="duotone" />}
         onClick={refetch}
       >
         Réessayer

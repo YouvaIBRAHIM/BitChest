@@ -8,7 +8,7 @@ const LineChart = ({ data, title }) => {
   const theme = useTheme();
 
   const chart = useMemo(() => {
-    if (data) {
+    if (data && data.length > 0) {
       const dataLength = data.length;
       const lastValue = data[dataLength - 1][1];
       const firstValue = data[0][1];

@@ -1,21 +1,42 @@
 import { Card, CardHeader, CardContent, List, ListItemText, ListItemAvatar, ListItemButton, Box, Typography, Avatar, Icon, ButtonGroup, Button } from '@mui/material';
 import colors from "../../services/Tailwind.service";
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import SearchField from './SearchField';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { getCryptos } from '../../services/Api.service';
+import { CryptoListSkeleton } from '../Skeletons/CryptoList';
+import CryptoNotFound from './CryptoNotFound';
+import ViewMoreButton from './ViewMoreButton';
 
-const CryptoList = ({ cryptos, setSelectedCrypto, selectedCrypto }) => {
-    if (!cryptos || cryptos.length === 0) {
-        return null
-    }
-    const total = useRef(0)
+const CryptoList = ({ cryptos, setSelectedCrypto, selectedCrypto, setSnackBar, setSearch, search, debouncedSearch, filter, setFilter }) => {
+    const queryClient = useQueryClient()
+
+    const { data: searchedCryptos, isFetching, refetch } = useQuery({ 
+        queryKey: ['searchedCryptos'], 
+        queryFn: () => getCryptos(search, filter),
+        retry: 3,
+        refetchInterval: false,
+        refetchOnWindowFocus: false,
+        enabled: false,
+        onSuccess: (data) => {
+            queryClient.setQueryData(['cryptos'], data)
+        },
+        onError: (error) => setSnackBar({message: error, showSnackBar: true, type: "error"})
+    });
+
+    useEffect(() => {
+        refetch(search, filter)
+    }, [debouncedSearch, filter])
+
     const baseURL = import.meta.env.VITE_API_URL;
 
     const cryptoList = useMemo(() => {
-        total.current = 0;
+        if (!cryptos || cryptos.length === 0) {
+            return <CryptoNotFound />
+        }
         return (
             cryptos.map((crypto, index)=> {
-                const amount = crypto?.pivot?.amount * crypto?.current_rate;
-                total.current = total.current + amount
+                const firstRate = crypto.crypto_rates[0][1]
                 return (
                     <ListItemButton
                         key={index}
@@ -48,19 +69,11 @@ const CryptoList = ({ cryptos, setSelectedCrypto, selectedCrypto }) => {
                             <Typography 
                                 variant="body1"
                                 sx={{
-                                    color: crypto?.current_rate > crypto?.last_day_rate ? colors.green[400] : colors.red[400],
+                                    color: crypto?.latest_crypto_rate?.rate > firstRate ? colors.green[400] : colors.red[400],
                                     fontWeight: 600
                                 }}
                             >
-                                {amount.toFixed(2)}€
-                            </Typography>
-                            <Typography 
-                                variant="body1"
-                                sx={{
-                                    fontSize: 12
-                                }}
-                            >
-                                {crypto?.current_rate?.toFixed(2)}€
+                                {crypto?.latest_crypto_rate?.rate.toFixed(2)}€
                             </Typography>
                         </Box>
                     </ListItemButton>
@@ -97,7 +110,7 @@ const CryptoList = ({ cryptos, setSelectedCrypto, selectedCrypto }) => {
             >
                 <ButtonGroup 
                     variant="text" 
-                    aria-label="text button group"
+                    aria-label="filter button group"
                     sx={{
                         display: "flex",
                         width: "100%",
@@ -111,25 +124,43 @@ const CryptoList = ({ cryptos, setSelectedCrypto, selectedCrypto }) => {
 
                 >
                     <Button
-
+                        variant={`${filter === "trends" ? "contained" : "text"}`}
+                        onClick={() => setFilter("trends")}
                     >
                         Tendances
                     </Button>
                     <Button
-
+                        variant={`${filter === "popular" ? "contained" : "text"}`}
+                        onClick={() => setFilter("popular")}
                     >
                         Populaires
                     </Button>
                     <Button
-
+                        variant={`${filter === "latest" ? "contained" : "text"}`}
+                        onClick={() => setFilter("latest")}
                     >
                         Récentes
                     </Button>
                 </ButtonGroup>
-                <SearchField />
+                <SearchField 
+                    search={search}
+                    setSearch={setSearch}
+                />
                 <List dense={false}>
-                    {cryptoList}
+                    {
+                        isFetching ?
+                        <CryptoListSkeleton />
+                        :
+                        cryptoList
+                    }
                 </List>
+                <ViewMoreButton 
+                    search={search}
+                    filter={filter}
+                    count={searchedCryptos?.length ?? 0}
+                    setSnackBar={setSnackBar}
+                />
+
             </CardContent>
         </Card>
     );

@@ -3,16 +3,18 @@ import colors from "../../services/Tailwind.service";
 import { Coins } from '@phosphor-icons/react';
 import { useTheme } from '@emotion/react';
 import { useMemo, useRef } from 'react';
+import CryptoNotFound from '../CryptoComponents/CryptoNotFound';
 
 const UserCryptoList = ({ cryptos, setSelectedCrypto, selectedCrypto }) => {
-    if (!cryptos || cryptos.length === 0) {
-        return null
-    }
     const theme = useTheme();
     const total = useRef(0)
     const baseURL = import.meta.env.VITE_API_URL;
+    
 
     const cryptoList = useMemo(() => {
+        if (!cryptos || cryptos.length === 0) {
+            return <CryptoNotFound />
+        }
         total.current = 0;
         return (
             cryptos.map((cryptoWallet, index)=> {

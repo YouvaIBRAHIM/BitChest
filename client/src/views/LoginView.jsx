@@ -24,7 +24,7 @@ const LoginPage = () => {
         event.preventDefault();
         try {
             const response = await onLogin(credentials)
-            dispatch(setUser({ user : response.data.user }));
+            dispatch(setUser(response.data.user ));
             navigate('/home');
         } catch (error) {
             setError(error);
