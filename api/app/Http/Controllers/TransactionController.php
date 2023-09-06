@@ -51,10 +51,12 @@ class TransactionController extends Controller
     {
         try {
             $user = $request->user();
-            $wallet = Wallet::where("user_id", $user->id)->with("cryptos")->first()->toArray();
+            // $wallet = Wallet::where("user_id", $user->id)->with("cryptos")->first()->toArray();
+            $wallet = Wallet::with(['cryptosWallet.crypto.latestCryptoRate'])->where('user_id', $user->id)->first()->toArray();
+
             $wallet = $this->formatUserCurrencies($wallet);
             
-            $cryptos = Crypto::all()->toArray();
+            $cryptos = Crypto::with('latestCryptoRate')->get()->toArray();
             $cryptos = $this->getCurrentCryptosRate($cryptos);
 
             $transactionConfig = Configuration::where("key", "transaction")
@@ -190,21 +192,21 @@ class TransactionController extends Controller
         //
     }
 
-    private function formatUserCurrencies($wallet){
+    protected function formatUserCurrencies($wallet){
+        
         $wallet['userCurrencies'][] = [
             "name" => "Euro",
             "code" => "EUR",
             "balance" => $wallet["balance"]
         ];
-
-        foreach ($wallet["cryptos"] as $crypto) {
-            $cryptoRates = json_decode($crypto["crypto_rate"]);
-            $current_rate = $cryptoRates[count($cryptoRates) - 1][1];
-
+        
+        foreach ($wallet["cryptos_wallet"] as $cryptoWallet) {
+            $crypto = $cryptoWallet["crypto"];
+            $current_rate = $crypto["latest_crypto_rate"]["rate"];
             $wallet['userCurrencies'][] = [
                 "name" => $crypto["name"],
                 "code" => $crypto["code"],
-                "balance" => $crypto["pivot"]["amount"] * $current_rate
+                "balance" => $cryptoWallet["amount"] * $current_rate
             ];
         }
         return $wallet;
@@ -212,8 +214,7 @@ class TransactionController extends Controller
 
     private function getCurrentCryptosRate($cryptos){
         foreach ($cryptos as $key => $crypto) {
-            $cryptoRates = json_decode($crypto["crypto_rate"]);
-            $cryptos[$key]["current_rate"] = $cryptoRates[count($cryptoRates) - 1][1];
+            $cryptos[$key]["current_rate"] = $crypto["latest_crypto_rate"]["rate"];
         }
         return $cryptos;
     }
@@ -226,14 +227,14 @@ class TransactionController extends Controller
             $user = $request->user();
             $wallet = Wallet::where("user_id", $user->id)->with("cryptos")->first()->toArray();
 
-            $targetCrypto = Crypto::where("code", $request->target)->first();
-            $targetCryptoRates = json_decode($targetCrypto->crypto_rate);
+            $targetCrypto = Crypto::where("code", $request->target)->with('latestCryptoRate')->first()->toArray();
             
-            $amount = $request->amount / $targetCryptoRates[count($targetCryptoRates) - 1][1];
+            $amount = $request->amount / $targetCrypto["latest_crypto_rate"]["rate"];
+            
 
             //créditer le solde de la crypto
             $cryptoWallet = CryptosWallet::where("wallet_id", $wallet["id"])
-            ->where("crypto_id", $targetCrypto->id)
+            ->where("crypto_id", $targetCrypto["id"])
             ->first();
 
                         
@@ -247,7 +248,7 @@ class TransactionController extends Controller
             }else{
                 CryptosWallet::create([
                     "wallet_id" => $wallet["id"],
-                    "crypto_id" => $targetCrypto->id,
+                    "crypto_id" => $targetCrypto["id"],
                     "amount"    => floatval($amount)
                 ]);
             }
@@ -256,17 +257,14 @@ class TransactionController extends Controller
             if ($request->from !== "EUR") {
                 $cryptoIndex = array_search($request->from, array_column($wallet["cryptos"], 'code'));
                 $fromCryptoWallet = $wallet["cryptos"][$cryptoIndex];
-                $fromCrypto = Crypto::where("code", $request->from)->first();
-
-                $fromCryptoRates = json_decode($fromCrypto->crypto_rate);
-                $current_rate = $fromCryptoRates[count($fromCryptoRates) - 1][1];
+                $fromCrypto = Crypto::where("code", $request->from)->with('latestCryptoRate')->first()->toArray();
+                
+                $current_rate = $fromCrypto["latest_crypto_rate"]["rate"];
 
                 $fromAmount = $request->total / $current_rate;
 
-
-
                 $fromCryptoWallet = CryptosWallet::where("wallet_id", $wallet["id"])
-                                ->where("crypto_id", $fromCrypto->id)
+                                ->where("crypto_id", $fromCrypto["id"])
                                 ->first();
 
                 $newFromAmount = $fromCryptoWallet->amount - $fromAmount;
@@ -301,16 +299,14 @@ class TransactionController extends Controller
             
             $cryptoIndex = array_search($request->from, array_column($wallet["cryptos"], 'code'));
             $fromCryptoWallet = $wallet["cryptos"][$cryptoIndex];
-            $fromCrypto = Crypto::where("code", $request->from)->first();
+            $fromCrypto = Crypto::where("code", $request->from)->with('latestCryptoRate')->first()->toArray();
+                
+            $current_rate = $fromCrypto["latest_crypto_rate"]["rate"];
             
-            $fromCryptoRates = json_decode($fromCrypto->crypto_rate);
-            $current_rate = $fromCryptoRates[count($fromCryptoRates) - 1][1];
-            
-
             $fromAmount = $request->total / $current_rate;
             
             $fromCryptoWallet = CryptosWallet::where("wallet_id", $wallet['id'])
-                                                ->where("crypto_id", $fromCrypto->id)
+                                                ->where("crypto_id", $fromCrypto["id"])
                                                 ->first();
             
             $newFromAmount = $fromCryptoWallet->amount - $fromAmount;

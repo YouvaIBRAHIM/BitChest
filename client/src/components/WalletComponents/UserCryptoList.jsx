@@ -15,9 +15,11 @@ const UserCryptoList = ({ cryptos, setSelectedCrypto, selectedCrypto }) => {
     const cryptoList = useMemo(() => {
         total.current = 0;
         return (
-            cryptos.map((crypto, index)=> {
-                const amount = crypto?.pivot?.amount * crypto?.current_rate;
+            cryptos.map((cryptoWallet, index)=> {
+                const amount = cryptoWallet?.amount * cryptoWallet?.current_rate;
                 total.current = total.current + amount
+                const crypto = cryptoWallet?.crypto
+
                 return (
                     <ListItemButton
                         key={index}
@@ -50,7 +52,7 @@ const UserCryptoList = ({ cryptos, setSelectedCrypto, selectedCrypto }) => {
                             <Typography 
                                 variant="body1"
                                 sx={{
-                                    color: crypto?.current_rate > crypto?.last_day_rate ? colors.green[400] : colors.red[400],
+                                    color: amount > crypto?.crypto_rates[0][1] ? colors.green[400] : colors.red[400],
                                     fontWeight: 600
                                 }}
                             >
@@ -62,7 +64,7 @@ const UserCryptoList = ({ cryptos, setSelectedCrypto, selectedCrypto }) => {
                                     fontSize: 12
                                 }}
                             >
-                                {crypto?.current_rate?.toFixed(2)}€
+                                {cryptoWallet?.current_rate?.toFixed(2)}€
                             </Typography>
                         </Box>
                     </ListItemButton>

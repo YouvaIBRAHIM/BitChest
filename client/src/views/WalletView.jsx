@@ -10,6 +10,7 @@ import TransactionCard from '../components/TransactionCard';
 import { LineChartSkeleton } from '../components/Skeletons/LineChart';
 import { BalanceCardSkeleton } from '../components/Skeletons/BalanceCard';
 import { UserCryptoListSkeleton } from '../components/Skeletons/UserCryptoList';
+import ErrorView from './ErrorView';
 
 
 const WalletView = () => {
@@ -19,7 +20,7 @@ const WalletView = () => {
       code: "all"
     });
   
-    const { data: userWallet, isFetching, refetch } = useQuery({ 
+    const { data: userWallet, isFetching, refetch, error, isError } = useQuery({ 
       queryKey: ['userWallet'], 
       queryFn: getAuthUserWallet,
       retry: 3,
@@ -27,20 +28,21 @@ const WalletView = () => {
       onError: (error) => setSnackBar({message: error, showSnackBar: true, type: "error"})
     });
   
-    const [chartData, setChartData] = useState(userWallet?.balanceRate);
+    const [chartData, setChartData] = useState(userWallet?.total_cryptos_rate);
 
     useEffect(() => {
       if (userWallet) {
-        const crypto = userWallet?.cryptos?.find(crypto => crypto.code === selectedCrypto.code)
+        const cryptoWallet = userWallet?.cryptos_wallet?.find(crypto_wallet => crypto_wallet.crypto.code === selectedCrypto.code)
 
-        if (crypto) {
-          const cryptoRate = crypto.crypto_rate.map(rate => [rate[0], rate[1] * crypto.pivot.amount ])
+        if (cryptoWallet) {
+          const cryptoRate = cryptoWallet?.crypto?.crypto_rates.map(rate => [rate[0], rate[1] * cryptoWallet.amount ])
           setChartData(cryptoRate)
         }else{
-          setChartData(userWallet?.balanceRate)
+          setChartData(userWallet?.total_cryptos_rate)
         }
       }
     }, [selectedCrypto, userWallet])
+
 
 
     const handleCloseSnackBar = useCallback((e, reason) => {
@@ -51,7 +53,10 @@ const WalletView = () => {
         setSnackBar({message: "", showSnackBar: false, type: "info"});
     }, [])
 
-
+    if (isError) {
+      return <ErrorView message={error} refetch={refetch}/>
+    }
+    
     return (
     <Box sx={{ width: '100%'}}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
@@ -81,11 +86,11 @@ const WalletView = () => {
                 <>
                   <BalanceCard 
                     balance={userWallet?.balance} 
-                    cryptos={userWallet?.cryptos}
+                    cryptos={userWallet?.cryptos_wallet}
                     setSnackBar={setSnackBar}
                   />
                   <UserCryptoList 
-                    cryptos={userWallet?.cryptos} 
+                    cryptos={userWallet?.cryptos_wallet} 
                     setSelectedCrypto={setSelectedCrypto} 
                     selectedCrypto={selectedCrypto}
                   />

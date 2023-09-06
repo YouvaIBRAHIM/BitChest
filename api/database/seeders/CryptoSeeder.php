@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Http\Controllers\CryptoController;
 use App\Models\Crypto;
+use App\Models\CryptoRate;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -67,36 +68,34 @@ class CryptoSeeder extends Seeder
             ],
         ];
 
+
         $currentDate = strtotime(date('Y-m-d'));
 
         foreach ($cryptos as $crypto) {
-            $crypto_rate = [];
-            for ($i = 29; $i >= 0; $i--) {
-            //     $date = date('Y-m-d', strtotime("-$i days", $currentDate));
-            //     for ($hour = 0; $hour < 24; $hour++) {
 
-            //         $formattedHour = str_pad($hour, 2, '0', STR_PAD_LEFT);
-            //         $timestamp = strtotime("$date $formattedHour:00:00") * 1000;
-                
-            //         $crypto_rate[] = [
-            //             $timestamp,
-            //             abs(CryptoController::getCotationFor($crypto['name']))
-            //         ];
-            //     }
-                $timestamp = strtotime("-$i days", $currentDate) * 1000;
-            
-                $crypto_rate[] = [
-                    $timestamp,
-                    abs(CryptoController::getCotationFor($crypto['name']))
-                ];
-            }
-            Crypto::create([
+            $newCrypto = Crypto::create([
                 "name"          => $crypto['name'],
                 "code"          => $crypto['code'],
                 "logo"          => $crypto['logo'],
                 "current_gas"   => rand(10, 100) / 10,
-                "crypto_rate" => json_encode($crypto_rate),
             ]);
+
+            $rate = 0;
+            for ($i = 29; $i >= 0; $i--) {
+                $timestamp = strtotime("-$i days", $currentDate) * 1000;
+            
+                $cotation = $i === 29 ? CryptoController::getFirstCotation($crypto['name']) : CryptoController::getCotationFor($crypto['name']);
+                $rate += $cotation;
+
+                $crypto_rate = [
+                    "crypto_id" => $newCrypto->id,
+                    "timestamp" => $timestamp,
+                    "rate" => $rate,                    
+                ];
+
+                CryptoRate::create($crypto_rate);
+            }
+
         }
     }
 

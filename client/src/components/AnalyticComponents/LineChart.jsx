@@ -11,9 +11,11 @@ const LineChart = ({ data, title }) => {
     if (data) {
       const dataLength = data.length;
       const lastValue = data[dataLength - 1][1];
-  
+      const firstValue = data[0][1];
+      const color = lastValue > firstValue ? colors.green[400] : colors.red[400];
+
       const series = [{
-        color: colors.green[400],
+        color: color,
         data: data
       }];
       
@@ -44,13 +46,13 @@ const LineChart = ({ data, title }) => {
         annotations: {
           yaxis: [
             {
-              y: lastValue + (lastValue * 0.02),
-              borderColor: '#00E396',
+              y: lastValue,
+              borderColor: color,
               label: {
                 borderColor: 'none',
                 style: {
                   color: '#fff',
-                  background: colors.green[500],
+                  background: color,
                   fontSize: 24,
                 },
                 text: `${lastValue?.toFixed(2)}€`

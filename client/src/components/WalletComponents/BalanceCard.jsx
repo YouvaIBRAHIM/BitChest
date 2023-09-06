@@ -2,16 +2,18 @@ import { Card, CardHeader, CardContent, CardActions } from '@mui/material';
 import PieChart from '../AnalyticComponents/PieChart';
 import { useMemo } from 'react';
 import FeedBalance from '../FeedBalance';
+import { roundToTwoDecimals } from '../../services/Utils.service';
 
 const BalanceCard = ({ balance, cryptos, setSnackBar }) => {
+
     const pieChartData = useMemo(() => {
         const labels = [];
         const data = [];
 
         if (cryptos) {
-            cryptos.map(crypto => {
-                labels.push(crypto.name)
-                data.push(crypto.pivot.amount * crypto.current_rate)
+            cryptos.map(cryptoWallet => {
+                labels.push(cryptoWallet.crypto.name)
+                data.push(cryptoWallet.amount * cryptoWallet.current_rate)
             })
         }
         return {
@@ -22,7 +24,7 @@ const BalanceCard = ({ balance, cryptos, setSnackBar }) => {
     return (
         <Card>
             <CardHeader
-                title={`${balance}€`}
+                title={`${roundToTwoDecimals(balance)}€`}
                 subheader="Votre solde"
                 className='bg-green-400'
                 sx={{

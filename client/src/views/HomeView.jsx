@@ -29,20 +29,21 @@ const HomeView = () => {
       onError: (error) => setSnackBar({message: error, showSnackBar: true, type: "error"})
     });
   
-    const [chartData, setChartData] = useState(userWallet?.balanceRate);
+    const [chartData, setChartData] = useState(userWallet?.total_cryptos_rate);
 
     useEffect(() => {
       if (userWallet) {
-        const crypto = userWallet?.cryptos?.find(crypto => crypto.code === selectedCrypto.code)
+        const cryptoWallet = userWallet?.cryptos_wallet?.find(crypto_wallet => crypto_wallet.crypto.code === selectedCrypto.code)
 
-        if (crypto) {
-          const cryptoRate = crypto.crypto_rate.map(rate => [rate[0], rate[1] * crypto.pivot.amount ])
+        if (cryptoWallet) {
+          const cryptoRate = cryptoWallet?.crypto?.crypto_rates.map(rate => [rate[0], rate[1] * cryptoWallet.amount ])
           setChartData(cryptoRate)
         }else{
-          setChartData(userWallet?.balanceRate)
+          setChartData(userWallet?.total_cryptos_rate)
         }
       }
     }, [selectedCrypto, userWallet])
+
 
 
     const handleCloseSnackBar = useCallback((e, reason) => {
@@ -96,7 +97,7 @@ const HomeView = () => {
                     >
                       <BalanceCard 
                         balance={userWallet?.balance} 
-                        cryptos={userWallet?.cryptos}
+                        cryptos={userWallet?.cryptos_wallet}
                         setSnackBar={setSnackBar}
                       />
                     </Box>
@@ -104,7 +105,7 @@ const HomeView = () => {
                       className="w-full lg:basis-2/5"
                     >
                       <UserCryptoList 
-                        cryptos={userWallet?.cryptos} 
+                        cryptos={userWallet?.cryptos_wallet} 
                         setSelectedCrypto={setSelectedCrypto} 
                         selectedCrypto={selectedCrypto}
                       />

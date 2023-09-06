@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cryptos', function (Blueprint $table) {
+        Schema::create('crypto_rates', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
-            $table->string('code', 5)->unique();
-            $table->string('logo');
-            $table->float('current_gas');
+            $table->float('rate');
+            $table->unsignedBigInteger('timestamp');
+            $table->unsignedBigInteger('crypto_id');
+            $table->foreign('crypto_id')->references('id')->on('cryptos')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('cryptos');
+        Schema::dropIfExists('crypto_rates');
     }
 };

@@ -46,9 +46,9 @@ class WalletController extends Controller
     {
         try {
             $user = $request->user();
-            $wallet = Wallet::where("user_id", $user->id)->with("cryptos")->first()->toArray();
+            $wallet = Wallet::with(['cryptosWallet.crypto.cryptoRates'])->where('user_id', $user->id)->first()->toArray();
 
-            $wallet = $this->formatCryptoRate($wallet);
+            $wallet = $this->formatUserCryptoRate($wallet);
 
             return response()->json($wallet, 200);
         } catch (\Throwable $th) {
@@ -84,24 +84,36 @@ class WalletController extends Controller
         //
     }
 
-    private function formatCryptoRate($wallet){
-        $balanceRates = [];
-        foreach ($wallet["cryptos"] as $key => $crypto) {
-            $cryptoRates = json_decode($crypto["crypto_rate"]);
-            $wallet["cryptos"][$key]["crypto_rate"] = $cryptoRates;
-            $wallet["cryptos"][$key]["current_rate"] = $cryptoRates[count($cryptoRates) - 1][1];
-            $wallet["cryptos"][$key]["last_day_rate"] = $cryptoRates[count($cryptoRates) - 2][1];
+    private function formatUserCryptoRate($wallet){
+        $totalCryptosRate = [];
+        foreach ($wallet["cryptos_wallet"] as $key => $cryptoWallet) {
 
+            $crypto = $cryptoWallet["crypto"];
+            $cryptoRates = $crypto["crypto_rates"];
+            
+            
+            $wallet["cryptos_wallet"][$key]["current_rate"] = $cryptoRates[count($cryptoRates) - 1]["rate"];
+            $wallet["cryptos_wallet"][$key]["last_day_rate"] = $cryptoRates[count($cryptoRates) - 2]["rate"];
+            
+            
+            $balanceRates = [];
             foreach ($cryptoRates as $rateKey => $rate) {
-                $amount = $rate[1] * $crypto["pivot"]["amount"];
+                $amount = round($rate["rate"] * $cryptoWallet["amount"], 2);
 
-                $lastAmount = $key === 0 ? 0 : $balanceRates[$rateKey][1];
+            
+                $lastAmount = $key === 0 ? 0 : $totalCryptosRate[$rateKey][1];
+                
                 $total = $lastAmount + $amount;
+                $totalCryptosRate[$rateKey] = [$rate["timestamp"], $total];
 
-                $balanceRates[$rateKey] = [$rate[0], $total];
+                $balanceRates[$rateKey] = [$rate["timestamp"], $amount];
             }
+            
+            $wallet["cryptos_wallet"][$key]["crypto"]["crypto_rates"] = $balanceRates;
+
         }
-        $wallet["balanceRate"] = $balanceRates;
+        $wallet["total_cryptos_rate"] = $totalCryptosRate;
+
         return $wallet;
     }
 
