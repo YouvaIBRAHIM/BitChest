@@ -3,9 +3,9 @@ import colors from "../../services/Tailwind.service";
 import { useEffect, useMemo, useState } from 'react';
 import SearchField from './SearchField';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getCryptos } from '../../services/Api.service';
+import { getCryptos, newCryptoView } from '../../services/Api.service';
 import { CryptoListSkeleton } from '../Skeletons/CryptoList';
-import CryptoNotFound from './CryptoNotFound';
+import ListNotFound from '../ListNotFound';
 import ViewMoreButton from './ViewMoreButton';
 
 const CryptoList = ({ cryptos, setSelectedCrypto, selectedCrypto, setSnackBar, setSearch, search, debouncedSearch, filter, setFilter }) => {
@@ -30,9 +30,13 @@ const CryptoList = ({ cryptos, setSelectedCrypto, selectedCrypto, setSnackBar, s
 
     const baseURL = import.meta.env.VITE_API_URL;
 
+    const handleClick = (crypto) => {
+        setSelectedCrypto({name: crypto.name, code: crypto.code})
+        newCryptoView(crypto?.id)
+    }
     const cryptoList = useMemo(() => {
         if (!cryptos || cryptos.length === 0) {
-            return <CryptoNotFound />
+            return <ListNotFound message="Aucune crypto trouvée."/>
         }
         return (
             cryptos.map((crypto, index)=> {
@@ -47,7 +51,7 @@ const CryptoList = ({ cryptos, setSelectedCrypto, selectedCrypto, setSnackBar, s
                             backgroundColor: selectedCrypto.code === crypto.code && "#00000030",
                             borderRadius: 1
                         }}
-                        onClick={() => setSelectedCrypto({name: crypto.name, code: crypto.code})}
+                        onClick={() => handleClick(crypto)}
                     >   
                         <Box
                             className="flex items-center"

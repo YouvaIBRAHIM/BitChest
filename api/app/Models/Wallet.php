@@ -31,4 +31,9 @@ class Wallet extends Model
         return $this->belongsToMany(Crypto::class, 'cryptos_wallets', 'wallet_id', 'crypto_id')
             ->withPivot('amount');
     }
+
+    public function transactionHistories()
+    {
+        return $this->hasMany(TransactionHistory::class);
+    }
 }

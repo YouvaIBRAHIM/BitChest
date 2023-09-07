@@ -112,4 +112,23 @@ class CryptoController extends Controller
 
         return $cryptos;
     }
+
+    public function newView(Request $request)
+    {
+        try {
+            $crypto = Crypto::find($request->id);
+
+            $crypto->update([
+                "viewed" => $crypto->viewed + 1
+            ]);
+
+            return response()->json($crypto, 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                "message" => "Oups ! Nous n'avons pas pu récupérer les données.",
+                "error" => $th->getMessage()
+            ], $th->getCode());
+        }
+    }
+
 }

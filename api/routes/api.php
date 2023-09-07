@@ -24,7 +24,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     
     //wallet
     Route::resource('/wallets', "App\Http\Controllers\WalletController");
-    Route::get('/auth-user/wallet', ["App\Http\Controllers\WalletController", "showAuthenticatedUserWallet"]);
+    Route::get('/auth-user/wallet', ["App\Http\Controllers\WalletController", "showUserWallet"]);
 
     //transaction
     Route::get('/auth-user/resources', ["App\Http\Controllers\TransactionController", "getAuthUserResources"]);
@@ -33,9 +33,11 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('/auth-user/transfer/balance', ["App\Http\Controllers\TransactionController", "transferAuthUserBalance"]);
     Route::post('/transaction/buy', ["App\Http\Controllers\TransactionController", "buy"]);
     Route::post('/transaction/sell', ["App\Http\Controllers\TransactionController", "sell"]);
+    Route::get('/transaction/history', ["App\Http\Controllers\TransactionController", "history"]);
 
     //crypto
     Route::resource('/cryptos', "App\Http\Controllers\CryptoController");
+    Route::post('/crypto/newView', ["App\Http\Controllers\CryptoController", "newView"]);
     
 
     // Récupére l'utilisateur connecté

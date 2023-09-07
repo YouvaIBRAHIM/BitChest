@@ -3,9 +3,12 @@ import colors from "../../services/Tailwind.service";
 import { Coins } from '@phosphor-icons/react';
 import { useTheme } from '@emotion/react';
 import { useMemo, useRef } from 'react';
-import CryptoNotFound from '../CryptoComponents/CryptoNotFound';
+import ListNotFound from '../ListNotFound';
+import { useSelector } from 'react-redux';
 
 const UserCryptoList = ({ cryptos, setSelectedCrypto, selectedCrypto }) => {
+
+    const { user } = useSelector(state => state.user)
     const theme = useTheme();
     const total = useRef(0)
     const baseURL = import.meta.env.VITE_API_URL;
@@ -13,7 +16,7 @@ const UserCryptoList = ({ cryptos, setSelectedCrypto, selectedCrypto }) => {
 
     const cryptoList = useMemo(() => {
         if (!cryptos || cryptos.length === 0) {
-            return <CryptoNotFound />
+            return <ListNotFound  message="Aucune crypto trouvée."/>
         }
         total.current = 0;
         return (
@@ -77,7 +80,7 @@ const UserCryptoList = ({ cryptos, setSelectedCrypto, selectedCrypto }) => {
     return (
         <Card>
             <CardHeader
-                title="Vos cryptomonnaies"
+                title={`${user.role === "client" ? "Vos cryptomonnaies": "Cryptomonnaies"}`}
                 className='bg-green-400'
                 sx={{
                     "& .MuiCardHeader-content": {

@@ -11,6 +11,7 @@ import CustomSnackbar from '../components/CustomSnackbar';
 import { useQuery } from '@tanstack/react-query';
 import { getAuthUser, getUser } from '../services/Api.service';
 import { UserCardSkeleton, UserFormSkeleton, UserPasswordFormSkeleton } from '../components/Skeletons/UserProfile';
+import WalletView from './WalletView';
 
 
 
@@ -126,7 +127,7 @@ const UserView = () => {
                     {
                         id &&
                         <CustomTabPanel value={tabIndex} index={1}>
-                            Item Two
+                          <WalletView id={id}/> 
                         </CustomTabPanel>                    
                     }
 

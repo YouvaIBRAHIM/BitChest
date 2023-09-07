@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Configuration;
 use App\Models\Crypto;
 use App\Models\CryptosWallet;
+use App\Models\TransactionHistory;
 use App\Models\User;
 use App\Models\Wallet;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class TransactionController extends Controller
@@ -227,10 +229,22 @@ class TransactionController extends Controller
             $user = $request->user();
             $wallet = Wallet::where("user_id", $user->id)->with("cryptos")->first()->toArray();
 
-            $targetCrypto = Crypto::where("code", $request->target)->with('latestCryptoRate')->first()->toArray();
+            $crypto = Crypto::where("code", $request->target)->with('latestCryptoRate')->first();
+
+            $crypto->update([
+                "purchased"    => $crypto->purchased + 1,
+            ]);
+
             
+            $targetCrypto = $crypto->toArray();
             $amount = $request->amount / $targetCrypto["latest_crypto_rate"]["rate"];
-            
+
+            TransactionHistory::create([
+                "wallet_id"         => $wallet['id'],
+                "crypto_rate_id"    => $targetCrypto['latest_crypto_rate']['id'],
+                "amount"            => round(floatval($amount), 2),
+                "type"              => "buy"
+            ]);
 
             //créditer le solde de la crypto
             $cryptoWallet = CryptosWallet::where("wallet_id", $wallet["id"])
@@ -242,7 +256,7 @@ class TransactionController extends Controller
                 $newAmount = $cryptoWallet->amount + $amount;
 
                 $cryptoWallet->update([
-                    "amount"    => round(floatval($newAmount), 2)
+                    "amount"    => round(floatval($newAmount), 2),
                 ]);
 
             }else{
@@ -268,7 +282,7 @@ class TransactionController extends Controller
                                 ->first();
 
                 $newFromAmount = $fromCryptoWallet->amount - $fromAmount;
-                if ($newFromAmount <= 0) {
+                if (round($newFromAmount, 2) <= 0) {
                     $fromCryptoWallet->delete();
                 }else{
                     $fromCryptoWallet->update([
@@ -300,17 +314,24 @@ class TransactionController extends Controller
             $cryptoIndex = array_search($request->from, array_column($wallet["cryptos"], 'code'));
             $fromCryptoWallet = $wallet["cryptos"][$cryptoIndex];
             $fromCrypto = Crypto::where("code", $request->from)->with('latestCryptoRate')->first()->toArray();
-                
+            
             $current_rate = $fromCrypto["latest_crypto_rate"]["rate"];
             
             $fromAmount = $request->total / $current_rate;
             
+            TransactionHistory::create([
+                "wallet_id"         => $wallet['id'],
+                "crypto_rate_id"    => $fromCrypto['latest_crypto_rate']['id'],
+                "amount"            => round(floatval($fromAmount), 2),
+                "type"              => "sell"
+            ]);
+
             $fromCryptoWallet = CryptosWallet::where("wallet_id", $wallet['id'])
                                                 ->where("crypto_id", $fromCrypto["id"])
                                                 ->first();
             
             $newFromAmount = $fromCryptoWallet->amount - $fromAmount;
-            if ($newFromAmount <= 0) {
+            if (round($newFromAmount, 2) <= 0) {
                 $fromCryptoWallet->delete();
             }else{
                 $fromCryptoWallet->update([
@@ -330,4 +351,61 @@ class TransactionController extends Controller
             ], $th->getCode());
         }
     }
+
+    public function history(Request $request)
+    {
+        try {
+            $filter = $request->input('filter') ?: "all";
+            $offset = $request->input('offset') ?: 0;
+            $id = $request->input('id');
+            
+            if ($id) {
+                if (Auth::user()->role !== "admin") {
+                    return response()->json([
+                        "message" => "Vous ne pouvez pas voir cette page.",
+                        "error" => 401
+                    ], 401);
+                }
+                $user = User::findOrFail($id); 
+            }else {
+                $user = $request->user(); 
+            }
+
+            $wallet = Wallet::find($user->id);         
+
+            $transactionsHistory = TransactionHistory::with('cryptoRate')
+                                                    ->where('wallet_id', $wallet["id"])
+                                                    ->select('transaction_histories.*', 'cryptos.code as crypto_code', 'cryptos.name as crypto_name', 'cryptos.logo as crypto_logo')
+                                                    ->join('crypto_rates', 'transaction_histories.crypto_rate_id', '=', 'crypto_rates.id')
+                                                    ->join('cryptos', 'crypto_rates.crypto_id', '=', 'cryptos.id')
+                                                    ->where(function ($query) use ($filter, $offset) {
+                                                        if ($filter !== 'all') {
+                                                            $query->where('cryptos.code', $filter);
+                                                        }                                                
+                                                    })
+                                                    ->limit(10)->offset($offset)
+                                                    ->orderBy('crypto_rates.timestamp', 'desc')
+                                                    ->get();
+            
+            $cryptos = TransactionHistory::with('cryptoRate.crypto')
+                                            ->where('wallet_id', $wallet["id"])
+                                            ->get()
+                                            ->pluck('cryptoRate.crypto')
+                                            ->unique()
+                                            ->toArray();
+
+            return response()->json([
+                "transactionsHistory" => $transactionsHistory,
+                "cryptos"               => array_values($cryptos)
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                "message" => "Oups ! Nous n'avons pas pu effectuer la transaction.",
+                "error" => $th->getMessage()
+            ], $th->getCode());
+        }
+    }
+
+
+    
 }

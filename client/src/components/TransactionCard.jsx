@@ -100,7 +100,7 @@ const TransactionCard = ({ setSnackBar, refetchUserData }) => {
             });
           });
 
-          setMaxAmount(filteredCryptos[0].balance)
+          setMaxAmount(filteredCryptos[0]?.balance)
           return filteredCryptos;
         })
   
@@ -116,6 +116,7 @@ const TransactionCard = ({ setSnackBar, refetchUserData }) => {
 
   useEffect(() => {
     if (from) {
+      setMaxAmount(from.balance)
       if (type === "buy") {
         setTargetList(() => {
           const filteredCryptos = resources?.cryptos.filter(crypto => crypto.code !== from.code);
@@ -126,14 +127,16 @@ const TransactionCard = ({ setSnackBar, refetchUserData }) => {
     }
   }, [from])
 
+
   useEffect(() => {
     if (fromList && !from) {
       setFrom(fromList[0])
     }
 
     if (targetList && !target) {
-      setFrom(targetList[0])
+      setTarget(targetList[0])
     }
+
   }, [fromList, targetList])
 
   const handleClickOpen = (type) => {
@@ -348,17 +351,18 @@ const CostsTable = ({from, target, serviceFees, amount, setAmount, total, setTot
           amountFees = roundToTwoDecimals((serviceFees / 100) * from.balance)
           totalAmount = from.balance
         
-          setAmount(roundToTwoDecimals(from.balance - (roundToTwoDecimals(amountFees) + roundToTwoDecimals(target.current_gas))))
+          const newAmount = roundToTwoDecimals(from.balance - (roundToTwoDecimals(amountFees) + roundToTwoDecimals(target.current_gas)));
+          setAmount(newAmount >= 0 ? newAmount : 0)
           setConversion(roundToTwoDecimals(convertedAmount))
           setFees(amountFees)
-          setTotal(totalAmount)
+          setTotal(roundToTwoDecimals(totalAmount))
           setIsAmountSetted(true)
           return
         }
         if (!isAmountSetted) {
           setConversion(roundToTwoDecimals(convertedAmount))
           setFees(amountFees)
-          setTotal(totalAmount)
+          setTotal(roundToTwoDecimals(totalAmount))
         }
       }else{
         const currentRate = roundToTwoDecimals(from.current_rate);
@@ -377,7 +381,7 @@ const CostsTable = ({from, target, serviceFees, amount, setAmount, total, setTot
             setAmount(roundToTwoDecimals(from.balance - amountFees))
             setConversion(roundToTwoDecimals(amount))
             setFees(amountFees)
-            setTotal(from.balance)
+            setTotal(roundToTwoDecimals(from.balance))
             setIsAmountSetted(true)
             return
           }
@@ -385,10 +389,11 @@ const CostsTable = ({from, target, serviceFees, amount, setAmount, total, setTot
           if (!isAmountSetted) {
             setConversion(roundToTwoDecimals(amount))
             setFees(amountFees)
-            setTotal(totalAmount)
+            setTotal(roundToTwoDecimals(totalAmount))
           }
         }
 
+ 
       }
     }
   }, [from, target, amount, serviceFees, type])

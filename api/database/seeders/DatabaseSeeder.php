@@ -18,7 +18,6 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             WalletSeeder::class,
             CryptoSeeder::class,
-            CryptosWalletSeeder::class,
             ConfigurationSeeder::class
         ]);
     }

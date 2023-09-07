@@ -10,9 +10,11 @@ import { CryptoListCardSkeleton } from '../components/Skeletons/CryptoListCard';
 import CryptoList from '../components/CryptoComponents/CryptoList';
 import ErrorView from './ErrorView';
 import { useDebounce } from '../services/Hook.service';
+import { useSelector } from 'react-redux';
 
 
 const HomeView = () => {
+    const { user } = useSelector(state => state.user)
     const [snackBar, setSnackBar] = useState({message: "", showSnackBar: false, type: "info"});
     const [selectedCrypto, setSelectedCrypto] = useState({
       name: "",
@@ -71,9 +73,12 @@ const HomeView = () => {
 
     return (
     <Box sx={{ width: '100%'}}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <TransactionCard setSnackBar={setSnackBar} refetchUserData={refetch}/>
-        </Box>
+        {
+          user?.role === "client" &&
+          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+            <TransactionCard setSnackBar={setSnackBar} refetchUserData={refetch}/>
+          </Box>
+        }
         <Box>
           <Box className='flex flex-wrap lg:flex-nowrap justify-end w-full'>
             <Box className='w-full sm:basis-full lg:basis-2/3 p-2 sm:relative sm:top-0 lg:self-start lg:top-3 lg:sticky'>

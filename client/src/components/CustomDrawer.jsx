@@ -1,44 +1,99 @@
 import Drawer from '@mui/material/Drawer';
 import { NavLink } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Divider from '@mui/material/Divider';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import { House, User, Users, Wallet, List as ListIcon } from '@phosphor-icons/react';
-import { AppBar, Box, Toolbar, Typography } from '@mui/material';
+import { House, User, Users, Wallet, List as ListIcon, SignOut } from '@phosphor-icons/react';
+import { AppBar, Box, Button, Toolbar, Typography } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import ThemeSwitchButton from './ThemeSwitchButton';
 import { roundToTwoDecimals } from '../services/Utils.service';
+import { useCallback, useMemo, useState } from 'react';
+import colors from "../services/Tailwind.service";
+import { useNavigate } from "react-router-dom";
+import CustomSnackbar from './CustomSnackbar';
+import { clearUser } from '../reducers/UserReducer';
+import { onLogout } from '../services/Api.service';
 
 const links = [
   {
     label: "Accueil",
     endpoint: "/home",
-    icon: <House size={20} weight='duotone'/>
+    icon: <House size={20} weight='duotone'/>,
+    roles: ["admin", "client"]
   },
   {
     label: "Portefeuille",
     endpoint: "/wallet",
-    icon: <Wallet size={20} weight='duotone'/>
+    icon: <Wallet size={20} weight='duotone'/>,
+    roles: ["client"]
   },
   {
     label: "Mon compte",
     endpoint: "/profile",
-    icon: <User size={20} weight='duotone'/>
+    icon: <User size={20} weight='duotone'/>,
+    roles: ["admin", "client"]
   },
   {
     label: "Utilisateurs",
     endpoint: "/users",
-    icon: <Users size={20} weight='duotone'/>
+    icon: <Users size={20} weight='duotone'/>,
+    roles: ["admin"]
   }
 ]
 
-function CustomDrawer({ mobileOpen, handleDrawerToggle, drawerWidth }) {
+const CustomDrawer = ({ mobileOpen, handleDrawerToggle, drawerWidth }) => {
   const { mode } = useSelector(state => state.theme)
   const { user } = useSelector(state => state.user)
+  const [snackBar, setSnackBar] = useState({message: "", showSnackBar: false, type: "info"});
+  const dispatch = useDispatch();
+
+  const handleCloseSnackBar = useCallback((e, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setSnackBar({message: "", showSnackBar: false, type: "info"});
+}, [])
+
+  const navigate = useNavigate();
+
+  const linkList = useMemo(() => {
+
+    {return links.map((link, index) => {
+        if (!link.roles.includes(user.role)) return null
+        return (
+        <ListItem key={index}>
+          <NavLink className={({ isActive }) => isActive ? "bg-green-400 w-full rounded" : "rounded w-full"} to={link.endpoint}>
+            <ListItemButton sx={{borderRadius: 1}}>
+              <ListItemIcon>
+                {link.icon}
+              </ListItemIcon>
+              <ListItemText primary={link.label} />
+            </ListItemButton>
+          </NavLink>
+        </ListItem>
+        )
+      }
+    )}
+  }, [user])
+
+  const handleLogout = async () => {
+    try {
+      const response = await onLogout()
+
+      if (response.status === 204) {
+        dispatch(clearUser());
+        navigate("/login");
+      }
+    } catch (error) {
+      setSnackBar({message: error?.message, showSnackBar: true, type: "error"})
+    }
+  }
 
   return (
     <Box sx={{ display: 'flex', }}>
@@ -69,9 +124,12 @@ function CustomDrawer({ mobileOpen, handleDrawerToggle, drawerWidth }) {
           </IconButton>
             <img src='/assets/bitchest_logo_dark.svg' alt='BitChest Logo' className='h-10'/>
           </Box>
-          <Box>
-            <Typography variant="p">Solde {roundToTwoDecimals(user?.wallet?.balance)}€</Typography>
-          </Box>
+          {
+            user?.role === "client" &&
+            <Box>
+              <Typography variant="p">Solde {roundToTwoDecimals(user?.wallet?.balance)}€</Typography>
+            </Box>
+          }
         </Toolbar>
       </AppBar>
       <Box
@@ -91,7 +149,12 @@ function CustomDrawer({ mobileOpen, handleDrawerToggle, drawerWidth }) {
             '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
           }}
         >
-          <DrawerContent mode={mode}/>
+          <DrawerContent 
+            mode={mode} 
+            user={user}
+            linkList={linkList}
+            handleLogout={handleLogout}
+          />
         </Drawer>
         <Drawer
           variant="permanent"
@@ -101,38 +164,58 @@ function CustomDrawer({ mobileOpen, handleDrawerToggle, drawerWidth }) {
           }}
           open
         >
-          <DrawerContent mode={mode}/>
+          <DrawerContent 
+            mode={mode} 
+            user={user}
+            linkList={linkList}
+            handleLogout={handleLogout}
+          />
         </Drawer>
       </Box>
+      <CustomSnackbar open={snackBar.showSnackBar} handleClose={handleCloseSnackBar} type={snackBar.type} message={snackBar.message}/>
+
     </Box>
   );
 }
 
-const DrawerContent = ({mode}) => (
+const DrawerContent = ({user, mode, linkList, handleLogout}) => {
+  
 
-  <div>
-    <Toolbar className='items-center justify-center'>
-      <img src={`/assets/bitchest_logo_${mode}.svg`} alt='BitChest Logo' className='h-10'/>
-    </Toolbar>
-    <Divider />
-    <List>
-      {links.map((link, index) => (
-        <ListItem key={index}>
-          <NavLink className={({ isActive }) => isActive ? "bg-green-400 w-full rounded" : "rounded w-full"} to={link.endpoint}>
-            <ListItemButton sx={{borderRadius: 1}}>
-              <ListItemIcon>
-                {link.icon}
-              </ListItemIcon>
-              <ListItemText primary={link.label} />
-            </ListItemButton>
-          </NavLink>
-        </ListItem>
-      ))}
-    </List>
-    <Divider />
-    <ThemeSwitchButton />
-  </div>
-);
+  return (
+    <Box 
+      className='flex flex-col h-full justify-between'
+    >
+      <Box>
+        <Toolbar className='items-center justify-center'>
+          <img src={`/assets/bitchest_logo_${mode}.svg`} alt='BitChest Logo' className='h-10'/>
+        </Toolbar>
+        <Divider />
+        <List>
+          {linkList}
+        </List>
+        <Divider />
+        <ThemeSwitchButton />
+      </Box>
+      <Button 
+        variant="outlined" 
+        startIcon={<SignOut size={32} weight="duotone" />}
+        sx={{
+          color: colors.red[400],
+          borderColor: colors.red[400],
+          margin: 2,
+          "&:hover":{
+            color: colors.red[500],
+            borderColor: colors.red[500],
+            backgroundColor: "inherit",
+          }
+        }}
+        onClick={handleLogout}
+      >
+        Se déconnecter
+      </Button>
+    </Box>
+  )
+};
 
 
 export default CustomDrawer;

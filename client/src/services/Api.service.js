@@ -34,6 +34,18 @@ export const onLogin = async (credentials) => {
   }
 }
 
+
+export const onLogout = async () => {
+  try {
+    const response = await instance.post("/logout");    
+    return response;
+  } catch (error) {
+    return Promise.reject(error.response?.data?.message ?? error.message);
+  }
+}
+
+
+
 export const getAuthUser = async () => {
   await getToken();
 
@@ -135,9 +147,9 @@ export async function deleteUsers(users) {
 
 // wallets
 
-export const getAuthUserWallet = async () => {
+export const getUserWallet = async (id) => {
   try {
-    const response = await instance.get(`/api/auth-user/wallet`);
+    const response = await instance.get(`/api/auth-user/wallet?id=${id}`);
     return response.data;
   } catch (error) {
     return Promise.reject(error.response?.data?.message ?? error.message);
@@ -198,6 +210,16 @@ export const sellCrypto = async (data) => {
   }
 }
 
+export const getTransactionsHistory = async (filter, offset = 0, id) => {
+  try {
+    const response = await instance.get(`/api/transaction/history?filter=${filter}&offset=${offset}&id=${id}`);
+    return response.data;
+  } catch (error) {
+    return Promise.reject(error.response?.data?.message ?? error.message);
+  }
+}
+
+
 
 // Cryptos
 
@@ -209,3 +231,14 @@ export const getCryptos = async (search = "", filter = "trends", offset = 0) => 
     return Promise.reject(error.response?.data?.message ?? error.message);
   }
 }
+
+
+export const newCryptoView = async (cryptoId) => {
+  try {
+    const response = await instance.post(`/api/crypto/newView`, {id: cryptoId});
+    return response.data;
+  } catch (error) {
+    return Promise.reject(error.response?.data?.message ?? error.message);
+  }
+}
+

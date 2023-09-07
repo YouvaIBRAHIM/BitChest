@@ -5,6 +5,9 @@ namespace Database\Seeders;
 use App\Http\Controllers\CryptoController;
 use App\Models\Crypto;
 use App\Models\CryptoRate;
+use App\Models\CryptosWallet;
+use App\Models\TransactionHistory;
+use App\Models\Wallet;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -84,6 +87,7 @@ class CryptoSeeder extends Seeder
 
             $rate = 0;
             for ($i = 29; $i >= 0; $i--) {
+
                 $timestamp = strtotime("-$i days", $currentDate) * 1000;
             
                 $cotation = $i === 29 ? CryptoController::getFirstCotation($crypto['name']) : CryptoController::getCotationFor($crypto['name']);
@@ -95,7 +99,50 @@ class CryptoSeeder extends Seeder
                     "rate" => $rate,                    
                 ];
 
-                CryptoRate::create($crypto_rate);
+                $newCryptoRate = CryptoRate::create($crypto_rate);
+
+                $numberOfWallets = 1;
+
+                $randomWallets = Wallet::select(["id"])->inRandomOrder()->take($numberOfWallets)->get();
+                foreach ($randomWallets as $wallet) {
+                    $amount = rand(100, 10000) / 100;
+                    $transactionType = rand(0, 1) ? 'buy' : 'sell';
+
+                    $cryptoWallet = CryptosWallet::where("wallet_id", $wallet->id)
+                                                ->where("crypto_id", $newCrypto->id)
+                                                ->first();
+                    if ($cryptoWallet) {
+                        $newAmount = 0;
+                        if ($transactionType == "buy") {
+                            $newAmount = $cryptoWallet->amount + $amount;
+                        }else {
+                            if ($cryptoWallet->amount < $amount) {
+                                $amount = rand(1, $cryptoWallet->amount);
+                            }
+                            $newAmount = $cryptoWallet->amount - $amount;
+                        }
+
+                        $cryptoWallet->update([
+                            "amount"    => $newAmount
+                        ]);
+
+                    }else {
+                        $transactionType = "buy";
+                        CryptosWallet::create([
+                            "wallet_id" => $wallet->id,
+                            "crypto_id" => $newCrypto->id,
+                            "amount"    => $amount
+                        ]);
+                    }
+
+                    TransactionHistory::create([
+                        "wallet_id"         => $wallet->id,
+                        "crypto_rate_id"    => $newCryptoRate->id,
+                        "amount"            => $amount,
+                        "type"              => $transactionType
+                    ]);
+                }
+
             }
 
         }

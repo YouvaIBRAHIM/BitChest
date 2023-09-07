@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Wallet;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class WalletController extends Controller
 {
@@ -42,10 +44,24 @@ class WalletController extends Controller
         /**
      * Display the specified resource.
      */
-    public function showAuthenticatedUserWallet(Request $request)
+    public function showUserWallet(Request $request)
     {
         try {
-            $user = $request->user();
+            $id = $request->input('id');
+            if ($id) {
+                if (Auth::user()->role !== "admin") {
+                    return response()->json([
+                        "message" => "Vous ne pouvez pas voir cette page.",
+                        "error" => 401
+                    ], 401);
+                }
+                $user = User::findOrFail($id); 
+
+            }else {
+                $user = $request->user(); 
+            }
+
+           
             $wallet = Wallet::with(['cryptosWallet.crypto.cryptoRates'])->where('user_id', $user->id)->first()->toArray();
 
             $wallet = $this->formatUserCryptoRate($wallet);

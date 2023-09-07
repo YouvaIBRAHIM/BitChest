@@ -5,15 +5,19 @@ import LineChart from '../components/AnalyticComponents/LineChart';
 import BalanceCard from '../components/WalletComponents/BalanceCard';
 import UserCryptoList from '../components/WalletComponents/UserCryptoList';
 import { useQuery } from '@tanstack/react-query';
-import { getAuthUserWallet } from '../services/Api.service';
+import { getUserWallet } from '../services/Api.service';
 import TransactionCard from '../components/TransactionCard';
 import { LineChartSkeleton } from '../components/Skeletons/LineChart';
 import { BalanceCardSkeleton } from '../components/Skeletons/BalanceCard';
 import { UserCryptoListSkeleton } from '../components/Skeletons/UserCryptoList';
 import ErrorView from './ErrorView';
+import TransactionHistory from '../components/WalletComponents/TransactionHistory';
+import { useSelector } from 'react-redux';
 
 
-const WalletView = () => {
+const WalletView = ({id}) => {
+    const { user } = useSelector(state => state.user)
+
     const [snackBar, setSnackBar] = useState({message: "", showSnackBar: false, type: "info"});
     const [selectedCrypto, setSelectedCrypto] = useState({
       name: "Total",
@@ -22,9 +26,10 @@ const WalletView = () => {
   
     const { data: userWallet, isFetching, refetch, error, isError } = useQuery({ 
       queryKey: ['userWallet'], 
-      queryFn: getAuthUserWallet,
+      queryFn: () => getUserWallet(id),
       retry: 3,
       refetchInterval: false,
+      refetchOnWindowFocus: false,
       onError: (error) => setSnackBar({message: error, showSnackBar: true, type: "error"})
     });
   
@@ -35,7 +40,7 @@ const WalletView = () => {
         const cryptoWallet = userWallet?.cryptos_wallet?.find(crypto_wallet => crypto_wallet.crypto.code === selectedCrypto.code)
 
         if (cryptoWallet) {
-          const cryptoRate = cryptoWallet?.crypto?.crypto_rates.map(rate => [rate[0], rate[1] * cryptoWallet.amount ])
+          const cryptoRate = cryptoWallet?.crypto?.crypto_rates.map(rate => [rate[0], rate[1]])
           setChartData(cryptoRate)
         }else{
           setChartData(userWallet?.total_cryptos_rate)
@@ -59,17 +64,27 @@ const WalletView = () => {
     
     return (
     <Box sx={{ width: '100%'}}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <TransactionCard setSnackBar={setSnackBar} refetchUserData={refetch}/>
-        </Box>
+        {
+          user?.role === "client" &&
+          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+            <TransactionCard setSnackBar={setSnackBar} refetchUserData={refetch}/>
+          </Box>
+        }
         <Box>
           <Box className='flex flex-wrap lg:flex-nowrap justify-end w-full'>
-            <Box className='w-full sm:basis-full lg:basis-2/3 p-2 sm:relative sm:top-0 lg:self-start lg:top-3 lg:sticky'>
+            <Box className='flex flex-col gap-5 w-full sm:basis-full lg:basis-2/3 p-2 sm:relative sm:top-0 lg:self-start lg:top-3 lg:sticky'>
               {
                 isFetching && !userWallet?.balanceRate ?
-                <LineChartSkeleton/>
+                <>
+                  <LineChartSkeleton/>
+                </>
                 :
-                <LineChart data={chartData} title={selectedCrypto.name}/>
+                <>
+                  <LineChart data={chartData} title={selectedCrypto.name}/>
+                  <TransactionHistory 
+                    setSnackBar={setSnackBar}
+                  />
+                </>
               }
             </Box>
             <Box className='flex flex-col gap-5 basis-full lg:basis-1/3 p-2'>
@@ -101,7 +116,6 @@ const WalletView = () => {
           </Box>
         </Box>
         <Box>
-          
         </Box>
         <CustomSnackbar open={snackBar.showSnackBar} handleClose={handleCloseSnackBar} type={snackBar.type} message={snackBar.message}/>
 

@@ -3,8 +3,10 @@ import PieChart from '../AnalyticComponents/PieChart';
 import { useMemo } from 'react';
 import FeedBalance from '../FeedBalance';
 import { roundToTwoDecimals } from '../../services/Utils.service';
+import { useSelector } from 'react-redux';
 
 const BalanceCard = ({ balance, cryptos, setSnackBar }) => {
+    const { user } = useSelector(state => state.user)
 
     const pieChartData = useMemo(() => {
         const labels = [];
@@ -13,7 +15,7 @@ const BalanceCard = ({ balance, cryptos, setSnackBar }) => {
         if (cryptos) {
             cryptos.map(cryptoWallet => {
                 labels.push(cryptoWallet.crypto.name)
-                data.push(cryptoWallet.amount * cryptoWallet.current_rate)
+                data.push(cryptoWallet.amount)
             })
         }
         return {
@@ -25,7 +27,7 @@ const BalanceCard = ({ balance, cryptos, setSnackBar }) => {
         <Card>
             <CardHeader
                 title={`${roundToTwoDecimals(balance)}€`}
-                subheader="Votre solde"
+                subheader={`${user.role === "client" ? "Votre solde": "Solde"}`}
                 className='bg-green-400'
                 sx={{
                     "& .MuiCardHeader-content": {
@@ -50,11 +52,15 @@ const BalanceCard = ({ balance, cryptos, setSnackBar }) => {
                     <PieChart {...pieChartData}/>
                 }
             </CardContent>
-            <CardActions
-                className='justify-center'
-            >
-                <FeedBalance setSnackBar={setSnackBar} />
-            </CardActions>
+            {
+                user?.role === "client" &&
+                <CardActions
+                    className='justify-center'
+                >
+                    <FeedBalance setSnackBar={setSnackBar} />
+                </CardActions>
+            }
+
         </Card>
     );
 };
