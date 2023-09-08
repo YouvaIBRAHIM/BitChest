@@ -224,19 +224,22 @@ const TransactionCard = ({ setSnackBar, refetchUserData }) => {
     <div>
       <ButtonGroup
         disableElevation
-        variant="text"
+        variant="contained"
         aria-label="Action buttons"
         sx={{
           display: "flex",
-          justifyContent: {xs: "center", sm: "flex-start"}
+          justifyContent: {xs: "center", sm: "flex-start"},
+          borderRadius: 0
         }}
+        color='secondary'
       >
         <Button
           startIcon={<DownloadSimple size={24} weight="duotone" />}
           sx={{
             px: 4,
             py: 1,
-            width: {xs: "100%", sm: "auto"}
+            width: {xs: "100%", sm: "auto"},
+            borderRadius: 0
           }}
           onClick={() => handleClickOpen("buy")}
         >
@@ -247,7 +250,8 @@ const TransactionCard = ({ setSnackBar, refetchUserData }) => {
           sx={{
             px: 4,
             py: 1,
-            width: {xs: "100%", sm: "auto"}
+            width: {xs: "100%", sm: "auto"},
+            borderRadius: 0
           }}
           onClick={() => handleClickOpen("sell")}
         >

@@ -3,12 +3,12 @@
 namespace Database\Seeders;
 
 use App\Http\Controllers\CryptoController;
+use App\Models\Configuration;
 use App\Models\Crypto;
 use App\Models\CryptoRate;
 use App\Models\CryptosWallet;
 use App\Models\TransactionHistory;
 use App\Models\Wallet;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class CryptoSeeder extends Seeder
@@ -18,6 +18,11 @@ class CryptoSeeder extends Seeder
      */
     public function run(): void
     {
+        $transactionConfig = Configuration::where("key", "transaction")
+        ->first();
+
+        $serviceFees = json_decode($transactionConfig->value)->service_fees;
+
         $cryptos = [
             [
                 "name" => "Bitcoin",
@@ -111,20 +116,37 @@ class CryptoSeeder extends Seeder
                     $cryptoWallet = CryptosWallet::where("wallet_id", $wallet->id)
                                                 ->where("crypto_id", $newCrypto->id)
                                                 ->first();
+                                                
                     if ($cryptoWallet) {
                         $newAmount = 0;
-                        if ($transactionType == "buy") {
-                            $newAmount = $cryptoWallet->amount + $amount;
-                        }else {
-                            if ($cryptoWallet->amount < $amount) {
-                                $amount = rand(1, $cryptoWallet->amount);
-                            }
-                            $newAmount = $cryptoWallet->amount - $amount;
-                        }
+                        $transactionHistory = TransactionHistory::where("wallet_id", $wallet->id)
+                                            ->where("crypto_id", $newCrypto->id)
+                                            ->where("type", "buy")
+                                            ->where('isSold', false)
+                                            ->orderBy("created_at", "desc")
+                                            ->first();
 
-                        $cryptoWallet->update([
-                            "amount"    => $newAmount
-                        ]);
+                        if ($transactionHistory) {
+                            $amountToSell = $transactionHistory->amount;
+
+
+                            TransactionHistory::create([
+                                "wallet_id"                     => $wallet->id,
+                                "purchase_crypto_rate_id"       => $transactionHistory->purchase_crypto_rate_id,
+                                "sale_crypto_rate_id"           => $newCryptoRate->id,
+                                "crypto_id"                     => $newCrypto->id,
+                                "amount"                        => $amountToSell,
+                                "type"                          => "sell",
+                                "service_fees"                  => $serviceFees,
+                                "gas_fees"                      => $newCrypto->current_gas
+                            ]);
+
+                            $transactionHistory->update([
+                                "isSold" => true
+                            ]);
+
+                            $cryptoWallet->delete();
+                        }
 
                     }else {
                         $transactionType = "buy";
@@ -133,14 +155,17 @@ class CryptoSeeder extends Seeder
                             "crypto_id" => $newCrypto->id,
                             "amount"    => $amount
                         ]);
+                        TransactionHistory::create([
+                            "wallet_id"                     => $wallet->id,
+                            "purchase_crypto_rate_id"       => $newCryptoRate->id,
+                            "crypto_id"                     => $newCrypto->id,
+                            "amount"                        => $amount,
+                            "type"                          => $transactionType,
+                            "service_fees"                  => $serviceFees,
+                            "gas_fees"                      => $newCrypto->current_gas
+                        ]);
                     }
 
-                    TransactionHistory::create([
-                        "wallet_id"         => $wallet->id,
-                        "crypto_rate_id"    => $newCryptoRate->id,
-                        "amount"            => $amount,
-                        "type"              => $transactionType
-                    ]);
                 }
 
             }

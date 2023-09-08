@@ -104,6 +104,7 @@ const CustomDrawer = ({ mobileOpen, handleDrawerToggle, drawerWidth }) => {
           left: { sm: `${drawerWidth}px` },
         }}
         color='secondary'
+        enableColorOnDark
       >
         <Toolbar
           className='flex justify-between'

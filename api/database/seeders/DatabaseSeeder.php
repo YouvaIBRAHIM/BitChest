@@ -17,8 +17,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             UserSeeder::class,
             WalletSeeder::class,
+            ConfigurationSeeder::class,
             CryptoSeeder::class,
-            ConfigurationSeeder::class
         ]);
     }
 }

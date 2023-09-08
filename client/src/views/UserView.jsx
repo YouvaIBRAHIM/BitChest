@@ -13,8 +13,6 @@ import { getAuthUser, getUser } from '../services/Api.service';
 import { UserCardSkeleton, UserFormSkeleton, UserPasswordFormSkeleton } from '../components/Skeletons/UserProfile';
 import WalletView from './WalletView';
 
-
-
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -86,11 +84,11 @@ const UserView = () => {
                 onChange={handleChange} 
                 aria-label="user tabs"
             >
-            <Tab label="Profil" {...tabProps(0)} />
-            {
-                id &&
-                <Tab label="Portefeuille" {...tabProps(1)} />  
-            }
+              <Tab label="Profil" {...tabProps(0)} />
+              {
+                  id &&
+                  <Tab label="Portefeuille" {...tabProps(1)} />  
+              }
             </Tabs>
         </Box>
             {

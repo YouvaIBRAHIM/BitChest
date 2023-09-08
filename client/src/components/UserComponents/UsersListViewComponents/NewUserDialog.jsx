@@ -34,7 +34,6 @@ const NewUserDialog = ({ open, setOpen, setSnackBar }) => {
           setSnackBar({message: `L'utilisateur ${newUser.firstname} ${newUser.lastname} a bien été ajouté.`, showSnackBar: true, type: "success"});
       },
       onError: error => {
-          console.log("🚀 ~ file: NewUserDialog.jsx:27 ~ NewUserDialog ~ error:", error)
           setSnackBar({message: error, showSnackBar: true, type: "error"});
       }
   })
@@ -61,10 +60,6 @@ const NewUserDialog = ({ open, setOpen, setSnackBar }) => {
     setOpen(false);
   };
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    // setUserInfos((prevUser) => ({ ...prevUser, [name]: value }));
-};
 
   const onSubmit = (data) => {
       userMutation.mutate(data)
@@ -85,7 +80,6 @@ const NewUserDialog = ({ open, setOpen, setSnackBar }) => {
           <DialogContent>
             <NewUserForm 
               userInfos={userInfos} 
-              handleChange={handleChange}
               register={register}
               errors={errors}
             />

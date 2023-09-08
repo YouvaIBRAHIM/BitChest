@@ -10,12 +10,15 @@ import ViewMoreTransactionHistoryButton from './ViewMoreTransactionHistoryButton
 import { roundToTwoDecimals } from '../../services/Utils.service';
 import TableSkeleton from '../Skeletons/TableSkeleton';
 import { useParams } from 'react-router-dom';
+import TransactionHistoryDetails from './TransactionHistoryDetails';
 
 const TransactionHistory = ({ setSnackBar }) => {
     const { id } = useParams();
 
     const baseURL = import.meta.env.VITE_API_URL;
     const [selectedCrypto, setSelectedCrypto ] = useState("all")
+    const [openTransactionDetailsModal, setOpenTransactionDetailsModal ] = useState(false)
+    const [selectedTransaction, setSelectedTransaction ] = useState(null)
     
     const { data, isFetching, refetch } = useQuery({ 
         queryKey: ['transactionsHistory'], 
@@ -27,9 +30,13 @@ const TransactionHistory = ({ setSnackBar }) => {
     });
 
     useEffect(() => {
-        refetch(selectedCrypto)
+        refetch(selectedCrypto, id)
     }, [selectedCrypto])
 
+    const handleClickTransaction = (transaction) => {
+        setSelectedTransaction(transaction)
+        setOpenTransactionDetailsModal(true);
+    }
     const transactionList = useMemo(() => {
 
         if (isFetching) {
@@ -42,9 +49,12 @@ const TransactionHistory = ({ setSnackBar }) => {
             <TableBody>
                 {
                     data?.transactionsHistory?.map((transaction, index)=> {
+                        
                         return (
                             <StyledTableRow
                                 key={index}
+                                sx={{ cursor: 'pointer' }}
+                                onClick={() => handleClickTransaction(transaction)}
                             >
                                 <TableCell 
                                     component="th" 
@@ -61,13 +71,20 @@ const TransactionHistory = ({ setSnackBar }) => {
                                 </TableCell>
                                 <TableCell align="right">
                                     <Chip
-                                        icon={transaction.type === "buy" ? <DownloadSimple size={18} weight="duotone" /> : <UploadSimple size={18} weight="duotone" />}
+                                        icon={transaction.type === "buy" ? <DownloadSimple color='white' size={18} weight="duotone" /> : <UploadSimple color='white' size={18} weight="duotone" />}
                                         label={transaction.type === "buy" ? "Achat" : "Vente"}
+                                        sx={{
+                                            backgroundColor: transaction.type === "buy" ? "#33A1FD" : "#e09f3e",
+                                            color: "white"
+                                        }}
+                                        
                                     />
                                 </TableCell>
                                 <TableCell align="right">{roundToTwoDecimals(transaction.amount)}</TableCell>
-                                <TableCell align="right">{transaction.crypto_rate.rate}€/{transaction.crypto_code}</TableCell>
-                                <TableCell align="right">{new Date(transaction.crypto_rate.timestamp).toLocaleDateString("FR-fr")}</TableCell>
+                                <TableCell align="right">
+                                    {transaction.type === "buy" ? transaction?.purchase_crypto_rate.rate : transaction?.sale_crypto_rate.rate}€
+                                </TableCell>
+                                <TableCell align="right">{new Date(transaction.type === "buy" ? transaction?.purchase_crypto_rate.timestamp : transaction?.sale_crypto_rate.timestamp).toLocaleDateString("FR-fr")}</TableCell>
                             </StyledTableRow>
                         )
                     })
@@ -175,7 +192,7 @@ const TransactionHistory = ({ setSnackBar }) => {
                                         <StyledTableCell>{cryptoSelectList}</StyledTableCell>
                                         <StyledTableCell align="right">Type de transaction</StyledTableCell>
                                         <StyledTableCell align="right">Quantité</StyledTableCell>
-                                        <StyledTableCell align="right">Cours</StyledTableCell>
+                                        <StyledTableCell align="right">Prix</StyledTableCell>
                                         <StyledTableCell align="right">Date</StyledTableCell>
                                     </TableRow>
                                 </TableHead>
@@ -191,6 +208,11 @@ const TransactionHistory = ({ setSnackBar }) => {
                     </>
                 }
             </CardContent>
+            <TransactionHistoryDetails
+                open={openTransactionDetailsModal}
+                setOpen={setOpenTransactionDetailsModal}
+                transaction={selectedTransaction}
+            />
         </Card>
     );
 };
@@ -205,6 +227,9 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
     '&:nth-of-type(odd)': {
       backgroundColor: theme.palette.action.hover,
     },
+    '&:hover': {
+        backgroundColor: theme.palette.secondary.main + "30!important",
+    },
     '&:last-child td, &:last-child th': {
       border: 0,
     },
@@ -216,7 +241,8 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
     "& img":{
         width: 25,
         height: 25,
-    }
+    },
+
   }));
 
 export default TransactionHistory;

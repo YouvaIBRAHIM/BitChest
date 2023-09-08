@@ -38,7 +38,9 @@ function App() {
           main: colors.green[400]
         },
         secondary: {
-          main: colors.neutral[800]
+          main: "#230C33",
+          light: '#230C33',
+          dark: '#9984d4',
         }
       }
     });

@@ -148,8 +148,9 @@ export async function deleteUsers(users) {
 // wallets
 
 export const getUserWallet = async (id) => {
+  
   try {
-    const response = await instance.get(`/api/auth-user/wallet?id=${id}`);
+    const response = await instance.get(`/api/auth-user/wallet${id ? "?id=" + id : ""}`);
     return response.data;
   } catch (error) {
     return Promise.reject(error.response?.data?.message ?? error.message);
@@ -212,7 +213,7 @@ export const sellCrypto = async (data) => {
 
 export const getTransactionsHistory = async (filter, offset = 0, id) => {
   try {
-    const response = await instance.get(`/api/transaction/history?filter=${filter}&offset=${offset}&id=${id}`);
+    const response = await instance.get(`/api/transaction/history?filter=${filter}&offset=${offset}${id ? "&id=" + id : ""}`);
     return response.data;
   } catch (error) {
     return Promise.reject(error.response?.data?.message ?? error.message);

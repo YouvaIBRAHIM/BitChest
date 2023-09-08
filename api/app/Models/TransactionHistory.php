@@ -20,7 +20,17 @@ class TransactionHistory extends Model
 
     public function cryptoRate()
     {
-        return $this->belongsTo(CryptoRate::class);
+        return $this->belongsTo(CryptoRate::class, "purchase_crypto_rate_id", "id");
+    }
+
+    public function purchaseCryptoRate()
+    {
+        return $this->belongsTo(CryptoRate::class, 'purchase_crypto_rate_id');
+    }
+    
+    public function saleCryptoRate()
+    {
+        return $this->belongsTo(CryptoRate::class, 'sale_crypto_rate_id');
     }
 
 }

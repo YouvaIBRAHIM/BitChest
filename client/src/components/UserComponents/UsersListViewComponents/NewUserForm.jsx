@@ -33,7 +33,7 @@ const roles = [
 
 
 
-const NewUserForm = ({ userInfos, handleChange, register, errors }) => {
+const NewUserForm = ({ userInfos, register, errors }) => {
 
     const [ showPassword, setShowPassword ] = useState({
         password: false,
@@ -55,7 +55,6 @@ const NewUserForm = ({ userInfos, handleChange, register, errors }) => {
                             label="Prénom"
                             fullWidth
                             variant="outlined"
-                            onChange={handleChange}
                         />
                         <TextField
                             name="lastname"
@@ -65,7 +64,6 @@ const NewUserForm = ({ userInfos, handleChange, register, errors }) => {
                             label="Nom"
                             fullWidth
                             variant="outlined"
-                            onChange={handleChange}
                         />
                     </div>
                     <TextField
@@ -76,7 +74,6 @@ const NewUserForm = ({ userInfos, handleChange, register, errors }) => {
                         label="Email"
                         fullWidth
                         variant="outlined"
-                        onChange={handleChange}
                     />
                     <FormControl>
                         <InputLabel id="RoleId">Rôle</InputLabel>
@@ -89,7 +86,6 @@ const NewUserForm = ({ userInfos, handleChange, register, errors }) => {
                             defaultValue={"client"}
                             {...register("role")}
                             label="Rôle"
-                            onChange={handleChange}
                         >
                         {
                             roles.map((option, index) => {
@@ -123,7 +119,6 @@ const NewUserForm = ({ userInfos, handleChange, register, errors }) => {
                             </InputAdornment>
                             }
                             label="Mot de passe"
-                            onChange={handleChange}
   
                             inputProps={{
                                 onFocus: () => setIsPasswordFocus(true),
@@ -196,8 +191,6 @@ const NewUserForm = ({ userInfos, handleChange, register, errors }) => {
                                 </InputAdornment>
                             }
                             label="Confirmation du nouveau mot de passe"
-                            onChange={handleChange}
-
                         />
                         <FormHelperText id="confirmationPasswordHelperText" error={Boolean(errors["confirmationPassword"])}>{errors["confirmationPassword"]?.message}</FormHelperText>
                     </FormControl>

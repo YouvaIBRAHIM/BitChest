@@ -371,21 +371,27 @@ class TransactionController extends Controller
                 $user = $request->user(); 
             }
 
-            $wallet = Wallet::find($user->id);         
+            $wallet = Wallet::where("user_id", $user->id)->first();     
 
-            $transactionsHistory = TransactionHistory::with('cryptoRate')
-                                                    ->where('wallet_id', $wallet["id"])
-                                                    ->select('transaction_histories.*', 'cryptos.code as crypto_code', 'cryptos.name as crypto_name', 'cryptos.logo as crypto_logo')
-                                                    ->join('crypto_rates', 'transaction_histories.crypto_rate_id', '=', 'crypto_rates.id')
-                                                    ->join('cryptos', 'crypto_rates.crypto_id', '=', 'cryptos.id')
-                                                    ->where(function ($query) use ($filter, $offset) {
-                                                        if ($filter !== 'all') {
-                                                            $query->where('cryptos.code', $filter);
-                                                        }                                                
-                                                    })
-                                                    ->limit(10)->offset($offset)
-                                                    ->orderBy('crypto_rates.timestamp', 'desc')
-                                                    ->get();
+            $transactionsHistory = TransactionHistory::with(['cryptoRate', 'purchaseCryptoRate', 'saleCryptoRate'])
+                                                        ->where('wallet_id', $wallet["id"])
+                                                        ->join('cryptos', 'transaction_histories.crypto_id', '=', 'cryptos.id')
+                                                        ->select(
+                                                            'transaction_histories.*',
+                                                            'cryptos.code as crypto_code',
+                                                            'cryptos.name as crypto_name',
+                                                            'cryptos.logo as crypto_logo'
+                                                        )
+                                                        ->where(function ($query) use ($filter) {
+                                                            if ($filter !== 'all') {
+                                                                $query->where('cryptos.code', $filter);
+                                                            }
+                                                        })
+                                                        ->limit(10)
+                                                        ->offset($offset)
+                                                        ->orderBy('transaction_histories.id', 'desc')
+                                                        ->get();
+        
             
             $cryptos = TransactionHistory::with('cryptoRate.crypto')
                                             ->where('wallet_id', $wallet["id"])

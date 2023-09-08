@@ -15,9 +15,16 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('wallet_id');
             $table->foreign('wallet_id')->references('id')->on('wallets')->onDelete('cascade');
-            $table->unsignedBigInteger('crypto_rate_id');
-            $table->foreign('crypto_rate_id')->references('id')->on('crypto_rates')->onDelete('cascade');
+            $table->unsignedBigInteger('crypto_id');
+            $table->foreign('crypto_id')->references('id')->on('cryptos')->onDelete('cascade');            
+            $table->unsignedBigInteger('purchase_crypto_rate_id');
+            $table->foreign('purchase_crypto_rate_id')->references('id')->on('crypto_rates')->onDelete('cascade');
+            $table->unsignedBigInteger('sale_crypto_rate_id')->nullable();
+            $table->foreign('sale_crypto_rate_id')->references('id')->on('crypto_rates')->onDelete('cascade');
             $table->float('amount');
+            $table->float('service_fees');
+            $table->float('gas_fees');
+            $table->boolean('isSold')->default(false);
             $table->enum('type', ['buy', 'sell'])->default('buy');
             $table->timestamps();
         });
