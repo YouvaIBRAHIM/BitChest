@@ -46,14 +46,11 @@ class TransactionController extends Controller
         //
     }
 
-        /**
-     * Display the specified resource.
-     */
+
     public function getAuthUserResources(Request $request)
     {
         try {
             $user = $request->user();
-            // $wallet = Wallet::where("user_id", $user->id)->with("cryptos")->first()->toArray();
             $wallet = Wallet::with(['cryptosWallet.crypto.latestCryptoRate'])->where('user_id', $user->id)->first()->toArray();
 
             $wallet = $this->formatUserCurrencies($wallet);
@@ -69,6 +66,44 @@ class TransactionController extends Controller
             return response()->json([
                 "wallet" => $wallet,
                 "cryptos" => $cryptos,
+                "serviceFees" => $serviceFees
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                "message" => "Oups ! Nous n'avons pas pu supprimer les données.",
+                "error" => $th->getMessage()
+            ], $th->getCode());
+        }
+    }
+
+    public function getAuthUserSaleResources(Request $request)
+    {
+        try {
+            $user = $request->user();
+            $wallet = Wallet::with(['cryptosWallet.crypto.latestCryptoRate'])->where('user_id', $user->id)->first()->toArray();
+            
+            $transactionHistory = TransactionHistory::with(['purchaseCryptoRate'])
+                                                    ->where("wallet_id", $wallet['id'])
+                                                    ->where("type", "buy")
+                                                    ->where('isSold', false)
+                                                    ->join('cryptos', 'transaction_histories.crypto_id', '=', 'cryptos.id')
+                                                    ->select(
+                                                        'transaction_histories.*',
+                                                        'cryptos.code as crypto_code',
+                                                        'cryptos.name as crypto_name',
+                                                        'cryptos.logo as crypto_logo'
+                                                    )
+                                                    ->orderBy("created_at", "desc")
+                                                    ->get()
+                                                    ->toArray();
+
+            $transactionConfig = Configuration::where("key", "transaction")->first();
+            
+            $serviceFees = json_decode($transactionConfig->value)->service_fees;
+
+            return response()->json([
+                "wallet" => $wallet,
+                "transactionHistory" => $transactionHistory,
                 "serviceFees" => $serviceFees
             ], 200);
         } catch (\Throwable $th) {
@@ -196,21 +231,17 @@ class TransactionController extends Controller
 
     protected function formatUserCurrencies($wallet){
         
-        $wallet['userCurrencies'][] = [
-            "name" => "Euro",
-            "code" => "EUR",
-            "balance" => $wallet["balance"]
-        ];
-        
         foreach ($wallet["cryptos_wallet"] as $cryptoWallet) {
             $crypto = $cryptoWallet["crypto"];
             $current_rate = $crypto["latest_crypto_rate"]["rate"];
-            $wallet['userCurrencies'][] = [
-                "name" => $crypto["name"],
-                "code" => $crypto["code"],
-                "balance" => $cryptoWallet["amount"] * $current_rate
+            $wallet['userCryptos'][] = [
+                "id"        => $crypto["id"],
+                "name"      => $crypto["name"],
+                "code"      => $crypto["code"],
+                "balance"   => $cryptoWallet["amount"] * $current_rate
             ];
         }
+
         return $wallet;
     }
 
@@ -307,30 +338,31 @@ class TransactionController extends Controller
     public function sell(Request $request)
     {
         try {
+            $transactionConfig = Configuration::where("key", "transaction")
+                            ->first();
+            
+            $serviceFees = json_decode($transactionConfig->value)->service_fees;
 
             $user = $request->user();
             $wallet = Wallet::where("user_id", $user->id)->with("cryptos")->first()->toArray();            
             
-            $cryptoIndex = array_search($request->from, array_column($wallet["cryptos"], 'code'));
-            $fromCryptoWallet = $wallet["cryptos"][$cryptoIndex];
-            $fromCrypto = Crypto::where("code", $request->from)->with('latestCryptoRate')->first()->toArray();
+            $cryptoIndex = array_search($request->from, array_column($wallet["cryptos"], 'id'));
             
+            $fromCryptoWallet = $wallet["cryptos"][$cryptoIndex];
+            $fromCrypto = Crypto::where("id", $request->from)->with('latestCryptoRate')->first()->toArray();
+                        
             $current_rate = $fromCrypto["latest_crypto_rate"]["rate"];
             
-            $fromAmount = $request->total / $current_rate;
             
-            TransactionHistory::create([
-                "wallet_id"         => $wallet['id'],
-                "crypto_rate_id"    => $fromCrypto['latest_crypto_rate']['id'],
-                "amount"            => round(floatval($fromAmount), 2),
-                "type"              => "sell"
-            ]);
-
+            $transactionTotalAmount = round($request->transaction["amount"] * $current_rate, 2);
+            $transactionServiceFees = round(($serviceFees / 100) * $transactionTotalAmount, 2);
+            $transactionTotalAmountWithFees = round($transactionTotalAmount - $transactionServiceFees - $fromCrypto['current_gas'], 2);
+            
             $fromCryptoWallet = CryptosWallet::where("wallet_id", $wallet['id'])
                                                 ->where("crypto_id", $fromCrypto["id"])
                                                 ->first();
             
-            $newFromAmount = $fromCryptoWallet->amount - $fromAmount;
+            $newFromAmount = $fromCryptoWallet->amount - $transactionTotalAmountWithFees;
             if (round($newFromAmount, 2) <= 0) {
                 $fromCryptoWallet->delete();
             }else{
@@ -340,7 +372,19 @@ class TransactionController extends Controller
             }
 
             Wallet::find($wallet["id"])->update([
-                "balance" => round(floatval($wallet["balance"] + $request->amount), 2)
+                "balance" => round(floatval($wallet["balance"] + $transactionTotalAmountWithFees), 2)
+            ]);
+
+
+            TransactionHistory::create([
+                "wallet_id"                     => intval($wallet['id']),
+                "crypto_id"                     => intval($request->from),
+                "purchase_crypto_rate_id"       => intval($request->transaction["purchase_crypto_rate_id"]),
+                "sale_crypto_rate_id"           => intval($fromCrypto['latest_crypto_rate']['id']),
+                "amount"                        => $request->transaction["amount"],
+                "service_fees"                  => $serviceFees,
+                "gas_fees"                      => $fromCrypto['current_gas'],
+                "type"                          => "sell"
             ]);
             
             return response()->json(User::with('wallet')->find($request->user()->id), 200);

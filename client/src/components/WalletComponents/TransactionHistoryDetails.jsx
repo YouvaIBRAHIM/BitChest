@@ -10,7 +10,6 @@ import { roundToTwoDecimals } from '../../services/Utils.service';
 import colors from "../../services/Tailwind.service";
 
 const TransactionHistoryDetails = ({ open, setOpen, transaction }) => {  
-  console.log("🚀 ~ file: TransactionHistoryDetails.jsx:10 ~ TransactionHistoryDetails ~ transaction:", transaction)
     const [ serviceFees, setServiceFees ] = useState(0)
     const [ rate, setRate ] = useState(0)
     const [ totalAmount, setTotalAmount ] = useState(0)

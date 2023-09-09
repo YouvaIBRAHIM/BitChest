@@ -14,13 +14,13 @@ import TableContainer from '@mui/material/TableContainer';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { buyCrypto, sellCrypto, getAuthUserResources } from '../services/Api.service';
-import { roundToTwoDecimals } from '../services/Utils.service';
-import { setUser } from '../reducers/UserReducer';
+import { buyCrypto, sellCrypto, getAuthUserResources } from '../../services/Api.service';
+import { roundToTwoDecimals } from '../../services/Utils.service';
+import { setUser } from '../../reducers/UserReducer';
 import { useDispatch } from 'react-redux';
 
 
-const TransactionCard = ({ setSnackBar, refetchUserData }) => {
+const PuchaseModal = ({ setSnackBar, refetchUserData }) => {
   const dispatch = useDispatch()
 
   const [type, setType] = useState("buy");
@@ -530,4 +530,4 @@ const CardSkeleton = () => {
 };
 
 
-export default TransactionCard;
+export default PuchaseModal;

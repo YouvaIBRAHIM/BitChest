@@ -11,9 +11,13 @@ class TransactionHistory extends Model
 
     protected $fillable = [
         "wallet_id",
-        "crypto_rate_id",
+        "crypto_id",
+        "purchase_crypto_rate_id",
+        "sale_crypto_rate_id",
+        "service_fees",
+        "gas_fees",
+        "type",
         "amount",
-        "type"
     ];
 
 
@@ -27,7 +31,7 @@ class TransactionHistory extends Model
     {
         return $this->belongsTo(CryptoRate::class, 'purchase_crypto_rate_id');
     }
-    
+
     public function saleCryptoRate()
     {
         return $this->belongsTo(CryptoRate::class, 'sale_crypto_rate_id');

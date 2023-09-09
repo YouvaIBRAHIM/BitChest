@@ -4,7 +4,7 @@ import CustomSnackbar from '../components/CustomSnackbar';
 import LineChart from '../components/AnalyticComponents/LineChart';
 import { useQuery } from '@tanstack/react-query';
 import { getCryptos } from '../services/Api.service';
-import TransactionCard from '../components/TransactionCard';
+import TransactionCard from '../components/WalletComponents/TransactionCard';
 import { LineChartSkeleton } from '../components/Skeletons/LineChart';
 import { CryptoListCardSkeleton } from '../components/Skeletons/CryptoListCard';
 import CryptoList from '../components/CryptoComponents/CryptoList';

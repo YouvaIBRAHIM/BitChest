@@ -118,7 +118,6 @@ class CryptoSeeder extends Seeder
                                                 ->first();
                                                 
                     if ($cryptoWallet) {
-                        $newAmount = 0;
                         $transactionHistory = TransactionHistory::where("wallet_id", $wallet->id)
                                             ->where("crypto_id", $newCrypto->id)
                                             ->where("type", "buy")

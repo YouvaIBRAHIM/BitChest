@@ -166,6 +166,17 @@ export const getAuthUserResources = async () => {
   }
 }
 
+export const getAuthUserSaleResources = async () => {
+  try {
+    const response = await instance.get(`/api/auth-user/resources/sale`);
+    return response.data;
+  } catch (error) {
+    return Promise.reject(error.response?.data?.message ?? error.message);
+  }
+}
+
+
+
 export const getAuthUserBalance = async () => {
   try {
     const response = await instance.get(`/api/auth-user/balance`);

@@ -27,6 +27,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/auth-user/wallet', ["App\Http\Controllers\WalletController", "showUserWallet"]);
 
     //transaction
+    Route::get('/auth-user/resources/sale', ["App\Http\Controllers\TransactionController", "getAuthUserSaleResources"]);
     Route::get('/auth-user/resources', ["App\Http\Controllers\TransactionController", "getAuthUserResources"]);
     Route::get('/auth-user/balance', ["App\Http\Controllers\TransactionController", "getAuthUserBalance"]);
     Route::post('/auth-user/add/balance', ["App\Http\Controllers\TransactionController", "addAuthUserBalance"]);
@@ -34,7 +35,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('/transaction/buy', ["App\Http\Controllers\TransactionController", "buy"]);
     Route::post('/transaction/sell', ["App\Http\Controllers\TransactionController", "sell"]);
     Route::get('/transaction/history', ["App\Http\Controllers\TransactionController", "history"]);
-
+    
     //crypto
     Route::resource('/cryptos', "App\Http\Controllers\CryptoController");
     Route::post('/crypto/newView', ["App\Http\Controllers\CryptoController", "newView"]);

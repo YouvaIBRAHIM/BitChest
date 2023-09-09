@@ -6,7 +6,7 @@ import BalanceCard from '../components/WalletComponents/BalanceCard';
 import UserCryptoList from '../components/WalletComponents/UserCryptoList';
 import { useQuery } from '@tanstack/react-query';
 import { getUserWallet } from '../services/Api.service';
-import TransactionCard from '../components/TransactionCard';
+import TransactionCard from '../components/WalletComponents/TransactionCard';
 import { LineChartSkeleton } from '../components/Skeletons/LineChart';
 import { BalanceCardSkeleton } from '../components/Skeletons/BalanceCard';
 import { UserCryptoListSkeleton } from '../components/Skeletons/UserCryptoList';
