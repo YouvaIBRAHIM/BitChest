@@ -9,6 +9,7 @@ use App\Models\CryptoRate;
 use App\Models\CryptosWallet;
 use App\Models\TransactionHistory;
 use App\Models\Wallet;
+use DateTime;
 use Illuminate\Database\Seeder;
 
 class CryptoSeeder extends Seeder
@@ -28,54 +29,63 @@ class CryptoSeeder extends Seeder
                 "name" => "Bitcoin",
                 "code" => "BTC",
                 "logo" => "/storage/img/cryptos/bitcoin.png",
+                "color" => "#f89e32",
             ],
             [
                 "name" => "Ethereum",
                 "code" => "ETH",
                 "logo" => "/storage/img/cryptos/ethereum.png",
+                "color" => "#828384",
             ],
             [
                 "name" => "Ripple",
                 "code" => "XRP",
                 "logo" => "/storage/img/cryptos/ripple.png",
+                "color" => "#0272aa",
             ],
             [
                 "name" => "Bitcoin Cash",
                 "code" => "BCC",
                 "logo" => "/storage/img/cryptos/bitcoin-cash.png",
+                "color" => "#F08C18",
             ],
             [
                 "name" => "Cardano",
                 "code" => "ADA",
                 "logo" => "/storage/img/cryptos/cardano.png",
+                "color" => "#2877e6",
             ],
             [
                 "name" => "Litecoin",
                 "code" => "LTC",
                 "logo" => "/storage/img/cryptos/litecoin.png",
+                "color" => "#c2c2c2",
             ],
             [
                 "name" => "NEM",
                 "code" => "XEM",
                 "logo" => "/storage/img/cryptos/nem.png",
+                "color" => "#2cbaad",
             ],
             [
                 "name" => "Stellar",
                 "code" => "XLM",
                 "logo" => "/storage/img/cryptos/stellar.png",
+                "color" => "#ecb914",
             ],
             [
                 "name" => "IOTA",
                 "code" => "MIOTA",
                 "logo" => "/storage/img/cryptos/iota.png",
+                "color" => "#0d0d0d",
             ],
             [
                 "name" => "Dash",
                 "code" => "Dash",
                 "logo" => "/storage/img/cryptos/dash.png",
+                "color" => "#0075b8",
             ],
         ];
-
 
         $currentDate = strtotime(date('Y-m-d'));
 
@@ -85,6 +95,7 @@ class CryptoSeeder extends Seeder
                 "name"          => $crypto['name'],
                 "code"          => $crypto['code'],
                 "logo"          => $crypto['logo'],
+                "color"         => $crypto['color'],
                 "current_gas"   => rand(10, 100) / 10,
                 "viewed"        => rand(0, 1000),
                 "purchased"     => rand(0, 1000),
@@ -137,7 +148,8 @@ class CryptoSeeder extends Seeder
                                 "amount"                        => $amountToSell,
                                 "type"                          => "sell",
                                 "service_fees"                  => $serviceFees,
-                                "gas_fees"                      => $newCrypto->current_gas
+                                "gas_fees"                      => $newCrypto->current_gas,
+                                "created_at"                    => date('Y-m-d H:i:s', $timestamp /1000)
                             ]);
 
                             $transactionHistory->update([
@@ -161,7 +173,8 @@ class CryptoSeeder extends Seeder
                             "amount"                        => $amount,
                             "type"                          => $transactionType,
                             "service_fees"                  => $serviceFees,
-                            "gas_fees"                      => $newCrypto->current_gas
+                            "gas_fees"                      => $newCrypto->current_gas,
+                            "created_at"                    => date('Y-m-d H:i:s', $timestamp /1000)
                         ]);
                     }
 

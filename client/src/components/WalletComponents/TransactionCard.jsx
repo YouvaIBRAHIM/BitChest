@@ -3,9 +3,10 @@ import Button from '@mui/material/Button';
 import { ButtonGroup } from '@mui/material';
 import { DownloadSimple, UploadSimple } from '@phosphor-icons/react';
 import SaleModal from './SaleModal';
-
+import PurchaseModal from './PurchaseModal';
 
 const TransactionCard = ({ setSnackBar, refetchUserData }) => {
+  const [openPurchaseModal, setOpenPurchaseModal] = useState(false);
   const [openSaleModal, setOpenSaleModal] = useState(false);
 
 
@@ -30,7 +31,7 @@ const TransactionCard = ({ setSnackBar, refetchUserData }) => {
             width: {xs: "100%", sm: "auto"},
             borderRadius: 0
           }}
-          onClick={() => setOpenSaleModal(true)}
+          onClick={() => setOpenPurchaseModal(true)}
         >
           Acheter
         </Button>
@@ -48,6 +49,12 @@ const TransactionCard = ({ setSnackBar, refetchUserData }) => {
         </Button>
       </ButtonGroup>
       
+      <PurchaseModal 
+        open={openPurchaseModal}
+        setOpen={setOpenPurchaseModal}
+        setSnackBar={setSnackBar} 
+        refetchUserData={refetchUserData}
+      />
       <SaleModal 
         open={openSaleModal}
         setOpen={setOpenSaleModal}

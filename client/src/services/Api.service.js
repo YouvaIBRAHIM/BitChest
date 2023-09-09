@@ -157,9 +157,9 @@ export const getUserWallet = async (id) => {
   }
 }
 
-export const getAuthUserResources = async () => {
+export const getAuthUserPurchaseResources = async () => {
   try {
-    const response = await instance.get(`/api/auth-user/resources`);
+    const response = await instance.get(`/api/auth-user/resources/purchase`);
     return response.data;
   } catch (error) {
     return Promise.reject(error.response?.data?.message ?? error.message);

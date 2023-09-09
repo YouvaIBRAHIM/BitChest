@@ -32,3 +32,29 @@ export const stableSort = (array, comparator) => {
 export const roundToTwoDecimals = (number) => {
   return Math.round(number * 100) / 100
 }
+
+export const calculateSale = (serviceFees, from, selectedTransaction) => {
+
+  const transactionTotalAmount = roundToTwoDecimals(selectedTransaction.amount * from.crypto.latest_crypto_rate.rate)
+  const transactionServiceFees = roundToTwoDecimals((serviceFees / 100) * transactionTotalAmount)
+  const transactionTotalAmountWithFees = roundToTwoDecimals(transactionTotalAmount - transactionServiceFees - from?.crypto.current_gas)
+
+  const purchaseTransactionRate = selectedTransaction?.purchase_crypto_rate.rate;
+
+  const purchaseTransactionTotalAmount = roundToTwoDecimals(selectedTransaction.amount * purchaseTransactionRate)
+  const purchaseTransactionServiceFees = roundToTwoDecimals((selectedTransaction.service_fees / 100) * purchaseTransactionTotalAmount)
+  const purchaseTotalAmountWithFees = roundToTwoDecimals(purchaseTransactionTotalAmount + purchaseTransactionServiceFees + selectedTransaction.gas_fees)
+
+  const saleGains = roundToTwoDecimals(transactionTotalAmountWithFees - purchaseTotalAmountWithFees)
+
+  const gains = {
+    amount: saleGains,
+    percent: roundToTwoDecimals(saleGains / purchaseTotalAmountWithFees)
+}
+  return {
+    transactionTotalAmount,
+    transactionTotalAmountWithFees,
+    transactionServiceFees,
+    gains
+  }
+}

@@ -10,17 +10,20 @@ const BalanceCard = ({ balance, cryptos, setSnackBar }) => {
 
     const pieChartData = useMemo(() => {
         const labels = [];
+        const pieColors = [];
         const data = [];
 
         if (cryptos) {
             cryptos.map(cryptoWallet => {
                 labels.push(cryptoWallet.crypto.name)
                 data.push(cryptoWallet.amount)
+                pieColors.push(cryptoWallet.crypto.color)
             })
         }
         return {
             labels,
-            data
+            data,
+            pieColors
         }
     }, [cryptos])
     return (

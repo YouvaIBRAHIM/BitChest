@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name')->unique();
             $table->string('code', 5)->unique();
             $table->string('logo');
+            $table->string('color');
             $table->float('current_gas');
             $table->unsignedInteger('viewed')->default(0);
             $table->unsignedInteger('purchased')->default(0);

@@ -44,4 +44,13 @@ class Crypto extends Model
         return $query;
 
     }
+
+
+    public function transactions()
+    {
+        return $this->hasManyThrough(TransactionHistory::class, CryptoRate::class, 'crypto_id', 'purchase_crypto_rate_id')
+            ->orWhereHas('saleCryptoRate', function ($query) {
+                $query->where('type', 'sell');
+            });
+    }
 }

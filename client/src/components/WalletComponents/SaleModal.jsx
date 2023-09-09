@@ -4,7 +4,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import { Box, FormControl, Icon, InputLabel, MenuItem, Select, Typography } from '@mui/material';
+import { Box, FormControl, Icon, InputLabel, ListItemText, MenuItem, Select, Typography } from '@mui/material';
 import { CaretDoubleRight } from '@phosphor-icons/react';
 import styled from '@emotion/styled';
 import Table from '@mui/material/Table';
@@ -15,11 +15,12 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { sellCrypto, getAuthUserSaleResources } from '../../services/Api.service';
-import { roundToTwoDecimals } from '../../services/Utils.service';
+import { calculateSale, roundToTwoDecimals } from '../../services/Utils.service';
 import { setUser } from '../../reducers/UserReducer';
 import { useDispatch } from 'react-redux';
 import { TransactionCardSkeleton } from '../Skeletons/TransactionCardSkeleton';
 import colors from "../../services/Tailwind.service";
+import ListNotFound from '../ListNotFound';
 
 
 const SaleModal = ({ setSnackBar, refetchUserData, open, setOpen }) => {
@@ -98,6 +99,14 @@ const SaleModal = ({ setSnackBar, refetchUserData, open, setOpen }) => {
     }
   };
 
+  const handleSelectChangeTransaction = (e) => {
+    const transaction = resources?.transactionHistory?.find((transaction) => transaction.id === e.target.value)
+
+    if (transaction) {
+      setSelectedTransaction(transaction)
+    }
+  };
+
   const handleClose = () => {
     setOpen(false);
   };
@@ -151,15 +160,29 @@ const SaleModal = ({ setSnackBar, refetchUserData, open, setOpen }) => {
             id="transactionList"
             value={selectedTransaction.id}
             label="Quantité"
+            onChange={handleSelectChangeTransaction}
           >
             {
               transactionList.map((transaction, index) => {
+                const {
+                  gains
+                } = calculateSale(resources?.serviceFees, from, transaction);
+
                   return (
                       <MenuItem 
                         key={index} 
                         value={transaction.id}
+                        
                       >
-                        {transaction.amount}
+                        <ListItemText
+                            primary={transaction.amount}
+                            secondary={`Gains: ${gains.amount}€ (${gains.percent}%)`}
+                            secondaryTypographyProps={{
+                              sx:{
+                                color: gains.amount >= 0 ? colors.green[600] : colors.red[600]
+                              }
+                            }}
+                        />
                       </MenuItem>
                   )
               })
@@ -167,7 +190,8 @@ const SaleModal = ({ setSnackBar, refetchUserData, open, setOpen }) => {
           </Select>
         </>
     )
-  }, [from])
+  }, [resources?.transactionHistory, selectedTransaction])
+
 
   return (
     <div>
@@ -182,47 +206,55 @@ const SaleModal = ({ setSnackBar, refetchUserData, open, setOpen }) => {
           isFetching ?
           <TransactionCardSkeleton />
           :
-          <form onSubmit={handleSubmit}>
-            <DialogContent
-              className="flex flex-col gap-5 items-end"
-            >
-              <Box
-                className="flex gap-5 items-end justify-between w-full"
+            resources?.wallet?.cryptos_wallet?.length === 0 ?
+            <>
+              <ListNotFound message="Aucune crypto à vendre."/>
+              <DialogActions>
+                <Button onClick={handleClose}>Fermer</Button>
+              </DialogActions>
+            </>
+            :
+            <form onSubmit={handleSubmit}>
+              <DialogContent
+                className="flex flex-col gap-5 items-end"
               >
-                <Box className='w-full'>
-                  <Typography variant="body1" sx={{mb: 2}}>De</Typography>
-                  <FormControl sx={{xs: {minWidth: 100}, sm: {minWidth: 120}}} className='w-full' size="small">
-                    {renderFromList}
-                  </FormControl>
-                </Box>
-                <Icon
-                  className='mb-2'
+                <Box
+                  className="flex gap-5 items-end justify-between w-full"
                 >
-                  <CaretDoubleRight size={24} weight="duotone" />
-                </Icon>
-                <Box className='w-full'>
-                  <Typography variant="body1" sx={{mb: 2}}>À</Typography>
-                  <FormControl sx={{xs: {minWidth: 100}, sm: {minWidth: 120}}} className='w-full' size="small">
-                    {renderTargetList}
-                  </FormControl>
+                  <Box className='w-full'>
+                    <Typography variant="body1" sx={{mb: 2}}>De</Typography>
+                    <FormControl sx={{xs: {minWidth: 100}, sm: {minWidth: 120}}} className='w-full' size="small">
+                      {renderFromList}
+                    </FormControl>
+                  </Box>
+                  <Icon
+                    className='mb-2'
+                  >
+                    <CaretDoubleRight size={24} weight="duotone" />
+                  </Icon>
+                  <Box className='w-full'>
+                    <Typography variant="body1" sx={{mb: 2}}>À</Typography>
+                    <FormControl sx={{xs: {minWidth: 100}, sm: {minWidth: 120}}} className='w-full' size="small">
+                      {renderTargetList}
+                    </FormControl>
+                  </Box>
                 </Box>
-              </Box>
-              
-              <FormControl  className='w-full' size="small">
-                {renderTransactionList}
-              </FormControl>
+                
+                <FormControl  className='w-full' size="small">
+                  {renderTransactionList}
+                </FormControl>
 
-              <CostsTable 
-                from={from} 
-                selectedTransaction={selectedTransaction}
-                serviceFees={resources?.serviceFees}
-              />
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleClose}>Annuler</Button>
-              <Button type="submit">Vendre</Button>
-            </DialogActions>
-          </form>
+                <CostsTable 
+                  from={from} 
+                  selectedTransaction={selectedTransaction}
+                  serviceFees={resources?.serviceFees}
+                />
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleClose}>Annuler</Button>
+                <Button type="submit">Vendre</Button>
+              </DialogActions>
+            </form>
         }
       </Dialog>
     </div>
@@ -249,7 +281,6 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 const CostsTable = ({from, selectedTransaction, serviceFees}) => {
   const [ transactionServiceFees, setTransactionServiceFees ] = useState(0)
-
   const [ totalAmount, setTotalAmount ] = useState(0)
   const [ totalAmountWithFees, setTotalAmountWithFees ] = useState(0)
   const [ gains, setGains ] = useState({
@@ -259,28 +290,20 @@ const CostsTable = ({from, selectedTransaction, serviceFees}) => {
   useEffect(() => {
 
     if (serviceFees && from && selectedTransaction) {
-      const transactionTotalAmount = roundToTwoDecimals(selectedTransaction.amount * from.crypto.latest_crypto_rate.rate)
-      const transactionServiceFees = roundToTwoDecimals((serviceFees / 100) * transactionTotalAmount)
-      const transactionTotalAmountWithFees = roundToTwoDecimals(transactionTotalAmount - transactionServiceFees - from?.crypto.current_gas)
+
+      const {
+        transactionTotalAmount,
+        transactionTotalAmountWithFees,
+        transactionServiceFees,
+        gains
+      } = calculateSale(serviceFees, from, selectedTransaction);
 
       setTotalAmount(transactionTotalAmount)
       setTotalAmountWithFees(transactionTotalAmountWithFees)
       setTransactionServiceFees(transactionServiceFees)
-
-
-      const purchaseTransactionRate = selectedTransaction?.purchase_crypto_rate.rate;
-
-      const purchaseTransactionTotalAmount = roundToTwoDecimals(selectedTransaction.amount * purchaseTransactionRate)
-      const purchaseTransactionServiceFees = roundToTwoDecimals((selectedTransaction.service_fees / 100) * purchaseTransactionTotalAmount)
-      const purchaseTotalAmountWithFees = roundToTwoDecimals(purchaseTransactionTotalAmount + purchaseTransactionServiceFees + selectedTransaction.gas_fees)
-
-      const saleGains = roundToTwoDecimals(transactionTotalAmountWithFees - purchaseTotalAmountWithFees)
-      setGains({
-          amount: saleGains,
-          percent: roundToTwoDecimals(saleGains / purchaseTotalAmountWithFees)
-      })
+      setGains(gains)
     }
-  }, [from, serviceFees])
+  }, [from, serviceFees, selectedTransaction])
 
   return (
     <TableContainer component={Paper}>

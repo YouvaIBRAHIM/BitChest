@@ -14,6 +14,8 @@ import UsersListView from './views/UsersListView';
 import UserView from './views/UserView';
 import colors from "./services/Tailwind.service";
 import WalletView from './views/WalletView';
+import IsAdminRoute from './middlewares/IsAdminRoute';
+import IsClientRoute from './middlewares/IsClientRoute';
 
 const drawerWidth = 240;
 
@@ -87,14 +89,18 @@ function App() {
 
                 <Route path="/users" element={
                                           <PrivateRoute>
-                                            <UsersListView />
+                                            <IsAdminRoute>
+                                              <UsersListView />
+                                            </IsAdminRoute>
                                           </PrivateRoute>
                                         } 
                 />
 
                 <Route path="/users/:id" element={
                                           <PrivateRoute>
-                                            <UserView />
+                                            <IsAdminRoute>
+                                              <UserView />
+                                            </IsAdminRoute>
                                           </PrivateRoute>
                                         } 
                 />
@@ -109,7 +115,9 @@ function App() {
                 
                 <Route path="/wallet" element={
                                           <PrivateRoute>
-                                            <WalletView />
+                                            <IsClientRoute>
+                                              <WalletView />
+                                            </IsClientRoute>
                                           </PrivateRoute>
                                         } 
                 />

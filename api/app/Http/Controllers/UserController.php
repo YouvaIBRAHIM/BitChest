@@ -64,8 +64,8 @@ class UserController extends Controller
             if (Auth::user()->role !== "admin") {
                 return response()->json([
                     "message" => "Vous ne pouvez pas créer un nouvel utilisateur.",
-                    "error" => 401
-                ], 401);
+                    "error" => 403
+                ], 403);
             }
             $validatedData = $request->validated();
 

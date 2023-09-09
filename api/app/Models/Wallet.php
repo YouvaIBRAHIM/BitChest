@@ -32,8 +32,8 @@ class Wallet extends Model
             ->withPivot('amount');
     }
 
-    public function transactionHistories()
+    public function transactions()
     {
-        return $this->hasMany(TransactionHistory::class);
-    }
+        return $this->hasMany(TransactionHistory::class, 'wallet_id')
+            ->with(['purchaseCryptoRate', 'saleCryptoRate']);    }
 }

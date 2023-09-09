@@ -18,6 +18,7 @@ class TransactionHistory extends Model
         "gas_fees",
         "type",
         "amount",
+        "created_at",
     ];
 
 

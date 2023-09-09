@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\TransactionHistory;
 use App\Models\User;
 use App\Models\Wallet;
 use Illuminate\Http\Request;
@@ -9,41 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 class WalletController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-        /**
-     * Display the specified resource.
-     */
     public function showUserWallet(Request $request)
     {
         try {
@@ -52,8 +19,8 @@ class WalletController extends Controller
                 if (Auth::user()->role !== "admin") {
                     return response()->json([
                         "message" => "Vous ne pouvez pas voir cette page.",
-                        "error" => 401
-                    ], 401);
+                        "error" => 403
+                    ], 403);
                 }
                 $user = User::findOrFail($id); 
 
@@ -62,10 +29,10 @@ class WalletController extends Controller
             }
 
            
-            $wallet = Wallet::with(['cryptosWallet.crypto.cryptoRates'])->where('user_id', $user->id)->first()->toArray();
-
+            $wallet = Wallet::with(['cryptosWallet.crypto.cryptoRates', "transactions"])->where('user_id', $user->id)->first()->toArray();
             $wallet = $this->formatUserCryptoRate($wallet);
-
+            // return response()->json($wallet, 401);
+            
             return response()->json($wallet, 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -76,61 +43,74 @@ class WalletController extends Controller
     }
 
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    private function formatUserCryptoRate($wallet)
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
-
-    private function formatUserCryptoRate($wallet){
         $totalCryptosRate = [];
-        foreach ($wallet["cryptos_wallet"] as $key => $cryptoWallet) {
+        $transactions = $wallet["transactions"];
 
-            $crypto = $cryptoWallet["crypto"];
-            $cryptoRates = $crypto["crypto_rates"];
-            
-            
-            $wallet["cryptos_wallet"][$key]["current_rate"] = $cryptoRates[count($cryptoRates) - 1]["rate"];
-            $wallet["cryptos_wallet"][$key]["last_day_rate"] = $cryptoRates[count($cryptoRates) - 2]["rate"];
-            
-            
+        foreach ($wallet["cryptos_wallet"] as &$cryptoWallet) {
+            $cryptoId = $cryptoWallet["crypto"]["id"];
+            $cryptoRates = $cryptoWallet["crypto"]["crypto_rates"];
+
+            $currentRate = end($cryptoRates)["rate"];
+            $lastDayRate = prev($cryptoRates)["rate"];
+
+            $cryptoWallet["current_rate"] = $currentRate;
+            $cryptoWallet["last_day_rate"] = $lastDayRate;
+
             $balanceRates = [];
-            foreach ($cryptoRates as $rateKey => $rate) {
-                $amount = round($rate["rate"] * $cryptoWallet["amount"], 2);
+            $cumulativeBalance = 0;
 
-            
-                $lastAmount = $key === 0 ? 0 : $totalCryptosRate[$rateKey][1];
+            $prevRate = 0;
+
+            $cryptoRatesLength = count($cryptoRates) - 1;
+            foreach ($cryptoRates as $key => $cryptoRate) {
+                $timestamp = $cryptoRate["timestamp"];
+                $rate = $cryptoRate["rate"];
+                $hasTransaction = false;
+                foreach ($transactions as $transaction) {
+                    $amount = $transaction['amount'];
+
+                    if ($transaction['crypto_id'] === $cryptoId) {
+                        if ($transaction['type'] === 'buy' && $transaction["purchase_crypto_rate"]["timestamp"] === $timestamp) {
+                            $cumulativeBalance += $amount * $rate;
+                            $hasTransaction = true;
+                        } elseif ($transaction['type'] === 'sell' && $transaction["sale_crypto_rate"]["timestamp"] === $timestamp) {
+                            $cumulativeBalance -= $amount * $rate;
+                            $hasTransaction = true;
+                        }
+                    }
+                }
+
+
+                if (!$hasTransaction) {
+                    if ($cryptoRatesLength === $key) {
+                        $currentAmount =  $rate * $cryptoWallet["amount"];
+                        $cumulativeBalance = $currentAmount;
+                    }else{
+                        $rateGap = $rate - $prevRate;
+                        $prevCumulativeBalanceGap =  ($rateGap / 100) * $cumulativeBalance;
+                        $cumulativeBalance += $prevCumulativeBalanceGap;
+                    }
+                }
+
                 
-                $total = $lastAmount + $amount;
-                $totalCryptosRate[$rateKey] = [$rate["timestamp"], $total];
+                $lastAmount = isset($totalCryptosRate[$timestamp]) ? $totalCryptosRate[$timestamp][1] : 0;
+                $total = $lastAmount + $cumulativeBalance;
+                
+                $totalCryptosRate[$timestamp] = [$timestamp, $total];
+                $balanceRates[] = [$timestamp, $cumulativeBalance];
 
-                $balanceRates[$rateKey] = [$rate["timestamp"], $amount];
+                $prevRate = $rate;
             }
-            
-            $wallet["cryptos_wallet"][$key]["crypto"]["crypto_rates"] = $balanceRates;
 
+            $cryptoWallet["crypto"]["crypto_rates"] = $balanceRates;
         }
-        $wallet["total_cryptos_rate"] = $totalCryptosRate;
+
+        $wallet["total_cryptos_rate"] = array_values($totalCryptosRate); 
 
         return $wallet;
     }
+
 
 }

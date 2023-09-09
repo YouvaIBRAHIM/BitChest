@@ -13,7 +13,6 @@ import IconButton from '@mui/material/IconButton';
 import ThemeSwitchButton from './ThemeSwitchButton';
 import { roundToTwoDecimals } from '../services/Utils.service';
 import { useCallback, useMemo, useState } from 'react';
-import colors from "../services/Tailwind.service";
 import { useNavigate } from "react-router-dom";
 import CustomSnackbar from './CustomSnackbar';
 import { clearUser } from '../reducers/UserReducer';
@@ -167,7 +166,6 @@ const CustomDrawer = ({ mobileOpen, handleDrawerToggle, drawerWidth }) => {
         >
           <DrawerContent 
             mode={mode} 
-            user={user}
             linkList={linkList}
             handleLogout={handleLogout}
           />
@@ -179,7 +177,7 @@ const CustomDrawer = ({ mobileOpen, handleDrawerToggle, drawerWidth }) => {
   );
 }
 
-const DrawerContent = ({user, mode, linkList, handleLogout}) => {
+const DrawerContent = ({mode, linkList, handleLogout}) => {
   
 
   return (
@@ -198,18 +196,12 @@ const DrawerContent = ({user, mode, linkList, handleLogout}) => {
         <ThemeSwitchButton />
       </Box>
       <Button 
-        variant="outlined" 
-        startIcon={<SignOut size={32} weight="duotone" />}
+        variant="contained" 
+        startIcon={<SignOut size={24} weight="duotone" />}
         sx={{
-          color: colors.red[400],
-          borderColor: colors.red[400],
-          margin: 2,
-          "&:hover":{
-            color: colors.red[500],
-            borderColor: colors.red[500],
-            backgroundColor: "inherit",
-          }
+          borderRadius: 0
         }}
+        color="secondary"
         onClick={handleLogout}
       >
         Se déconnecter

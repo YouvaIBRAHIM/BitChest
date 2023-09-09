@@ -1,10 +1,9 @@
 import { useTheme } from '@emotion/react';
 import { useMemo } from 'react';
 import ReactApexChart from "react-apexcharts";
-import colors from "../../services/Tailwind.service";
 import { Card } from '@mui/material';
 
-const PieChart = ({ data, labels }) => {  
+const PieChart = ({ data, labels, pieColors }) => {  
   const theme = useTheme();
 
   const chart = useMemo(() => {
@@ -16,7 +15,6 @@ const PieChart = ({ data, labels }) => {
           width: 380,
           type: 'pie',
           background: "transparent",
-
         },
         labels: labels,
         dataLabels: {
@@ -35,11 +33,9 @@ const PieChart = ({ data, labels }) => {
         }],
         theme: {
           mode: theme.palette.mode,
-          monochrome: {
-            enabled: true,
-            color: colors.green[600],
-          }
-        }
+        },
+        colors: pieColors,
+
       }
   
       return {

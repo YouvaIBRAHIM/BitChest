@@ -16,11 +16,10 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-Route::group(['middleware' => 'auth:sanctum'], function () {
+Route::group(['middleware' => ['auth:sanctum']], function () {
     //user
-    Route::resource('/users', "App\Http\Controllers\UserController");
+    Route::resource('/users', "App\Http\Controllers\UserController")->except(["destroy", "store"]);
     Route::put('/users/password/{user}', ["App\Http\Controllers\UserController", "updatePassword"]);
-    Route::post('/users/delete/multiple', ["App\Http\Controllers\UserController", "destroyMultiple"]);
     
     //wallet
     Route::resource('/wallets', "App\Http\Controllers\WalletController");
@@ -28,21 +27,35 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     //transaction
     Route::get('/auth-user/resources/sale', ["App\Http\Controllers\TransactionController", "getAuthUserSaleResources"]);
-    Route::get('/auth-user/resources', ["App\Http\Controllers\TransactionController", "getAuthUserResources"]);
+    Route::get('/auth-user/resources/purchase', ["App\Http\Controllers\TransactionController", "getAuthUserPurachaseResources"]);
     Route::get('/auth-user/balance', ["App\Http\Controllers\TransactionController", "getAuthUserBalance"]);
-    Route::post('/auth-user/add/balance', ["App\Http\Controllers\TransactionController", "addAuthUserBalance"]);
-    Route::post('/auth-user/transfer/balance', ["App\Http\Controllers\TransactionController", "transferAuthUserBalance"]);
-    Route::post('/transaction/buy', ["App\Http\Controllers\TransactionController", "buy"]);
-    Route::post('/transaction/sell', ["App\Http\Controllers\TransactionController", "sell"]);
+
+
     Route::get('/transaction/history', ["App\Http\Controllers\TransactionController", "history"]);
     
     //crypto
     Route::resource('/cryptos', "App\Http\Controllers\CryptoController");
     Route::post('/crypto/newView', ["App\Http\Controllers\CryptoController", "newView"]);
     
-
     // Récupére l'utilisateur connecté
     Route::get('/auth-user', function (Request $request) {
         return User::with('wallet')->find($request->user()->id);
     });
+});
+
+Route::group(['middleware' => ['auth:sanctum', 'client']], function () {
+
+    //transaction
+    Route::post('/transaction/buy', ["App\Http\Controllers\TransactionController", "buy"]);
+    Route::post('/transaction/sell', ["App\Http\Controllers\TransactionController", "sell"]);
+    Route::post('/auth-user/add/balance', ["App\Http\Controllers\TransactionController", "addAuthUserBalance"]);
+    Route::post('/auth-user/transfer/balance', ["App\Http\Controllers\TransactionController", "transferAuthUserBalance"]);
+});
+
+Route::group(['middleware' => ['auth:sanctum', 'admin']], function () {
+
+    Route::resource('/users', "App\Http\Controllers\UserController")->only(["store"]);
+    Route::post('/users/delete/multiple', ["App\Http\Controllers\UserController", "destroyMultiple"]);
+    Route::resource('/users', "App\Http\Controllers\UserController")->only(["destroy"]);
+
 });
