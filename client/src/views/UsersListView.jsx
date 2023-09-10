@@ -255,9 +255,18 @@ const UsersListView = () => {
           </Table>
         </TableContainer>
       </Paper>
-        <Stack spacing={2} className='fixed bottom-5 right-24'>
-          <Pagination color='primary' count={users?.total ? Math.ceil(users.total / perPage) : 0} page={Number(page)} siblingCount={5} onChange={handleChangePage}/>
-        </Stack>
+        <Box
+          
+        >
+          <Stack 
+            spacing={2} 
+            className='bg-secondary flex justify-center w-full fixed bottom-0 h-20'
+          >
+            <Pagination color='primary' count={users?.total ? Math.ceil(users.total / perPage) : 0} page={Number(page)} siblingCount={5} onChange={handleChangePage}/>
+          </Stack>
+          <CustomSpeedDial setSnackBar={setSnackBar}/>
+        </Box>
+
         <CustomSnackbar open={snackBar.showSnackBar} handleClose={handleCloseSnackBar} type={snackBar.type} message={snackBar.message}/>
         <CustomConfirmationDialog 
           dialog={dialog} 
@@ -267,7 +276,6 @@ const UsersListView = () => {
           message={`Voulez-vous vraiment supprimer ${dialog.length > 1 ? "ces utilisateurs" : "cet utilisateur"} ?`}
           onConfirm={handleConfimDelete}
         />
-        <CustomSpeedDial setSnackBar={setSnackBar}/>
     </Box>
   );
 }

@@ -8,6 +8,9 @@ export default {
   ],
   theme: {
     extend: {
+      colors:{
+        "secondary": "#230C33"
+      },
       fontFamily: {
         'poppins': ['Poppins', ...defaultTheme.fontFamily.sans],
         'inter': ['Inter', ...defaultTheme.fontFamily.sans],
@@ -35,7 +38,8 @@ export default {
     minHeight: {
       '200': '200px',
       '500': '500px',
-    }
+    },
+    
   },
   plugins: [],
 }

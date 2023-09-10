@@ -33,7 +33,7 @@ const roles = [
 
 
 
-const NewUserForm = ({ userInfos, register, errors }) => {
+const NewUserForm = ({ register, errors }) => {
 
     const [ showPassword, setShowPassword ] = useState({
         password: false,

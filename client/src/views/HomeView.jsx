@@ -72,10 +72,20 @@ const HomeView = () => {
     }
 
     return (
-    <Box sx={{ width: '100%'}}>
+    <Box 
+      sx={{ width: '100%'}}
+    >
         {
           user?.role === "client" &&
-          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+          <Box       
+          sx={{ 
+            borderBottom: 1, 
+            borderColor: 'divider',  
+            position: "sticky", 
+            top: {xs: "56px", sm: "64px"},  
+            zIndex: 45,
+    
+          }}>
             <TransactionCard setSnackBar={setSnackBar} refetchUserData={refetch}/>
           </Box>
         }

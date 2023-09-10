@@ -47,15 +47,6 @@ const NewUserDialog = ({ open, setOpen, setSnackBar }) => {
     mode: "all"
   })
 
-  const [userInfos, setUserInfos] = useState({
-                                              confirmationPassword: "",
-                                              email: "",
-                                              firstName: "",
-                                              lastName: "",
-                                              password: "",
-                                              role: "",
-                                            });
-
   const handleClose = () => {
     setOpen(false);
   };
@@ -79,14 +70,18 @@ const NewUserDialog = ({ open, setOpen, setSnackBar }) => {
           </DialogTitle>
           <DialogContent>
             <NewUserForm 
-              userInfos={userInfos} 
               register={register}
               errors={errors}
             />
           </DialogContent>
           <DialogActions>
+            <Button
+              onClick={handleClose}
+            >
+              Fermer
+            </Button>
             <Button type='submit' autoFocus>
-              Agree
+              Ajouter
             </Button>
           </DialogActions>
         </form>

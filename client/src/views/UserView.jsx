@@ -12,6 +12,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getAuthUser, getUser } from '../services/Api.service';
 import { UserCardSkeleton, UserFormSkeleton, UserPasswordFormSkeleton } from '../components/Skeletons/UserProfile';
 import WalletView from './WalletView';
+import zIndex from '@mui/material/styles/zIndex';
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -77,8 +78,18 @@ const UserView = () => {
 
 
     return (
-    <Box sx={{ width: '100%'}}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+      <Box sx={{ width: "100%" }}>
+        <Box 
+          sx={{ 
+            borderBottom: 1, 
+            borderColor: 'divider',  
+            position: "sticky", 
+            top: {xs: "56px", sm: "64px"},  
+            zIndex: 45,
+
+          }}
+          bgcolor="secondary.main"   
+        >
             <Tabs 
                 value={tabIndex} 
                 onChange={handleChange} 

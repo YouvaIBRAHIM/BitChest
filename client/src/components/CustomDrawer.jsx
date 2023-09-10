@@ -95,12 +95,13 @@ const CustomDrawer = ({ mobileOpen, handleDrawerToggle, drawerWidth }) => {
   }
 
   return (
-    <Box sx={{ display: 'flex', }}>
+    <Box sx={{ display: 'flex', position: "sticky", top: "0px", zIndex: 50 }}>
       <AppBar
         position="sticky"
         sx={{
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           left: { sm: `${drawerWidth}px` },
+          
         }}
         color='secondary'
         enableColorOnDark

@@ -1,3 +1,5 @@
+import { Box, Typography } from "@mui/material";
+import { Robot } from "@phosphor-icons/react";
 
 /**
  * 
@@ -6,10 +8,12 @@
 const PageNotFound = () => {
 
     return (
-        <div>
-            <h2>404</h2>
-            <h4>Page introuvable</h4>
-        </div>
+        <Box
+            className="flex flex-col gap-5 items-center justify-center w-full mt-20"
+        >
+            <Robot size={96} weight="duotone" />
+            <Typography variant="p" className="text-5xl">Page introuvable</Typography>
+        </Box>
     );
 };
 

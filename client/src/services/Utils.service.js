@@ -42,14 +42,12 @@ export const calculateSale = (serviceFees, from, selectedTransaction) => {
   const purchaseTransactionRate = selectedTransaction?.purchase_crypto_rate.rate;
 
   const purchaseTransactionTotalAmount = roundToTwoDecimals(selectedTransaction.amount * purchaseTransactionRate)
-  const purchaseTransactionServiceFees = roundToTwoDecimals((selectedTransaction.service_fees / 100) * purchaseTransactionTotalAmount)
-  const purchaseTotalAmountWithFees = roundToTwoDecimals(purchaseTransactionTotalAmount + purchaseTransactionServiceFees + selectedTransaction.gas_fees)
 
-  const saleGains = roundToTwoDecimals(transactionTotalAmountWithFees - purchaseTotalAmountWithFees)
+  const saleGains = roundToTwoDecimals(transactionTotalAmountWithFees - purchaseTransactionTotalAmount)
 
   const gains = {
     amount: saleGains,
-    percent: roundToTwoDecimals(saleGains / purchaseTotalAmountWithFees)
+    percent: roundToTwoDecimals((saleGains / purchaseTransactionTotalAmount) * 100)
 }
   return {
     transactionTotalAmount,

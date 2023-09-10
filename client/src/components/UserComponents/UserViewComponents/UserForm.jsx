@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import { updateUser } from '../../../services/Api.service';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSelector } from 'react-redux';
 
 const roles = [
     {
@@ -25,6 +26,8 @@ const roles = [
   ]
 
 const UserForm = ({ user, setSnackBar }) => {
+    const { user: authUser } = useSelector(state => state.user)
+
     const [userInfos, setUserInfos] = useState(user);
     
     const queryClient = useQueryClient()
@@ -83,25 +86,28 @@ const UserForm = ({ user, setSnackBar }) => {
                         value={userInfos.email}
                         onChange={handleChange}
                     />
-                    <FormControl>
-                        <InputLabel id="RoleId">Rôle</InputLabel>
-                        <Select
-                            labelId="RoleId"
-                            id="RoleId"
-                            name='role'
-                            value={userInfos.role}
-                            label="Rôle"
-                            onChange={handleChange}
-                        >
-                        {
-                            roles.map((option, index) => {
-                                return (
-                                    <MenuItem key={index} value={option.value}>{option.label}</MenuItem>
-                                )
-                            })
-                        }
-                        </Select>
-                    </FormControl>
+                    {
+                        (authUser.role === "admin" && authUser.id !== user.id)&&
+                        <FormControl>
+                            <InputLabel id="RoleId">Rôle</InputLabel>
+                            <Select
+                                labelId="RoleId"
+                                id="RoleId"
+                                name='role'
+                                value={userInfos.role}
+                                label="Rôle"
+                                onChange={handleChange}
+                            >
+                            {
+                                roles.map((option, index) => {
+                                    return (
+                                        <MenuItem key={index} value={option.value}>{option.label}</MenuItem>
+                                    )
+                                })
+                            }
+                            </Select>
+                        </FormControl>
+                    }
 
                     <Button type="submit" variant="contained" color="primary">
                         Enregistrer

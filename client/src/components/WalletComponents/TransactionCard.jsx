@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Button from '@mui/material/Button';
-import { ButtonGroup } from '@mui/material';
+import { Box, ButtonGroup } from '@mui/material';
 import { DownloadSimple, UploadSimple } from '@phosphor-icons/react';
 import SaleModal from './SaleModal';
 import PurchaseModal from './PurchaseModal';
@@ -11,7 +11,17 @@ const TransactionCard = ({ setSnackBar, refetchUserData }) => {
 
 
   return (
-    <div>
+    <Box
+      sx={{ 
+        borderBottom: 1, 
+        borderColor: 'divider',  
+        position: "sticky", 
+        top: {xs: "56px", sm: "64px"},  
+        zIndex: 45,
+
+      }}
+      bgcolor="secondary.main"
+    >
       <ButtonGroup
         disableElevation
         variant="contained"
@@ -61,7 +71,7 @@ const TransactionCard = ({ setSnackBar, refetchUserData }) => {
         setSnackBar={setSnackBar} 
         refetchUserData={refetchUserData}
       />
-    </div>
+    </Box>
   );
 }
 
