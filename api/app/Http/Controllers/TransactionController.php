@@ -14,38 +14,6 @@ use Illuminate\Support\Facades\Validator;
 
 class TransactionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
 
     public function getAuthUserPurachaseResources(Request $request)
     {
@@ -359,10 +327,10 @@ class TransactionController extends Controller
                 if (Auth::user()->role !== "admin") {
                     return response()->json([
                         "message" => "Vous ne pouvez pas voir cette page.",
-                        "error" => 401
-                    ], 401);
+                        "error" => 403
+                    ], 403);
                 }
-                $user = User::findOrFail($id); 
+                $user = User::withTrashed()->findOrFail($id); 
             }else {
                 $user = $request->user(); 
             }

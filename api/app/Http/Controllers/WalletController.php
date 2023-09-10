@@ -22,7 +22,7 @@ class WalletController extends Controller
                         "error" => 403
                     ], 403);
                 }
-                $user = User::findOrFail($id); 
+                $user = User::withTrashed()->findOrFail($id); 
 
             }else {
                 $user = $request->user(); 
@@ -31,7 +31,6 @@ class WalletController extends Controller
            
             $wallet = Wallet::with(['cryptosWallet.crypto.cryptoRates', "transactions"])->where('user_id', $user->id)->first()->toArray();
             $wallet = $this->formatUserCryptoRate($wallet);
-            // return response()->json($wallet, 401);
             
             return response()->json($wallet, 200);
         } catch (\Throwable $th) {

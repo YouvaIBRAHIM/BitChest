@@ -24,14 +24,18 @@ class UserController extends Controller
         try {
             $searchFilter = $request->input('searchFilter') ?: "email";
             $searchText = $request->input('searchText');
-
+            $userStatus = $request->input('userStatus') ?: "enabled";
+            
             $users = User::where("role", $request->input('role') ?: "client")
+            ->whereNotIn('users.id', [$request->user()->id])
+            ->filterUsers($userStatus)
             ->where((function ($query) use ($searchFilter, $searchText) {
                 if ($searchFilter !== "name") {
                     $query->where($searchFilter, 'LIKE', "%{$searchText}%");
                 }else {
                     $query->where(DB::raw("concat(firstname, ' ', lastname)"), 'LIKE', "%".$searchText."%");
                 }
+                $query->where(DB::raw("concat(firstname, ' ', lastname)"), 'LIKE', "%".$searchText."%");
             }))
             ->join('wallets', 'users.id', '=', 'wallets.user_id')
             ->select('users.*', 'wallets.balance')
@@ -47,13 +51,6 @@ class UserController extends Controller
         }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -104,7 +101,7 @@ class UserController extends Controller
     public function show(string $id)
     {
         try {
-            $user = User::find($id);
+            $user = User::withTrashed()->find($id);
             return response()->json($user, 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -115,20 +112,16 @@ class UserController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      */
-    public function update(UserRequest $request, User $user)
+    public function update(UserRequest $request, $id)
     {
         try {
             $validatedData = $request->validated();
+
+            $user = User::withTrashed()
+            ->where("id", $id)
+            ->first();
 
             $user->update($validatedData);
 
@@ -173,10 +166,18 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(User $user)
+    public function destroy(Request $request, $id)
     {
         try {
-            $user->delete();
+            $userStatus = $request->input('userStatus') ?: "enabled";
+            if ($userStatus === "enabled") {
+                $user = User::where("id", $id)->first();
+                $user->delete();
+            }elseif ($userStatus === "disabled") {
+                $user = User::onlyTrashed()->where("id", $id)->first();
+                $user->forceDelete();
+            }
+           
             return response()->json([$user->id], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -193,7 +194,32 @@ class UserController extends Controller
     {
         try {
             $userArray = $request->input('users');
-            User::whereIn('id', $userArray)->delete();
+            $userStatus = $request->input('userStatus') ?: "enabled";
+
+            if ($userStatus === "enabled") {
+                User::whereIn('id', $userArray)->delete();
+            }elseif ($userStatus === "disabled") {
+                User::onlyTrashed()->whereIn('id', $userArray)->forceDelete();
+            }
+
+            
+            return response()->json($userArray, 200);
+            
+        } catch (\Throwable $th) {
+            return response()->json([
+                "message" => "Oups ! Nous n'avons pas pu supprimer les données.",
+                "error" => $th->getMessage()
+            ], $th->getCode());
+        }
+    }
+
+    public function restore(Request $request)
+    {
+        try {
+            $userArray = $request->input('users');
+
+            User::onlyTrashed()->whereIn('id', $userArray)->restore();
+
             return response()->json($userArray, 200);
             
         } catch (\Throwable $th) {
