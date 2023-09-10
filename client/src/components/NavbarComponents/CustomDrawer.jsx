@@ -11,12 +11,12 @@ import { House, User, Users, Wallet, List as ListIcon, SignOut } from '@phosphor
 import { AppBar, Box, Button, Toolbar, Typography } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import ThemeSwitchButton from './ThemeSwitchButton';
-import { roundToTwoDecimals } from '../services/Utils.service';
+import { roundToTwoDecimals } from '../../services/Utils.service';
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from "react-router-dom";
-import CustomSnackbar from './CustomSnackbar';
-import { clearUser } from '../reducers/UserReducer';
-import { onLogout } from '../services/Api.service';
+import CustomSnackbar from '../CustomSnackbar';
+import { clearUser } from '../../reducers/UserReducer';
+import { onLogout } from '../../services/Api.service';
 
 const links = [
   {

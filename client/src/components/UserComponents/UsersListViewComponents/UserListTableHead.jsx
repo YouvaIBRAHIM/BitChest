@@ -34,7 +34,7 @@ const headCells = [
     }
 ];
 
-const EnhancedTableHead = (props) => {
+const UserListTableHead = (props) => {
     const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
     const createSortHandler = (property, disableSort) => (event) => {
       if (!disableSort) {
@@ -83,4 +83,4 @@ const EnhancedTableHead = (props) => {
     );
 }
 
-export default EnhancedTableHead;
+export default UserListTableHead;

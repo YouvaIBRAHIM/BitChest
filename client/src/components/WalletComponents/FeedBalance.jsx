@@ -14,10 +14,10 @@ import TableContainer from '@mui/material/TableContainer';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { addBalance, getAuthUserBalance, transferBalance } from '../services/Api.service';
-import { roundToTwoDecimals } from '../services/Utils.service';
+import { addBalance, getAuthUserBalance, transferBalance } from '../../services/Api.service';
+import { roundToTwoDecimals } from '../../services/Utils.service';
 import { useDispatch, useSelector } from 'react-redux';
-import { setUser } from '../reducers/UserReducer';
+import { setUser } from '../../reducers/UserReducer';
 
 
 const FeedBalance = ({ setSnackBar }) => {

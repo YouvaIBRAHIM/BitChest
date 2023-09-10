@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import LoginView from './views/LoginView';
 import PageNotFound from './views/PageNotFound';
-import CustomDrawer from './components/CustomDrawer';
+import CustomDrawer from './components/NavbarComponents/CustomDrawer';
 import { initServiceWorker } from "./services/ServiceWorker.service";
 import { useMemo, useState } from 'react';
 import HomeView from './views/HomeView';
@@ -43,6 +43,11 @@ function App() {
           main: "#230C33",
           light: '#230C33',
           dark: '#9984d4',
+        },
+        danger: {
+          main: colors.red[400],
+          light: colors.red[600],
+          dark: colors.red[400],
         }
       }
     });

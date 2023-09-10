@@ -1,19 +1,32 @@
-import { FormControl, IconButton, InputLabel, MenuItem, Select, Toolbar, Tooltip, Typography } from "@mui/material";
-import { Trash  } from "@phosphor-icons/react";
+import { Box, FormControl, IconButton, InputLabel, MenuItem, Select, Toolbar, Tooltip, Typography } from "@mui/material";
+import { ArrowCounterClockwise, Trash  } from "@phosphor-icons/react";
 import { alpha } from '@mui/material/styles';
-import SearchField from "../../SearchField";
+import SearchField from "./SearchField";
+
+const filterOptions = [
+  {
+    label: "Nom",
+    value: "name"
+  },
+  {
+    label: "Email",
+    value: "email"
+  },
+]
 
 
-const EnhancedTableToolbar = ({ 
+const TableToolbar = ({ 
   selected, 
   perPage, 
   setPerPage, 
   role, 
   setRole, 
-  filterOptions,
   search,
   setSearch,
-  handleClickOpenDialog 
+  userStatus,
+  setUserStatus,
+  handleClickOpenDialog,
+  setActionType 
 }) => {
   
     const handleChangePerPage = (e) => {
@@ -21,6 +34,15 @@ const EnhancedTableToolbar = ({
     }
     const handleChangeRole = (e) => {
       setRole(e.target.value)
+    }
+
+    const handleChangeUserStatus = (e) => {
+      setUserStatus(e.target.value)
+    }
+
+    const handleAction = (type) => {
+      setActionType(type);
+      handleClickOpenDialog(selected); 
     }
     
     return (
@@ -57,18 +79,34 @@ const EnhancedTableToolbar = ({
         )}
   
         {selected.length > 0 ? (
-          <Tooltip 
-            title="Supprimer" 
-            sx={{ margin:1 }}
-          >
-            <IconButton
-              onClick={() => handleClickOpenDialog(selected)}
+          <Box>
+            {
+              userStatus === "disabled" &&
+              <Tooltip 
+                title="Restaurer" 
+                sx={{ margin:1 }}
+              >
+                <IconButton
+                  onClick={() => handleAction("restore")}
+                >
+                  <ArrowCounterClockwise size={24} weight="duotone" />
+                </IconButton>
+              </Tooltip>
+            }
+            <Tooltip 
+              title="Supprimer" 
+              sx={{ margin:1 }}
             >
-              <Trash />
-            </IconButton>
-          </Tooltip>
+              <IconButton
+                onClick={() => handleAction("delete")}
+              >
+                <Trash  size={24} weight="duotone"/>
+              </IconButton>
+            </Tooltip>
+
+          </Box>
         ) : (
-          <div className="flex items-center flex-wrap gap-4  m-1">
+          <Box className="flex items-center flex-wrap gap-4  m-1">
             <SearchField 
               filterOptions={filterOptions}
               search={search} 
@@ -89,24 +127,37 @@ const EnhancedTableToolbar = ({
                 <MenuItem value={50}>50</MenuItem>
               </Select>
             </FormControl>
-            <FormControl sx={{ minWidth: 150 }} size="small">
+            <FormControl sx={{ minWidth: 125 }} size="small">
               <InputLabel id="RoleId">Rôle</InputLabel>
               <Select
                 labelId="RoleId"
                 id="RoleId"
                 value={role}
-                label="Par rôle"
+                label="Rôle"
                 onChange={handleChangeRole}
               >
                 <MenuItem value={"admin"}>Admin</MenuItem>
                 <MenuItem value={"client"}>Client</MenuItem>
               </Select>
             </FormControl>
-          </div>
+            <FormControl sx={{ minWidth: 100 }} size="small">
+              <InputLabel id="RoleId">Statut</InputLabel>
+              <Select
+                labelId="RoleId"
+                id="RoleId"
+                value={userStatus}
+                label="Statut"
+                onChange={handleChangeUserStatus}
+              >
+                <MenuItem value="enabled">Actifs</MenuItem>
+                <MenuItem value="disabled">Inactifs</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
         )}
       </Toolbar>
     );
 }
 
-export default EnhancedTableToolbar;
+export default TableToolbar;
   

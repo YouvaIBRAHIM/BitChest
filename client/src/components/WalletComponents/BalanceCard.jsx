@@ -1,7 +1,7 @@
 import { Card, CardHeader, CardContent, CardActions } from '@mui/material';
 import PieChart from '../AnalyticComponents/PieChart';
 import { useMemo } from 'react';
-import FeedBalance from '../FeedBalance';
+import FeedBalance from './FeedBalance';
 import { roundToTwoDecimals } from '../../services/Utils.service';
 import { useSelector } from 'react-redux';
 

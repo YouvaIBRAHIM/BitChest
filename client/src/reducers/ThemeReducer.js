@@ -11,7 +11,7 @@ if (theme) {
   const isDarkThemeDefault = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
   initialState = {
-    mode: isDarkThemeDefault ? 'dark' : 'dark'
+    mode: isDarkThemeDefault ? 'dark' : 'light'
   };
 }
 

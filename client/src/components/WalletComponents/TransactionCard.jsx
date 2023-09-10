@@ -18,7 +18,6 @@ const TransactionCard = ({ setSnackBar, refetchUserData }) => {
         position: "sticky", 
         top: {xs: "56px", sm: "64px"},  
         zIndex: 45,
-
       }}
       bgcolor="secondary.main"
     >

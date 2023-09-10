@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -7,8 +7,8 @@ import TableContainer from '@mui/material/TableContainer';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import Checkbox from '@mui/material/Checkbox';
-import EnhancedTableHead from "../components/UserComponents/UsersListViewComponents/EnhancedTableHead"
-import EnhancedTableToolbar from "../components/UserComponents/UsersListViewComponents/EnhancedTableToolbar"
+import UserListTableHead from "../components/UserComponents/UsersListViewComponents/UserListTableHead"
+import TableToolbar from "../components/UserComponents/UsersListViewComponents/TableToolbar"
 import { getComparator, stableSort } from '../services/Utils.service';
 import { useDebounce } from '../services/Hook.service';
 import { IconButton, Pagination, Stack, Tooltip } from '@mui/material';
@@ -19,18 +19,10 @@ import CustomSnackbar from '../components/CustomSnackbar';
 import CustomConfirmationDialog from '../components/CustomConfirmationDialog';
 import CustomSpeedDial from '../components/CustomSpeedDial';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { deleteUser, deleteUsers, getUsers } from '../services/Api.service';
+import { deleteUser, deleteUsers, getUsers, restoreUsers } from '../services/Api.service';
+import ErrorView from './ErrorView';
+import ListNotFound from '../components/ListNotFound';
 
-const filterOptions = [
-  {
-    label: "Nom",
-    value: "name"
-  },
-  {
-    label: "Email",
-    value: "email"
-  },
-]
 
 const UsersListView = () => {
   const queryClient = useQueryClient()
@@ -41,14 +33,16 @@ const UsersListView = () => {
   const [page, setPage] = useState(searchParams.get("page") ?? 1);
   const [perPage, setPerPage] = useState(10);
   const [role, setRole] = useState("client");
+  const [userStatus, setUserStatus] = useState("enabled");
+  const [actionType, setActionType] = useState("");
   const [search, setSearch] = useState({text: "", filter: "name"});
   const [snackBar, setSnackBar] = useState({message: "", showSnackBar: false, type: "info"});
   const [dialog, setDialog] = useState(false);
   const debouncedSearch = useDebounce(search, 500);
 
-  const { data: users, isFetching, refetch } = useQuery({ 
+  const { data: users, isFetching, refetch, isError, error } = useQuery({ 
     queryKey: ['userList'], 
-    queryFn: () =>  getUsers(page, perPage, role, search),
+    queryFn: () =>  getUsers(page, perPage, role, search, userStatus),
     retry: 3,
     refetchInterval: false,
     enabled: false,
@@ -76,14 +70,35 @@ const UsersListView = () => {
     }
   })
   
+  const restoreUsersMutation = useMutation({
+    mutationFn: restoreUsers,
+    onSuccess: (data) => {
+        users.data = users?.data?.filter(user => !data?.data?.includes(user.id))
+        if (users.data.length === 0) {
+          refetch()
+        }else{
+          users.total = users.total - data?.data?.length
+          queryClient.setQueryData(['userList'], users)
+        }
+        setSnackBar({
+          message: data?.data?.length > 1 ? "Les utilisateurs ont été restaurés." :"L'utilisateur a été restauré.", 
+          showSnackBar: true, 
+          type: "success"
+        });
+    },
+    onError: error => {
+      setSnackBar({message: error, showSnackBar: true, type: "error"});
+    }
+  })
+  
 
   const navigate = useNavigate();
 
   useEffect(() => {
     if (debouncedSearch) {
-      refetch(page, perPage, role, debouncedSearch)
+      refetch(page, perPage, role, debouncedSearch, userStatus)
     }
-  }, [page, perPage, role, debouncedSearch.text])
+  }, [page, perPage, role, debouncedSearch.text, userStatus])
 
   const handleClickOpenDialog = (item) => {
     setDialog(item);
@@ -199,7 +214,7 @@ const UsersListView = () => {
                       <IconButton 
                         aria-label="action" 
                         size="small"
-                        onClick={() => handleClickOpenDialog([row.id])}
+                        onClick={() => handleClickOpenDialog([row.id], "delete")}
                       >
                         <Trash fontSize="inherit" weight="duotone" />
                       </IconButton>
@@ -216,18 +231,37 @@ const UsersListView = () => {
   }, [isFetching, selected, users, order, orderBy]);
 
   const handleConfimDelete = useCallback((selected) => {
-    const userFetchFunction = selected.length > 1 ? () => deleteUsers(selected) : () => deleteUser(selected[0])
+    const userFetchFunction = selected.length > 1 ? () => deleteUsers(selected, userStatus) : () => deleteUser(selected[0], userStatus)
     deleteUserMutation.mutate(() => userFetchFunction())  
 
     setDialog(false);
     setSelected([]);
   }, [dialog, selected]);
 
+  const handleConfimRestore = useCallback((selected) => {
+    restoreUsersMutation.mutate(selected)  
+
+    setDialog(false);
+    setSelected([]);
+  }, [dialog, selected]);
+  
+
+  const renderConfirmationMessage = useMemo(() => {
+    const pluralOrSingularUser = dialog.length > 1 ? "ces utilisateurs" : "cet utilisateur"; 
+    const action = (actionType === "delete") ? "supprimer" : "restaurer";
+    const definitiveAction = (userStatus === "disabled" && actionType === "delete") ? " définitivement" : "";
+
+    return `Voulez-vous vraiment ${action + definitiveAction} ${pluralOrSingularUser} ?`;
+  }, [dialog, actionType])
+  if (isError) {
+    return <ErrorView message={error} refetch={refetch}/>
+  }
+
+  
   return (
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 10 }}>
-        <EnhancedTableToolbar 
-          filterOptions={filterOptions} 
+        <TableToolbar 
           selected={selected} 
           perPage={perPage} 
           setPerPage={setPerPage} 
@@ -236,6 +270,9 @@ const UsersListView = () => {
           search={search} 
           setSearch={setSearch}
           handleClickOpenDialog={handleClickOpenDialog}
+          setActionType={setActionType}
+          setUserStatus={setUserStatus} 
+          userStatus={userStatus} 
         />
         <TableContainer>
           <Table
@@ -243,7 +280,7 @@ const UsersListView = () => {
             aria-labelledby="usersTable"
             size={'medium'}
           >
-            <EnhancedTableHead
+            <UserListTableHead
               numSelected={selected.length}
               order={order}
               orderBy={orderBy}
@@ -251,9 +288,13 @@ const UsersListView = () => {
               onRequestSort={handleRequestSort}
               rowCount={users?.data?.length}
             />
-          {renderTableBody()}
+            {renderTableBody()}
           </Table>
         </TableContainer>
+        {
+            users?.data.length === 0 &&
+            <ListNotFound  message="Aucun utilisateur trouvé."/>
+        }
       </Paper>
         <Box
           
@@ -262,7 +303,18 @@ const UsersListView = () => {
             spacing={2} 
             className='bg-secondary flex justify-center w-full fixed bottom-0 h-20'
           >
-            <Pagination color='primary' count={users?.total ? Math.ceil(users.total / perPage) : 0} page={Number(page)} siblingCount={5} onChange={handleChangePage}/>
+            <Pagination 
+              color='primary' 
+              sx={{
+                "& .MuiPaginationItem-text": {
+                  color: "white"
+                }
+              }}
+              count={users?.total ? Math.ceil(users.total / perPage) : 0} 
+              page={Number(page)} 
+              siblingCount={5} 
+              onChange={handleChangePage}
+            />
           </Stack>
           <CustomSpeedDial setSnackBar={setSnackBar}/>
         </Box>
@@ -273,8 +325,9 @@ const UsersListView = () => {
           setDialog={setDialog} 
           items={users?.data} 
           itemKey={"email"} 
-          message={`Voulez-vous vraiment supprimer ${dialog.length > 1 ? "ces utilisateurs" : "cet utilisateur"} ?`}
-          onConfirm={handleConfimDelete}
+          setActionType={setActionType}
+          message={renderConfirmationMessage}
+          onConfirm={actionType === "delete" ? handleConfimDelete : handleConfimRestore}
         />
     </Box>
   );

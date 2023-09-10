@@ -58,9 +58,9 @@ export const getAuthUser = async () => {
 }
 
 
-export const getUsers = async (page, perPage, role, search) => {
+export const getUsers = async (page, perPage, role, search, userStatus = "enabled") => {
   try {
-    const response = await instance.get(`/api/users?page=${page}&perPage=${perPage}&role=${role}&searchFilter=${search.filter}&searchText=${search.text}`);
+    const response = await instance.get(`/api/users?page=${page}&perPage=${perPage}&role=${role}&searchFilter=${search.filter}&searchText=${search.text}&userStatus=${userStatus}`);
     return response.data;
   } catch (error) {
     return Promise.reject(error.response?.data?.message ?? error.message);
@@ -125,9 +125,9 @@ export async function updateUserPassword(user) {
  * @param {Number} id id du utilisateur à supprimer
  * @returns la réponse de la requete API axios 
  */
-export async function deleteUser(id) {
+export async function deleteUser(id, userStatus) {
   try {
-    const response = await instance.delete(`/api/users/${id}`)
+    const response = await instance.delete(`/api/users/${id}?userStatus=${userStatus}`)
 
     return response;
   } catch (error) {
@@ -135,15 +135,23 @@ export async function deleteUser(id) {
   }
 }
 
-export async function deleteUsers(users) {
+export async function deleteUsers(users, userStatus) {
   try {
-    const response = await instance.post(`/api/users/delete/multiple`, {users})
+    const response = await instance.post(`/api/users/delete/multiple?userStatus=${userStatus}`, {users})
     return response;
   } catch (error) {
     return Promise.reject(error.response?.data?.message ?? error.message);
   }
 }
 
+export async function restoreUsers(users) {
+  try {
+    const response = await instance.post(`/api/users/restore`, {users})
+    return response;
+  } catch (error) {
+    return Promise.reject(error.response?.data?.message ?? error.message);
+  }
+}
 
 // wallets
 

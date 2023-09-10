@@ -12,13 +12,15 @@ import { useQuery } from '@tanstack/react-query';
 import { getAuthUser, getUser } from '../services/Api.service';
 import { UserCardSkeleton, UserFormSkeleton, UserPasswordFormSkeleton } from '../components/Skeletons/UserProfile';
 import WalletView from './WalletView';
-import zIndex from '@mui/material/styles/zIndex';
+import ErrorView from './ErrorView';
+import UserCardActions from '../components/UserComponents/UserViewComponents/UserCardActions';
+import ListNotFound from '../components/ListNotFound';
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
 
   return (
-    <div
+    <Box
       role="tabpanel"
       hidden={value !== index}
       id={`simple-tabpanel-${index}`}
@@ -30,7 +32,7 @@ function CustomTabPanel(props) {
           {children}
         </Box>
       )}
-    </div>
+    </Box>
   );
 }
 
@@ -53,11 +55,12 @@ const UserView = () => {
     const [tabIndex, setTabIndex] = useState(0);
     const [snackBar, setSnackBar] = useState({message: "", showSnackBar: false, type: "info"});
 
-    const { data: user, isFetching, refetch} = useQuery({ 
+    const { data: user, isFetching, refetch, isError, error} = useQuery({ 
       queryKey: ['user'], 
       queryFn: () => id ? getUser(id) : getAuthUser(),
       retry: 3,
-      refetchInterval: false
+      refetchInterval: false,
+      refetchOnWindowFocus: false,
     });
 
 
@@ -77,6 +80,14 @@ const UserView = () => {
       }, [])
 
 
+      if (isError) {
+        return <ErrorView message={error} refetch={refetch}/>
+      }
+
+    if (!isFetching && !user?.email) {
+      return <ListNotFound message="Aucune utilisateur trouvé."/>
+    }
+    
     return (
       <Box sx={{ width: "100%" }}>
         <Box 
@@ -86,7 +97,7 @@ const UserView = () => {
             position: "sticky", 
             top: {xs: "56px", sm: "64px"},  
             zIndex: 45,
-
+            color: "white!important"
           }}
           bgcolor="secondary.main"   
         >
@@ -94,11 +105,24 @@ const UserView = () => {
                 value={tabIndex} 
                 onChange={handleChange} 
                 aria-label="user tabs"
+
             >
-              <Tab label="Profil" {...tabProps(0)} />
+              <Tab 
+                label="Profil" 
+                {...tabProps(0)}
+                sx={{
+                  color: "white!important"
+                }} 
+              />
               {
                   id &&
-                  <Tab label="Portefeuille" {...tabProps(1)} />  
+                  <Tab 
+                    label="Portefeuille" 
+                    {...tabProps(1)}                
+                    sx={{
+                      color: "white!important"
+                    }} 
+                  />  
               }
             </Tabs>
         </Box>
@@ -112,7 +136,13 @@ const UserView = () => {
                                 isFetching ?
                                 <UserCardSkeleton />
                                 :
-                                <UserCard user={user} />
+                                <Box className='flex flex-col gap-5'>
+                                  <UserCard user={user} />
+                                  {
+                                    id &&
+                                    <UserCardActions user={user} setSnackBar={setSnackBar} refetchUserData={refetch}/>
+                                  }
+                                </Box>
                               }
                             </div>
                             <div className='sm:basis-full lg:basis-2/3 grow p-2'>

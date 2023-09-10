@@ -3,7 +3,7 @@ import Box from '@mui/material/Box';
 import { useTheme } from '@mui/material/styles';
 import { SunDim, Moon } from '@phosphor-icons/react';
 import { useDispatch } from 'react-redux';
-import { setThemeMode } from '../reducers/ThemeReducer';
+import { setThemeMode } from '../../reducers/ThemeReducer';
 
 
 const ThemeSwitchButton = () => {

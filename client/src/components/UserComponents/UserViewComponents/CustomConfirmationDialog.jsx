@@ -5,25 +5,14 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
-import { useEffect, useState } from 'react';
 
-const CustomConfirmationDialog = ({dialog, setDialog, items, itemKey, message, onConfirm, setActionType}) => {
+const CustomConfirmationDialog = ({dialog, user, message, onConfirm, setDialog}) => {
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
-    const [ itemsToDelete, setItemsToDelete ] = useState([])
 
     const handleClose = () => {
-        setActionType("")
         setDialog(false);
     };
-
-    useEffect(() => {
-        if (items && Boolean(dialog)) {
-            setItemsToDelete(() => {
-                return items.filter((item) => dialog.includes(item.id))
-            })
-        }
-    }, [items, dialog])
 
     return (
         <div>
@@ -40,7 +29,7 @@ const CustomConfirmationDialog = ({dialog, setDialog, items, itemKey, message, o
                 <DialogContent>
                     <ul>
                         {
-                            itemsToDelete.map((item, index) => <li key={index}>{item[itemKey]}</li>)
+                            <li>{user.email}</li>
                         }
                     </ul>
                 </DialogContent>
