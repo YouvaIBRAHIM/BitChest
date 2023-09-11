@@ -12,7 +12,7 @@ Ce projet est composé de deux parties distinctes : un backend basé sur Laravel
 
 1. Cloner le dépôt GitHub :
    ```
-   git clone https://github.com/YouvaIBRAHIM/BitChest
+   git clone https://github.com/YouvaIBRAHIM/BitChest.git
    ```
    
 Installation des dépendances Laravel :
