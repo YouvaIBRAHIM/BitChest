@@ -1,0 +1,45 @@
+{
+    "name": "Bitchest, plateforme d'achat et vente de cryptomonnaies.",
+    "short_name": "Bitchest",
+    "start_url": "./index.html",
+    "scope": ".",
+    "display": "standalone",
+    "theme_color": "#4ade80",
+    "background_color": "#372245",
+    "description": "Web app vous permettant de faire des achats et des ventes de cryptomonnaies",
+    "dir": "ltr",
+    "lang": "fr-FR",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "/assets/bitchest_logo_dark-32.png",
+            "type": "image/png",
+            "sizes": "32x32"
+        },
+        {
+            "src": "/assets/bitchest_logo_dark-48.png",
+            "type": "image/png",
+            "sizes": "48x48"
+        },
+        {
+            "src": "/assets/bitchest_logo_dark-100.png",
+            "type": "image/png",
+            "sizes": "100x100"
+        },
+        {
+            "src": "/assets/bitchest_logo_dark-144.png",
+            "type": "image/png",
+            "sizes": "144x144"
+        },
+        {
+            "src": "/assets/bitchest_logo_dark-256.png",
+            "type": "image/png",
+            "sizes": "256x256"
+        },
+        {
+            "src": "/assets/bitchest_logo_dark-512.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        }
+    ]
+}

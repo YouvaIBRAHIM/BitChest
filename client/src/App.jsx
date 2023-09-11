@@ -22,7 +22,7 @@ const drawerWidth = 240;
 
 function App() {
   //lance le service worker
-  // initServiceWorker()
+  initServiceWorker()
   
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user } = useSelector(state => state.user)

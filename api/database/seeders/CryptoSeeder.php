@@ -181,9 +181,6 @@ class CryptoSeeder extends Seeder
                 }
 
             }
-
         }
     }
-
-    
 }
