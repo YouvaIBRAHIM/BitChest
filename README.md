@@ -88,6 +88,8 @@ Une fois ces étapes terminées, vous pouvez passer au dossier `client` pour con
 
    Le serveur frontend React.js sera accessible à l'adresse http://localhost:3000.
 
+Si vous faites un build du site, assurez-vous de mettre les fichiers du dossier `dist` dans le tableau appShell du fichier sw.js pour profiter pleinement du Service Worker.
+
 
 Pour accéder à la page d'administration de votre application, suivez les étapes suivantes :
 
