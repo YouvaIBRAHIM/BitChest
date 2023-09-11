@@ -35,7 +35,6 @@ class UserController extends Controller
                 }else {
                     $query->where(DB::raw("concat(firstname, ' ', lastname)"), 'LIKE', "%".$searchText."%");
                 }
-                $query->where(DB::raw("concat(firstname, ' ', lastname)"), 'LIKE', "%".$searchText."%");
             }))
             ->join('wallets', 'users.id', '=', 'wallets.user_id')
             ->select('users.*', 'wallets.balance')

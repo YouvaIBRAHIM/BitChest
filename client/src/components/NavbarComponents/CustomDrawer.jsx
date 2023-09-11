@@ -7,7 +7,7 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import { House, User, Users, Wallet, List as ListIcon, SignOut } from '@phosphor-icons/react';
+import { House, User, Users, Wallet, List as ListIcon, SignOut, Nut } from '@phosphor-icons/react';
 import { AppBar, Box, Button, Toolbar, Typography } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import ThemeSwitchButton from './ThemeSwitchButton';
@@ -41,6 +41,12 @@ const links = [
     label: "Utilisateurs",
     endpoint: "/users",
     icon: <Users size={20} weight='duotone'/>,
+    roles: ["admin"]
+  },
+  {
+    label: "Configuration",
+    endpoint: "/config",
+    icon: <Nut size={20} weight="duotone" />,
     roles: ["admin"]
   }
 ]

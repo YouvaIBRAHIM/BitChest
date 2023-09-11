@@ -22,7 +22,6 @@ class TransactionHistory extends Model
     ];
 
 
-
     public function cryptoRate()
     {
         return $this->belongsTo(CryptoRate::class, "purchase_crypto_rate_id", "id");

@@ -214,7 +214,7 @@ const UsersListView = () => {
                       <IconButton 
                         aria-label="action" 
                         size="small"
-                        onClick={() => handleClickOpenDialog([row.id], "delete")}
+                        onClick={() => {handleClickOpenDialog([row.id]); setActionType("delete");}}
                       >
                         <Trash fontSize="inherit" weight="duotone" />
                       </IconButton>

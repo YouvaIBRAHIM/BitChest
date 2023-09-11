@@ -53,7 +53,10 @@ Route::group(['middleware' => ['auth:sanctum', 'client']], function () {
 });
 
 Route::group(['middleware' => ['auth:sanctum', 'admin']], function () {
-
+    
+    Route::get('/config/transaction', ["App\Http\Controllers\ConfigurationController", "getTransactionConfig"]);
+    Route::put('/config/transaction', ["App\Http\Controllers\ConfigurationController", "setTransactionConfig"]);
+    
     Route::resource('/users', "App\Http\Controllers\UserController")->only(["store"]);
     Route::post('/users/restore', ["App\Http\Controllers\UserController", "restore"]);
     Route::post('/users/delete/multiple', ["App\Http\Controllers\UserController", "destroyMultiple"]);

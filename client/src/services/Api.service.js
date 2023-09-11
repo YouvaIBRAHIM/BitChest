@@ -239,6 +239,26 @@ export const getTransactionsHistory = async (filter, offset = 0, id) => {
   }
 }
 
+export const getTransactionConfig = async () => {
+  try {
+    const response = await instance.get(`/api/config/transaction`);
+    return response.data;
+  } catch (error) {
+    return Promise.reject(error.response?.data?.message ?? error.message);
+  }
+}
+
+export const updateServiceFees = async (amount) => {
+  try {
+    const response = await instance.put(`/api/config/transaction`, {amount});
+    return response.data;
+  } catch (error) {
+    return Promise.reject(error.response?.data?.message ?? error.message);
+  }
+}
+
+
+
 
 
 // Cryptos

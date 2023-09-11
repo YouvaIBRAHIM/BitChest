@@ -9,7 +9,6 @@ class CryptoRate extends Model
 {
     use HasFactory;
 
-    
     public function crypto()
     {
         return $this->belongsTo(Crypto::class);

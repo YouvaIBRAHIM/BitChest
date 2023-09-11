@@ -42,7 +42,6 @@ class Crypto extends Model
         $query->limit(5)->offset($offset);
         
         return $query;
-
     }
 
 

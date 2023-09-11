@@ -16,6 +16,7 @@ import colors from "./services/Tailwind.service";
 import WalletView from './views/WalletView';
 import IsAdminRoute from './middlewares/IsAdminRoute';
 import IsClientRoute from './middlewares/IsClientRoute';
+import ConfigView from './views/ConfigView';
 
 const drawerWidth = 240;
 
@@ -84,7 +85,7 @@ function App() {
                                               </GuestRoute>
                                             }
                 />
-
+ 
                 <Route path="/home" element={
                                           <PrivateRoute>
                                             <HomeView />
@@ -123,6 +124,15 @@ function App() {
                                             <IsClientRoute>
                                               <WalletView />
                                             </IsClientRoute>
+                                          </PrivateRoute>
+                                        } 
+                />
+
+                <Route path="/config" element={
+                                          <PrivateRoute>
+                                            <IsAdminRoute>
+                                              <ConfigView />
+                                            </IsAdminRoute>
                                           </PrivateRoute>
                                         } 
                 />
