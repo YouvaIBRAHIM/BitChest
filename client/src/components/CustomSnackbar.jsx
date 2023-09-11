@@ -8,6 +8,7 @@ const Alert = forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
+// Notification de la bonne ou mauvaise exécution d'une action
 export default function CustomSnackbar({ open, handleClose, message, type }) {
 
   return (

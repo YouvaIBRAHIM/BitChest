@@ -1,3 +1,4 @@
+// Ordonne la liste des utilisateurs selon une clé
 export const descendingComparator = (a, b, orderBy) => {
   const from = orderBy !== "name" ? a[orderBy] : `${a["firstname"]} ${a["lastname"]}` 
   const to = orderBy !== "name" ? b[orderBy] : `${b["firstname"]} ${b["lastname"]}` 
@@ -11,12 +12,14 @@ export const descendingComparator = (a, b, orderBy) => {
   return 0;
 }
   
+// Spécifie si c'est trié dans un ordre ascendant ou descendant
 export const getComparator = (order, orderBy) => {
     return order === 'desc'
       ? (a, b) => descendingComparator(a, b, orderBy)
       : (a, b) => -descendingComparator(a, b, orderBy);
-  }
+}
   
+// Tri un tableau
 export const stableSort = (array, comparator) => {
     const stabilizedThis = array.map((el, index) => [el, index]);
     stabilizedThis.sort((a, b) => {
@@ -29,10 +32,12 @@ export const stableSort = (array, comparator) => {
     return stabilizedThis.map((el) => el[0]);
 }
  
+// Arroundie à 2 decimales
 export const roundToTwoDecimals = (number) => {
   return Math.round(number * 100) / 100
 }
 
+// Calcule la plus-value d'une vente
 export const calculateSale = (serviceFees, from, selectedTransaction) => {
 
   const transactionTotalAmount = roundToTwoDecimals(selectedTransaction.amount * from.crypto.latest_crypto_rate.rate)

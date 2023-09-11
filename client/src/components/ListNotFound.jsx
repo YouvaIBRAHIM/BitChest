@@ -1,6 +1,7 @@
 import { Robot } from '@phosphor-icons/react';
 import { Box, Typography } from '@mui/material';
 
+// Affiché quand aucun résultat n'est trouvé lors d'une requete
 const ListNotFound = ({message}) => {
 
   return (

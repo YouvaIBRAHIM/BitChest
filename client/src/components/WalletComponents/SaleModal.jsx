@@ -15,14 +15,14 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { sellCrypto, getAuthUserSaleResources } from '../../services/Api.service';
-import { calculateSale, roundToTwoDecimals } from '../../services/Utils.service';
+import { calculateSale } from '../../services/Utils.service';
 import { setUser } from '../../reducers/UserReducer';
 import { useDispatch } from 'react-redux';
 import { TransactionCardSkeleton } from '../Skeletons/TransactionCardSkeleton';
 import colors from "../../services/Tailwind.service";
 import ListNotFound from '../ListNotFound';
 
-
+// Modal permettant d'effectuer une vente
 const SaleModal = ({ setSnackBar, refetchUserData, open, setOpen }) => {
   const dispatch = useDispatch()
 

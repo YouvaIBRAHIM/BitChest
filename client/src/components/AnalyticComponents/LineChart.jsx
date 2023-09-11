@@ -4,6 +4,7 @@ import ReactApexChart from "react-apexcharts";
 import colors from "../../services/Tailwind.service";
 import { Card } from '@mui/material';
 
+//Graphique sur la courbe de progression
 const LineChart = ({ data, title }) => {  
   const theme = useTheme();
 

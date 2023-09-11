@@ -9,6 +9,7 @@ import styled from '@emotion/styled';
 import { roundToTwoDecimals } from '../../services/Utils.service';
 import colors from "../../services/Tailwind.service";
 
+//Modal affichant les détails d'un achat ou d'une vente
 const TransactionHistoryDetails = ({ open, setOpen, transaction }) => {  
     const [ serviceFees, setServiceFees ] = useState(0)
     const [ rate, setRate ] = useState(0)

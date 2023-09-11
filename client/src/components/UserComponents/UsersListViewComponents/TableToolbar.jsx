@@ -14,7 +14,7 @@ const filterOptions = [
   },
 ]
 
-
+// Barre d'actions permettant de supprimer ou de restaurer plusieur utilisateurs
 const TableToolbar = ({ 
   selected, 
   perPage, 

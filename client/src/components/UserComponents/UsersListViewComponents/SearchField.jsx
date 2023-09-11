@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { styled, alpha } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import InputBase from '@mui/material/InputBase';
@@ -45,6 +44,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
+// Champ de recherche d'un utilisateur
 const SearchField = ({setSearch, search, filterOptions}) => {
   return (
     <Box className="flex gap-1">

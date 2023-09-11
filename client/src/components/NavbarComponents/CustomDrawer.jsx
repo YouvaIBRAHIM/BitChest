@@ -51,6 +51,7 @@ const links = [
   }
 ]
 
+// Colonne de navigation latérale
 const CustomDrawer = ({ mobileOpen, handleDrawerToggle, drawerWidth }) => {
   const { mode } = useSelector(state => state.theme)
   const { user } = useSelector(state => state.user)

@@ -4,7 +4,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import { Box, ButtonGroup, FilledInput, FormControl, Icon, IconButton, InputAdornment, InputLabel, MenuItem, Select, Skeleton, Typography } from '@mui/material';
+import { ButtonGroup, FilledInput, FormControl, IconButton, InputAdornment, InputLabel, Skeleton, Typography } from '@mui/material';
 import { ArrowFatLinesUp, Bank, CreditCard } from '@phosphor-icons/react';
 import styled from '@emotion/styled';
 import Table from '@mui/material/Table';
@@ -19,7 +19,7 @@ import { roundToTwoDecimals } from '../../services/Utils.service';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUser } from '../../reducers/UserReducer';
 
-
+// Composants permettant d'ajouter de l'argent sur son compte ou de les transférer sur son compte bancaire 
 const FeedBalance = ({ setSnackBar }) => {
   const [type, setType] = useState("add");
   const [open, setOpen] = useState(false);
@@ -61,9 +61,6 @@ const FeedBalance = ({ setSnackBar }) => {
       }
       userMutation.mutate(amount)
   };
-
-
-
 
   const handleClickOpen = (type) => {
     refetch();

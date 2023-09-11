@@ -12,6 +12,7 @@ import TableSkeleton from '../Skeletons/TableSkeleton';
 import { useParams } from 'react-router-dom';
 import TransactionHistoryDetails from './TransactionHistoryDetails';
 
+// Table affichant l'historique des achats et ventes d'un utilisateur
 const TransactionHistory = ({ setSnackBar }) => {
     const { id } = useParams();
 

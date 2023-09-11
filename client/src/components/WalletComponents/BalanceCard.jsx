@@ -5,6 +5,7 @@ import FeedBalance from './FeedBalance';
 import { roundToTwoDecimals } from '../../services/Utils.service';
 import { useSelector } from 'react-redux';
 
+// Card permettant de voir le solde d'un utilisateur et la répartition des cryptomonnaies dans son portefeuille
 const BalanceCard = ({ balance, cryptos, setSnackBar }) => {
     const { user } = useSelector(state => state.user)
 

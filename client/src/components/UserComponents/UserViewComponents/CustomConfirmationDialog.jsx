@@ -6,6 +6,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 
+// Modal de confirmation d'une action sur les utilisateurs
 const CustomConfirmationDialog = ({dialog, user, message, onConfirm, setDialog}) => {
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));

@@ -13,7 +13,7 @@ const instance = axios.create({
   },
 });
 
-
+// ouvre une session laravel et stocke le token "XSRF-TOKEN"
 export const getToken = async () => {
   await axios.get(baseURL + "/sanctum/csrf-cookie");
 }
@@ -34,7 +34,7 @@ export const onLogin = async (credentials) => {
   }
 }
 
-
+// déconnexion
 export const onLogout = async () => {
   try {
     const response = await instance.post("/logout");    
@@ -44,8 +44,7 @@ export const onLogout = async () => {
   }
 }
 
-
-
+// récupérer les informations de l'utilisateur connecté
 export const getAuthUser = async () => {
   await getToken();
 
@@ -57,7 +56,7 @@ export const getAuthUser = async () => {
   }
 }
 
-
+// récupérer les utilisateurs enregistrés dans la base de données
 export const getUsers = async (page, perPage, role, search, userStatus = "enabled") => {
   try {
     const response = await instance.get(`/api/users?page=${page}&perPage=${perPage}&role=${role}&searchFilter=${search.filter}&searchText=${search.text}&userStatus=${userStatus}`);
@@ -67,6 +66,7 @@ export const getUsers = async (page, perPage, role, search, userStatus = "enable
   }
 }
 
+// Récupère les information d'un utilisateur selon son id
 export const getUser = async (id) => {
 
   try {
@@ -79,8 +79,8 @@ export const getUser = async (id) => {
 
 
 /**
- * ajoute un collaborateur via une requete API
- * @param {Object} data informations du nouveau collaborateur
+ * ajoute un utilisateur
+ * @param {Object} data informations du nouveau utilisateur
  * @returns la réponse de la requete API axios 
  */
 export async function addUser(data) {
@@ -94,9 +94,9 @@ export async function addUser(data) {
 }
 
 /**
- * modifie un collaborateur via une requete API
- * @param {Object} data informations du collaborateur à modifier
- * @param {Number} id id du collaborateur à modifier
+ * modifie un utilisateur
+ * @param {Object} data informations de l'utilisateur à modifier
+ * @param {Number} id id de l'utilisateur à modifier
  * @returns la réponse de la requete API axios 
  */
 export async function updateUser(user) {
@@ -109,6 +109,7 @@ export async function updateUser(user) {
   }
 }
 
+// met à jour le mot de passe
 export async function updateUserPassword(user) {
   
   try {
@@ -121,7 +122,7 @@ export async function updateUserPassword(user) {
 
 
 /**
- * supprime un utilisateur via une requete API
+ * supprime un utilisateur
  * @param {Number} id id du utilisateur à supprimer
  * @returns la réponse de la requete API axios 
  */
@@ -135,6 +136,12 @@ export async function deleteUser(id, userStatus) {
   }
 }
 
+/**
+ * supprime plusieurs utilisateurs
+ * @param {Array} users tableau d'id d'utilisateurs à supprimer
+ * @param {Array} userStatus spécifie si on souhaite supprimer définitivement des utilisateurs déjà supprimé en "soft delete"
+ * @returns la réponse de la requete API axios 
+ */
 export async function deleteUsers(users, userStatus) {
   try {
     const response = await instance.post(`/api/users/delete/multiple?userStatus=${userStatus}`, {users})
@@ -144,6 +151,11 @@ export async function deleteUsers(users, userStatus) {
   }
 }
 
+/**
+ * restaure plusieurs utilisateurs
+ * @param {Array} users tableau d'id d'utilisateurs à restaurer
+ * @returns la réponse de la requete API axios 
+ */
 export async function restoreUsers(users) {
   try {
     const response = await instance.post(`/api/users/restore`, {users})
@@ -155,6 +167,7 @@ export async function restoreUsers(users) {
 
 // wallets
 
+// récupère le portefeuille d'un utilisateur selon l'id
 export const getUserWallet = async (id) => {
   
   try {
@@ -165,6 +178,7 @@ export const getUserWallet = async (id) => {
   }
 }
 
+// récupère les cryptomonnaies et le solde en euro de l'utilisateur connecté pour effectuer un achat
 export const getAuthUserPurchaseResources = async () => {
   try {
     const response = await instance.get(`/api/auth-user/resources/purchase`);
@@ -174,6 +188,7 @@ export const getAuthUserPurchaseResources = async () => {
   }
 }
 
+// récupère les cryptomonnaies que l'utilisateur peut vendre
 export const getAuthUserSaleResources = async () => {
   try {
     const response = await instance.get(`/api/auth-user/resources/sale`);
@@ -183,8 +198,7 @@ export const getAuthUserSaleResources = async () => {
   }
 }
 
-
-
+// Récupère le solde de l'utilisateur connecté
 export const getAuthUserBalance = async () => {
   try {
     const response = await instance.get(`/api/auth-user/balance`);
@@ -194,7 +208,9 @@ export const getAuthUserBalance = async () => {
   }
 }
 
-// Transaction
+// Transactions
+
+// Ajoute de l'argent dans le solde en euros
 export const addBalance = async (amount) => {
   try {
     const response = await instance.post(`/api/auth-user/add/balance`, {amount});
@@ -204,6 +220,7 @@ export const addBalance = async (amount) => {
   }
 }
 
+//Transfère le solde en euros vers un compte bancaire
 export const transferBalance = async (amount) => {
   try {
     const response = await instance.post(`/api/auth-user/transfer/balance`, {amount});
@@ -212,6 +229,8 @@ export const transferBalance = async (amount) => {
     return Promise.reject(error.response?.data?.message ?? error.message);
   }
 }
+
+// effectue l'achat d'une cryptomonnaie
 export const buyCrypto = async (data) => {
   try {
     const response = await instance.post(`/api/transaction/buy`, data);
@@ -221,6 +240,7 @@ export const buyCrypto = async (data) => {
   }
 }
 
+// effectue la vente d'une cryptomonnaie
 export const sellCrypto = async (data) => {
   try {
     const response = await instance.post(`/api/transaction/sell`, data);
@@ -230,6 +250,7 @@ export const sellCrypto = async (data) => {
   }
 }
 
+// Récupère l'historique des transactions
 export const getTransactionsHistory = async (filter, offset = 0, id) => {
   try {
     const response = await instance.get(`/api/transaction/history?filter=${filter}&offset=${offset}${id ? "&id=" + id : ""}`);
@@ -239,6 +260,7 @@ export const getTransactionsHistory = async (filter, offset = 0, id) => {
   }
 }
 
+// Récupère la configuration relative aux transactions
 export const getTransactionConfig = async () => {
   try {
     const response = await instance.get(`/api/config/transaction`);
@@ -248,6 +270,7 @@ export const getTransactionConfig = async () => {
   }
 }
 
+// Met à jour la configuration relative aux transactions
 export const updateServiceFees = async (amount) => {
   try {
     const response = await instance.put(`/api/config/transaction`, {amount});
@@ -258,11 +281,9 @@ export const updateServiceFees = async (amount) => {
 }
 
 
-
-
-
 // Cryptos
 
+// Récupère les crypto monnaies disponibles dans la base de données
 export const getCryptos = async (search = "", filter = "trends", offset = 0) => {
   try {
     const response = await instance.get(`/api/cryptos?search=${search}&filter=${filter}&offset=${offset}`);
@@ -272,7 +293,7 @@ export const getCryptos = async (search = "", filter = "trends", offset = 0) => 
   }
 }
 
-
+// Ajoute un "vu" sur la crypto monnaie sur laquelle on a cliqué
 export const newCryptoView = async (cryptoId) => {
   try {
     const response = await instance.post(`/api/crypto/newView`, {id: cryptoId});

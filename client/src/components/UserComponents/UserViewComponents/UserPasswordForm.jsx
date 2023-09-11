@@ -14,6 +14,7 @@ import { Eye, EyeClosed } from '@phosphor-icons/react';
 import { useMutation } from '@tanstack/react-query';
 import { updateUserPassword } from '../../../services/Api.service';
 
+// Formulaire pour changer le mot de passe d'un utilisateur
 const UserPasswordForm = ({ user, setSnackBar }) => {
 
     const userMutation = useMutation({

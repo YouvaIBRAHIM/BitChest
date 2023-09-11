@@ -23,8 +23,11 @@ const roles = [
       label: "Admin",
       value: "admin"
     },
-  ]
+]
 
+// Formulaire pour changer les informations d'un utilisateur
+// Le champ "role" n'est pas visible pour les clients
+// Un administrateur ne peut pas changer son propre role pour éviter l'eventualité de n'avoir aucun administrateur sur le site
 const UserForm = ({ user, setSnackBar }) => {
     const { user: authUser } = useSelector(state => state.user)
 

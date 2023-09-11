@@ -7,6 +7,7 @@ import { useMemo, useState } from 'react';
 import CustomConfirmationDialog from './CustomConfirmationDialog';
 import { useNavigate } from 'react-router-dom';
 
+// Actions possibles sur un utilisateur (suppression, suppression définitive et restauration). Visible uniquement pour les administrateurs
 const UserCardActions = ({ user, setSnackBar, refetchUserData }) => {
     const [ dialog, setDialog ] = useState(false)
     const [ message, setMessage ] = useState("")

@@ -19,7 +19,7 @@ import { roundToTwoDecimals } from '../../services/Utils.service';
 import { setUser } from '../../reducers/UserReducer';
 import { useDispatch } from 'react-redux';
 
-
+// Modal permettant d'effectuer un achat
 const PurchaseModal = ({ setSnackBar, refetchUserData, open, setOpen }) => {
   const dispatch = useDispatch()
 

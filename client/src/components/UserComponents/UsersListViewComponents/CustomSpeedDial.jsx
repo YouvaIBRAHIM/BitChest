@@ -5,8 +5,9 @@ import SpeedDial from '@mui/material/SpeedDial';
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import SpeedDialAction from '@mui/material/SpeedDialAction';
 import { UserPlus } from '@phosphor-icons/react';
-import NewUserDialog from './UserComponents/UsersListViewComponents/NewUserDialog';
+import NewUserDialog from './NewUserDialog';
 
+// Bouton permettant d'afficher le formulaire d'ajout d'un utilisateur
 const CustomSpeedDial = ({setSnackBar}) => {
     const [open, setOpen] = useState(false);
     const [newUserDialog, setNewUserDialog] = useState(false);

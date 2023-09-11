@@ -8,6 +8,7 @@ if (theme) {
     mode: theme,
   }
 }else{
+  // récupére le thème par défaut du navigateur
   const isDarkThemeDefault = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
   initialState = {
@@ -21,6 +22,7 @@ export const UserSlice = createSlice({
   reducers: {
     setThemeMode: (state, action) => {
       state.mode = state.mode === "dark" ? "light" : "dark";
+      // stocke la préférence de l'utilisateur dans le local storage
       localStorage.setItem("bitchest-theme-mode", state.mode)
     }
   }

@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getCryptos } from '../../services/Api.service';
 import { useEffect, useMemo } from 'react';
 
+// Bouton permettant de récupérer d'autres cryptomonnaies dans la liste (limité à 5 par requête)
 const ViewMoreButton = ({search, filter, count, setSnackBar}) => {
   
   const queryClient = useQueryClient()

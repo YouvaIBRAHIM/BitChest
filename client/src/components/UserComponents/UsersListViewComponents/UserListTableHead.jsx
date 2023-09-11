@@ -34,6 +34,7 @@ const headCells = [
     }
 ];
 
+// En-tête de la table des utilisateurs permettant de trier et de sélectionner/déssélectionner tous les utilisateurs
 const UserListTableHead = (props) => {
     const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
     const createSortHandler = (property, disableSort) => (event) => {

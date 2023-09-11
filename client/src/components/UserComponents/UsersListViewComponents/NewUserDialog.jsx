@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -11,11 +10,10 @@ import { useForm } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { signUpSchema } from '../../../services/FormSchema.service';
 
-
+// Modal contenant le formulaire d'ajout d'utilisateur
 const NewUserDialog = ({ open, setOpen, setSnackBar }) => {
 
   const queryClient = useQueryClient()
-
 
   const userMutation = useMutation({
       mutationFn: addUser,

@@ -6,6 +6,7 @@ import { useMemo, useRef } from 'react';
 import ListNotFound from '../ListNotFound';
 import { useSelector } from 'react-redux';
 
+// Liste les cryptomonnaies qu'un utilisateur a en sa possession
 const UserCryptoList = ({ cryptos, setSelectedCrypto, selectedCrypto }) => {
 
     const { user } = useSelector(state => state.user)

@@ -1,6 +1,6 @@
-import { Card, CardHeader, CardContent, List, ListItemText, ListItemAvatar, ListItemButton, Box, Typography, Avatar, Icon, ButtonGroup, Button } from '@mui/material';
+import { Card, CardHeader, CardContent, List, ListItemText, ListItemAvatar, ListItemButton, Box, Typography, Avatar, ButtonGroup, Button } from '@mui/material';
 import colors from "../../services/Tailwind.service";
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import SearchField from './SearchField';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getCryptos, newCryptoView } from '../../services/Api.service';
@@ -8,7 +8,18 @@ import { CryptoListSkeleton } from '../Skeletons/CryptoList';
 import ListNotFound from '../ListNotFound';
 import ViewMoreButton from './ViewMoreButton';
 
-const CryptoList = ({ cryptos, setSelectedCrypto, selectedCrypto, setSnackBar, setSearch, search, debouncedSearch, filter, setFilter }) => {
+// Liste les cryptomonnaies disponibles dans la base de données
+const CryptoList = ({ 
+    cryptos, 
+    setSelectedCrypto, 
+    selectedCrypto, 
+    setSnackBar, 
+    setSearch, 
+    search, 
+    debouncedSearch, 
+    filter, 
+    setFilter 
+}) => {
     const queryClient = useQueryClient()
 
     const { data: searchedCryptos, isFetching, refetch } = useQuery({ 
@@ -34,6 +45,7 @@ const CryptoList = ({ cryptos, setSelectedCrypto, selectedCrypto, setSnackBar, s
         setSelectedCrypto({name: crypto.name, code: crypto.code})
         newCryptoView(crypto?.id)
     }
+    
     const cryptoList = useMemo(() => {
         if (!cryptos || cryptos.length === 0) {
             return <ListNotFound message="Aucune crypto trouvée."/>

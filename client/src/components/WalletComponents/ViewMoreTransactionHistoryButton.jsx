@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getTransactionsHistory } from '../../services/Api.service';
 import { useEffect, useMemo } from 'react';
 
+// Bouton permettant de récupérer d'autres lignes de l'historique des transactions (limité à 10 par requête)
 const ViewMoreTransactionHistoryButton = ({filter, setSnackBar, count, id}) => {
   
   const queryClient = useQueryClient()

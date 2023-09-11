@@ -6,6 +6,7 @@ import { ArrowFatLinesUp } from '@phosphor-icons/react';
 import { useEffect, useState } from 'react';
 import ServiceFeesFormSkeleton from '../Skeletons/ServiceFeesForm';
 
+//Formulaire permettant de modifier les frais de service
 const ServiceFeesForm = ({setSnackBar}) => {
     const [ amount, setAmount ] = useState(0)
   

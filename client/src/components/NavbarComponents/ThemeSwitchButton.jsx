@@ -5,7 +5,7 @@ import { SunDim, Moon } from '@phosphor-icons/react';
 import { useDispatch } from 'react-redux';
 import { setThemeMode } from '../../reducers/ThemeReducer';
 
-
+// Bouton permettant de changer le thème du site
 const ThemeSwitchButton = () => {
   const theme = useTheme();
   const dispatch = useDispatch();

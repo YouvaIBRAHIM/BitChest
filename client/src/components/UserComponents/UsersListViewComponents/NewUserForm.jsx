@@ -32,7 +32,7 @@ const roles = [
 ]
 
 
-
+// Champs du formulaire d'ajout d'un nouvel utilisateur
 const NewUserForm = ({ register, errors }) => {
 
     const [ showPassword, setShowPassword ] = useState({

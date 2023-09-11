@@ -1,5 +1,6 @@
 import { Card, CardHeader, CardContent, Avatar, Typography } from '@mui/material';
 
+// Affiche une card contenant les informations de l'utilisateur
 const UserCard = ({ user }) => {
     return (
         <Card>

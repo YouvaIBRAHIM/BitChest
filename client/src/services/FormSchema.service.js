@@ -1,5 +1,6 @@
 import * as yup from 'yup';
 
+// Schema du fomulaire d'ajoute d'un utilisateur
 export const signUpSchema = yup.object().shape({
     firstname: yup.string()
         .min(1, 'Trop court.')

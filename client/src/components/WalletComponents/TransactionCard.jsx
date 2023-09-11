@@ -5,6 +5,7 @@ import { DownloadSimple, UploadSimple } from '@phosphor-icons/react';
 import SaleModal from './SaleModal';
 import PurchaseModal from './PurchaseModal';
 
+// Boutons permettant d'afficher les modals d'achat et de vente
 const TransactionCard = ({ setSnackBar, refetchUserData }) => {
   const [openPurchaseModal, setOpenPurchaseModal] = useState(false);
   const [openSaleModal, setOpenSaleModal] = useState(false);

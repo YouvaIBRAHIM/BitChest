@@ -1,10 +1,11 @@
-import Paper from '@mui/material/Paper';
 import InputBase from '@mui/material/InputBase';
 import Icon from '@mui/material/Icon';
 import { MagnifyingGlass } from '@phosphor-icons/react';
 import colors from "../../services/Tailwind.service";
 import { Box } from '@mui/material';
 
+
+// Champ de recherche d'une cryptomonnaie
 const SearchField = ({setSearch, search}) => {
 
   return (

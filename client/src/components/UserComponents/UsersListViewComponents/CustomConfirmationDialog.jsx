@@ -7,6 +7,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import { useEffect, useState } from 'react';
 
+// Modal de confirmation d'une action sur les utilisateurs (suppression, suppression définitive et restauration)
 const CustomConfirmationDialog = ({dialog, setDialog, items, itemKey, message, onConfirm, setActionType}) => {
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
