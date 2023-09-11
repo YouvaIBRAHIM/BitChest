@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Validator;
 class TransactionController extends Controller
 {
 
+    // Récupère les ressources de l'utilisateur connecté pour effectuer un achat
     public function getAuthUserPurachaseResources(Request $request)
     {
         try {
@@ -36,12 +37,13 @@ class TransactionController extends Controller
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
-                "message" => "Oups ! Nous n'avons pas pu supprimer les données.",
+                "message" => "Oups ! Nous n'avons pas pu récupérer les données.",
                 "error" => $th->getMessage()
             ], $th->getCode());
         }
     }
 
+    // Récupère les cryptos monnaies d'un utilisateur disponnibles à la vente
     public function getAuthUserSaleResources(Request $request)
     {
         try {
@@ -74,12 +76,13 @@ class TransactionController extends Controller
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
-                "message" => "Oups ! Nous n'avons pas pu supprimer les données.",
+                "message" => "Oups ! Nous n'avons pas pu récupérer les données.",
                 "error" => $th->getMessage()
             ], $th->getCode());
         }
     }
 
+    // Récupère le portefeuille d'un utilisateur
     public function getAuthUserBalance(Request $request)
     {
         try {
@@ -97,12 +100,13 @@ class TransactionController extends Controller
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
-                "message" => "Oups ! Nous n'avons créditer votre compter.",
+                "message" => "Oups ! Nous n'avons pas pu récupérer les données.",
                 "error" => $th->getMessage()
             ], $th->getCode());
         }
     }
 
+    // Ajoute de l'argent dans le portefeuille de l'utilisateur
     public function addAuthUserBalance(Request $request)
     {
         try {
@@ -137,6 +141,7 @@ class TransactionController extends Controller
         }
     }
 
+    // Retire de l'argent du portefeuille de l'utilisateur
     public function transferAuthUserBalance(Request $request)
     {
         try {
@@ -172,6 +177,7 @@ class TransactionController extends Controller
         }
     }
 
+    // Récupére le cours actuel des cryptomonnaies
     private function getCurrentCryptosRate($cryptos){
         foreach ($cryptos as $key => $crypto) {
             $cryptos[$key]["current_rate"] = $crypto["latest_crypto_rate"]["rate"];
@@ -180,6 +186,7 @@ class TransactionController extends Controller
     }
 
 
+    // Permet de faire un achat et d'ajouter une transaction dans l'historique de l'utilisateur
     public function buy(Request $request)
     {
         try {
@@ -255,6 +262,7 @@ class TransactionController extends Controller
         }
     }
 
+    // Permet de faire une vente et d'ajouter une transaction dans l'historique de l'utilisateur
     public function sell(Request $request)
     {
         try {
@@ -316,6 +324,7 @@ class TransactionController extends Controller
         }
     }
 
+    // Récupère l'historique de transactions d'un utilisateur
     public function history(Request $request)
     {
         try {
@@ -375,7 +384,5 @@ class TransactionController extends Controller
             ], $th->getCode());
         }
     }
-
-
     
 }

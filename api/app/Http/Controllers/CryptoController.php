@@ -7,9 +7,7 @@ use Illuminate\Http\Request;
 
 class CryptoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // récupère la liste des cryptomannaies
     public function index(Request $request)
     {
         try {
@@ -52,7 +50,7 @@ class CryptoController extends Controller
         return ((rand(0, 99)>40) ? 1 : -1) * ((rand(0, 99)>49) ? ord(substr($cryptoname,0,1)) : ord(substr($cryptoname,-1))) * (rand(1,10) * .01);
     }
 
-    
+    // Format les données du cours des cryptomonnaies pour les afficher dans les graphiques coté front end
     private function formatCryptoRate($cryptos){
 
         foreach ($cryptos as $key => $crypto) {
@@ -65,6 +63,7 @@ class CryptoController extends Controller
         return $cryptos;
     }
 
+    // Ajoute un "vu" à une cryptomonnaie
     public function newView(Request $request)
     {
         try {

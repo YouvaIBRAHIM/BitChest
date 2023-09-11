@@ -27,11 +27,13 @@ class TransactionHistory extends Model
         return $this->belongsTo(CryptoRate::class, "purchase_crypto_rate_id", "id");
     }
 
+    // Récupère le cours d'une cryptomonnaie au moment de l'achat
     public function purchaseCryptoRate()
     {
         return $this->belongsTo(CryptoRate::class, 'purchase_crypto_rate_id');
     }
 
+    // Récupère le cours d'une cryptomonnaie au moment de la vente
     public function saleCryptoRate()
     {
         return $this->belongsTo(CryptoRate::class, 'sale_crypto_rate_id');

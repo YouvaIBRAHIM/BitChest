@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
+// Accessibe à tous les types d'utilisateurs connectés
 Route::group(['middleware' => ['auth:sanctum']], function () {
     //user
     Route::resource('/users', "App\Http\Controllers\UserController")->except(["destroy", "store"]);
@@ -43,6 +43,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     });
 });
 
+// Accessible seulement aux clients connectés
 Route::group(['middleware' => ['auth:sanctum', 'client']], function () {
 
     //transaction
@@ -52,6 +53,7 @@ Route::group(['middleware' => ['auth:sanctum', 'client']], function () {
     Route::post('/auth-user/transfer/balance', ["App\Http\Controllers\TransactionController", "transferAuthUserBalance"]);
 });
 
+// Accessible seulement aux administrateurs connectés
 Route::group(['middleware' => ['auth:sanctum', 'admin']], function () {
     
     Route::get('/config/transaction', ["App\Http\Controllers\ConfigurationController", "getTransactionConfig"]);

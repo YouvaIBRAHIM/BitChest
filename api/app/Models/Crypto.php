@@ -18,16 +18,19 @@ class Crypto extends Model
         'purchased'
     ];
 
+    // recupère le cours d'une cryptomonnaie
     public function cryptoRates()
     {
         return $this->hasMany(CryptoRate::class)->orderBy('timestamp', 'asc');
     }
 
+    // recupère le cours actuel d'une cryptomonnaie
     public function latestCryptoRate()
     {
         return $this->hasOne(CryptoRate::class)->orderBy('timestamp', 'desc');
     }
 
+    // trie les cryptomonnaies selon un filtre  
     public function scopeFilteredSort($query, $filter, $offset = 0)
     {
 
@@ -45,6 +48,7 @@ class Crypto extends Model
     }
 
 
+    // récupère les transactions d'une transactions
     public function transactions()
     {
         return $this->hasManyThrough(TransactionHistory::class, CryptoRate::class, 'crypto_id', 'purchase_crypto_rate_id')

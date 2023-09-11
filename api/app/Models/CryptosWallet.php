@@ -15,11 +15,13 @@ class CryptosWallet extends Model
         'amount'
     ];
 
+    // Récpère les informations d'un portefeuille
     public function wallet()
     {
         return $this->belongsTo(Wallet::class);
     }
 
+    // Récpère les informations d'une cryptomonnaie
     public function crypto()
     {
         return $this->belongsTo(Crypto::class);

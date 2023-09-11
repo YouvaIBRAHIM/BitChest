@@ -16,9 +16,8 @@ use Illuminate\Support\Str;
 class UserController extends Controller
 {
     public $restful = true; 
-    /**
-     * Display a listing of the resource.
-     */
+
+    //Récupère la liste des utilisateurs
     public function index(Request $request)
     {
         try {
@@ -51,9 +50,7 @@ class UserController extends Controller
     }
 
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    //Ajoute un nouvel utilisateur
     public function store(UserRequest $request)
     {
         try {
@@ -94,9 +91,7 @@ class UserController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
+    //récupère un utilisateur selon l'id
     public function show(string $id)
     {
         try {
@@ -110,9 +105,7 @@ class UserController extends Controller
         }
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+    // Met à jour les informations d'un utilisateur
     public function update(UserRequest $request, $id)
     {
         try {
@@ -135,6 +128,7 @@ class UserController extends Controller
         }
     }
 
+    // Mets à jour le mot de passe d'un utilisateur
     public function updatePassword(UserPasswordRequest $request, User $user)
     {
         try {
@@ -162,9 +156,7 @@ class UserController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    //Supprime un utilisateur selon l'id
     public function destroy(Request $request, $id)
     {
         try {
@@ -186,9 +178,7 @@ class UserController extends Controller
         }
     }
 
-        /**
-     * Remove the specified resource from storage.
-     */
+    //Supprime plusieurs utilisateurs selon un tableau d'id utilisateur
     public function destroyMultiple(Request $request)
     {
         try {
@@ -212,6 +202,7 @@ class UserController extends Controller
         }
     }
 
+    // Restaure des utilisateurs selon un tableau d'id utilisateur
     public function restore(Request $request)
     {
         try {

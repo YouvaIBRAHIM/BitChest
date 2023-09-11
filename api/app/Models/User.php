@@ -49,11 +49,13 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
+    // Récupère les informations d'un portefeuille
     public function wallet() : HasOne
     {
         return $this->hasOne(Wallet::class, 'user_id');
     }
 
+    //Récupère seulement les utilisateurs déjà supprimé en soft delete selon la valeur de $userStatus envoyée depuis le front ent
     public function scopeFilterUsers($query, $userStatus)
     {
         if ($userStatus === 'disabled') {

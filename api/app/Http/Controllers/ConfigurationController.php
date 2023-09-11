@@ -8,9 +8,10 @@ use Illuminate\Support\Facades\Validator;
 
 class ConfigurationController extends Controller
 {
-    // Modifie l'accessibilité et le message de maintenance de l'api
+    // Modifie les frais de service
     public function setTransactionConfig(Request $request) {
         try {
+            
             $validator = Validator::make(
                 $request->all(),
                 [

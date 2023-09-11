@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\TransactionHistory;
 use App\Models\User;
 use App\Models\Wallet;
 use Illuminate\Http\Request;
@@ -11,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 class WalletController extends Controller
 {
 
+    // récupère le portefeuille d'un utilisateur
     public function showUserWallet(Request $request)
     {
         try {
@@ -42,6 +42,7 @@ class WalletController extends Controller
     }
 
 
+    // Calcule la courbe de progression des gains ou pertes des cryptomonnaies d'un utilisateur
     private function formatUserCryptoRate($wallet)
     {
         $totalCryptosRate = [];
